@@ -1,0 +1,8 @@
+## Interface: 11507
+## Title: GuildItemScanner
+## Notes: Monitors guild chat for BoE items and alerts for equipment upgrades
+## Author: YourNameHere
+## Version: 1.0
+## SavedVariables: GuildItemScannerDB
+
+GuildItemScanner.lua
