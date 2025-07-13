@@ -18,6 +18,44 @@ local retryQueue = {}
 addon.alertHistory = {}
 addon.uncachedHistory = {}
 
+-- Alert Frame
+local alertFrame = CreateFrame("Frame", "GuildItemScannerAlert", UIParent, "BackdropTemplate")
+alertFrame:SetSize(600, 120)
+alertFrame:SetPoint("TOP", 0, -200)
+alertFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true, tileSize = 32, edgeSize = 32,
+    insets = { left = 11, right = 12, top = 12, bottom = 11 }
+})
+alertFrame:SetBackdropColor(0, 0, 0, 0.9)
+alertFrame:EnableMouse(true)
+alertFrame:SetMovable(true)
+alertFrame:RegisterForDrag("LeftButton")
+alertFrame:SetScript("OnDragStart", alertFrame.StartMoving)
+alertFrame:SetScript("OnDragStop", alertFrame.StopMovingOrSizing)
+alertFrame:Hide()
+
+-- Alert text
+local alertText = alertFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+alertText:SetPoint("TOP", 0, -25)
+alertText:SetWidth(580)
+alertText:SetJustifyH("CENTER")
+
+-- Greed button
+local greedButton = CreateFrame("Button", nil, alertFrame, "UIPanelButtonTemplate")
+greedButton:SetSize(100, 25)
+greedButton:SetPoint("BOTTOM", 0, 15)
+greedButton:SetText("Greed!")
+
+-- Close button
+local closeButton = CreateFrame("Button", nil, alertFrame, "UIPanelCloseButton")
+closeButton:SetPoint("TOPRIGHT", -5, -5)
+closeButton:SetScript("OnClick", function() alertFrame:Hide() end)
+
+-- Alert management
+local currentAlert = nil
+
 local SLOT_MAPPING = {
     INVTYPE_FINGER = "finger", INVTYPE_TRINKET = "trinket", INVTYPE_HEAD = "head",
     INVTYPE_NECK = "neck", INVTYPE_SHOULDER = "shoulder", INVTYPE_BODY = "shirt",
@@ -231,6 +269,21 @@ local function addToHistory(itemLink, playerName)
     end
 end
 
+-- Greed button click handler
+greedButton:SetScript("OnClick", function()
+    if currentAlert then
+        local msg = "I'll take that " .. currentAlert.itemLink .. "! Thanks!"
+        if addon.config.whisperMode then
+            SendChatMessage(msg, "WHISPER", nil, currentAlert.playerName)
+            print("|cff00ff00[GuildItemScanner]|r Whispered to " .. currentAlert.playerName)
+        else
+            SendChatMessage(msg, "GUILD")
+            print("|cff00ff00[GuildItemScanner]|r Sent greed message to guild")
+        end
+        alertFrame:Hide()
+    end
+end)
+
 local function showAlert(itemLink, playerName)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     local slot = SLOT_MAPPING[itemEquipLoc] or "unknown"
@@ -238,20 +291,40 @@ local function showAlert(itemLink, playerName)
 
     addToHistory(itemLink, playerName)
 
+    -- Print to chat (keeping the original printout)
     print(string.format("|cff00ff00[GuildItemScanner]|r Equipment upgrade from %s: %s (item level %d, better than equipped %s level %d)", playerName, itemLink, itemLevel or 0, slot, equippedLevel))
 
+    -- Show alert frame
+    currentAlert = {
+        itemLink = itemLink,
+        playerName = playerName,
+        itemLevel = itemLevel,
+        slot = slot,
+        equippedLevel = equippedLevel
+    }
+    
+    alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00Item level %d > %d (%s)|r", 
+        playerName, itemLink, itemLevel or 0, equippedLevel, slot))
+    
+    -- Show or hide greed button based on config
+    if addon.config.greedMode then
+        greedButton:Show()
+    else
+        greedButton:Hide()
+    end
+    
+    alertFrame:Show()
+    
     if addon.config.soundAlert then
         PlaySound(3332)
     end
-
-    if addon.config.greedMode then
-        local msg = "I'll take that " .. itemLink .. "! Thanks!"
-        if addon.config.whisperMode then
-            SendChatMessage(msg, "WHISPER", nil, playerName)
-        else
-            SendChatMessage(msg, "GUILD")
+    
+    -- Auto-hide after configured duration
+    C_Timer.After(addon.config.alertDuration, function()
+        if alertFrame:IsShown() then
+            alertFrame:Hide()
         end
-    end
+    end)
 end
 
 local function extractItemLinks(message)
@@ -321,7 +394,8 @@ end
 local function onSlashCommand(msg)
     local cmd = msg:lower()
     if cmd == "test" then
-        processItemLink("|cffa335ee|Hitem:19019::::::::60:::::::|h[Thunderfury, Blessed Blade of the Windseeker]|h|r", "TestPlayer", true)
+        local playerName = UnitName("player")
+        processItemLink("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", playerName, true)
     elseif cmd == "debug" then
         addon.config.debugMode = not addon.config.debugMode
         print("|cff00ff00[GuildItemScanner]|r Debug mode " .. (addon.config.debugMode and "enabled" or "disabled"))
@@ -331,6 +405,7 @@ local function onSlashCommand(msg)
     elseif cmd == "greed" then
         addon.config.greedMode = not addon.config.greedMode
         print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (addon.config.greedMode and "enabled" or "disabled"))
+        -- Note: greed mode now only affects whether the button appears
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
