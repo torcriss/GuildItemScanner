@@ -8,6 +8,7 @@ addon.config = {
     greedMode = true,
     alertDuration = 10,
     debugMode = false,
+    autoGZ = false,  -- New config option for auto-congratulations
 }
 
 local MAX_HISTORY = 20
@@ -389,11 +390,39 @@ function processItemLink(itemLink, playerName, skipCooldown)
     end
 end
 
+-- Function to check for achievement messages
+local function checkForAchievement(message)
+    -- Pattern to match achievement messages
+    -- Example: "[Frontier] Renzore earned achievement: Achievement Name"
+    local achievementPattern = "%[.-%] (.+) earned achievement:"
+    local playerName = string.match(message, achievementPattern)
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Checking message: %s", message))
+        if playerName then
+            print(string.format("|cff00ff00[GIS Debug]|r Found achievement for: %s", playerName))
+        else
+            print("|cff00ff00[GIS Debug]|r No achievement pattern match")
+        end
+    end
+    
+    if playerName and addon.config.autoGZ then
+        -- Wait 1 second before sending GZ to avoid appearing automated
+        C_Timer.After(1, function()
+            SendChatMessage("GZ", "GUILD")
+            print(string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
+        end)
+    end
+end
+
 -- Chat message handler
 local function onChatMessage(self, event, message, sender, ...)
-    if event ~= "CHAT_MSG_GUILD" then return end
-    for _, itemLink in ipairs(extractItemLinks(message)) do
-        processItemLink(itemLink, sender)
+    -- Only process guild messages for items now
+    if event == "CHAT_MSG_GUILD" then
+        -- Check for item links in guild chat
+        for _, itemLink in ipairs(extractItemLinks(message)) do
+            processItemLink(itemLink, sender)
+        end
     end
 end
 
@@ -403,6 +432,10 @@ local function onSlashCommand(msg)
     if cmd == "test" then
         local playerName = UnitName("player")
         processItemLink("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", playerName, true)
+    elseif cmd == "testgz" then
+        -- Test the achievement detection
+        checkForAchievement("[Frontier] TestPlayer earned achievement: Test Achievement")
+        print("|cff00ff00[GuildItemScanner]|r Tested achievement detection")
     elseif cmd == "debug" then
         addon.config.debugMode = not addon.config.debugMode
         print("|cff00ff00[GuildItemScanner]|r Debug mode " .. (addon.config.debugMode and "enabled" or "disabled"))
@@ -413,6 +446,10 @@ local function onSlashCommand(msg)
         addon.config.greedMode = not addon.config.greedMode
         print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (addon.config.greedMode and "enabled" or "disabled"))
         -- Note: greed mode now only affects whether the button appears
+    elseif cmd == "gz" then
+        addon.config.autoGZ = not addon.config.autoGZ
+        print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (addon.config.autoGZ and "enabled" or "disabled"))
+        GuildItemScannerDB.config = addon.config  -- Save the setting
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
@@ -420,19 +457,62 @@ local function onSlashCommand(msg)
         print("  Debug mode: " .. (addon.config.debugMode and "enabled" or "disabled"))
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
+        print("  Auto-GZ mode: " .. (addon.config.autoGZ and "enabled" or "disabled"))
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
         print(" /gis test - Test an equipment alert")
         print(" /gis debug - Toggle debug logging")
         print(" /gis whisper - Toggle whisper mode")
         print(" /gis greed - Toggle loot message mode")
+        print(" /gis gz - Toggle auto-congratulations for achievements")
         print(" /gis status - Show current configuration")
+    end
+end
+
+-- Hook into chat frame to catch Frontier messages
+local function HookChatFrame()
+    local originalAddMessage = DEFAULT_CHAT_FRAME.AddMessage
+    DEFAULT_CHAT_FRAME.AddMessage = function(self, text, ...)
+        -- Check if this is a Frontier achievement message (but NOT our debug message)
+        if text and string.find(text, "%[Frontier%]") and string.find(text, "earned achievement:") and not string.find(text, "%[GIS Debug%]") then
+            -- Strip color codes and extract player name
+            local cleanText = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
+            cleanText = string.gsub(cleanText, "|r", "")
+            
+            -- Extract player name from the cleaned message
+            local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*earned achievement:")
+            
+            if addon.config.debugMode then
+                -- Use original function directly to avoid recursion
+                originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught achievement: " .. text)
+                originalAddMessage(self, "|cff00ff00[GIS Debug]|r Clean text: " .. cleanText)
+                if playerName then
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Player name: " .. playerName)
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Auto-GZ enabled: " .. tostring(addon.config.autoGZ))
+                else
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Failed to extract player name")
+                end
+            end
+            
+            if playerName and addon.config.autoGZ then
+                -- Wait 1 second before sending GZ to avoid appearing automated
+                C_Timer.After(1, function()
+                    SendChatMessage("GZ", "GUILD")
+                    -- Use original function directly for the confirmation message
+                    originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
+                end)
+            end
+        end
+        
+        -- Call the original function for all other messages
+        return originalAddMessage(self, text, ...)
     end
 end
 
 -- Initialization
 local function onPlayerLogin()
     LoadSavedVariables()
+    HookChatFrame()  -- Hook the chat frame when player logs in
     local _, class = UnitClass("player")
     print("|cff00ff00[GuildItemScanner]|r Loaded for " .. class .. ". Type /gis for commands.")
 end
@@ -444,7 +524,7 @@ GIS:RegisterEvent("PLAYER_LOGIN")
 GIS:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
         onPlayerLogin()
-    elseif event == "CHAT_MSG_GUILD" then
+    else
         onChatMessage(self, event, ...)
     end
 end)
