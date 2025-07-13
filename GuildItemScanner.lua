@@ -219,7 +219,7 @@ local function isItemUpgrade(itemLink)
     -- First check if the player can even use this item
     if not canPlayerUseItem(itemLink) then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Rejected: Wrong class"))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Wrong class|r"))
         end
         return false
     end
@@ -252,7 +252,11 @@ local function isItemUpgrade(itemLink)
 
     local equippedLevel = getEquippedItemLevel(slot)
     if addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, equippedLevel))
+        if itemLevel > equippedLevel then
+            print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, equippedLevel))
+        else
+            print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, equippedLevel))
+        end
     end
     return itemLevel > equippedLevel
 end
@@ -373,7 +377,7 @@ function processItemLink(itemLink, playerName, skipCooldown)
 
     if bindType == 1 then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Rejected: BoP"))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000BoP|r"))
         end
         return
     end
@@ -381,7 +385,7 @@ function processItemLink(itemLink, playerName, skipCooldown)
     if isItemUpgrade(itemLink) then
         showAlert(itemLink, playerName)
     elseif addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r Rejected: Not upgrade"))
+        print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Not upgrade|r"))
     end
 end
 
