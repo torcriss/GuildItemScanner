@@ -41,6 +41,69 @@ local SLOT_ID_MAPPING = {
     INVTYPE_RANGEDRIGHT = 18, INVTYPE_RELIC = 18, INVTYPE_TABARD = 19
 }
 
+-- Class armor restrictions
+local CLASS_ARMOR_RESTRICTIONS = {
+    WARRIOR = { Cloth = true, Leather = true, Mail = true, Plate = true },
+    PALADIN = { Cloth = true, Leather = true, Mail = true, Plate = true },
+    HUNTER = { Cloth = true, Leather = true, Mail = true },
+    ROGUE = { Cloth = true, Leather = true },
+    PRIEST = { Cloth = true },
+    SHAMAN = { Cloth = true, Leather = true, Mail = true },
+    MAGE = { Cloth = true },
+    WARLOCK = { Cloth = true },
+    DRUID = { Cloth = true, Leather = true }
+}
+
+-- Weapon restrictions by class
+local CLASS_WEAPON_RESTRICTIONS = {
+    WARRIOR = { 
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true, ["Shields"] = true, ["Bows"] = true,
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+    },
+    PALADIN = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Shields"] = true
+    },
+    HUNTER = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true, ["Bows"] = true, ["Crossbows"] = true,
+        ["Guns"] = true, ["Thrown"] = true
+    },
+    ROGUE = {
+        ["One-Handed Swords"] = true, ["One-Handed Maces"] = true,
+        ["Daggers"] = true, ["Fist Weapons"] = true, ["Bows"] = true,
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+    },
+    PRIEST = {
+        ["One-Handed Maces"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    SHAMAN = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Staves"] = true, ["Daggers"] = true, ["Fist Weapons"] = true,
+        ["Shields"] = true
+    },
+    MAGE = {
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    WARLOCK = {
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    DRUID = {
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true
+    }
+}
+
 local function LoadSavedVariables()
     GuildItemScannerDB = GuildItemScannerDB or {
         config = addon.config,
@@ -59,9 +122,67 @@ local function getEquippedItemLevel(slot)
     return itemLevel or 0
 end
 
+local function canPlayerUseItem(itemLink)
+    local _, class = UnitClass("player")
+    local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GuildItemScanner]|r Class check: %s, Item subtype: %s, Equip loc: %s", 
+            class, itemSubType or "nil", itemEquipLoc or "nil"))
+    end
+    
+    -- Check armor restrictions
+    local isArmor = itemEquipLoc and (
+        itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_SHOULDER" or
+        itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_WAIST" or
+        itemEquipLoc == "INVTYPE_LEGS" or itemEquipLoc == "INVTYPE_FEET" or
+        itemEquipLoc == "INVTYPE_WRIST" or itemEquipLoc == "INVTYPE_HAND" or
+        itemEquipLoc == "INVTYPE_CLOAK" or itemEquipLoc == "INVTYPE_BODY"
+    )
+    
+    if isArmor and itemSubType then
+        local classRestrictions = CLASS_ARMOR_RESTRICTIONS[class]
+        if classRestrictions and not classRestrictions[itemSubType] then
+            if addon.config.debugMode then
+                print(string.format("|cff00ff00[GuildItemScanner]|r %s cannot use %s armor", class, itemSubType))
+            end
+            return false
+        end
+    end
+    
+    -- Check weapon restrictions
+    local isWeapon = itemEquipLoc and (
+        itemEquipLoc == "INVTYPE_WEAPON" or itemEquipLoc == "INVTYPE_2HWEAPON" or
+        itemEquipLoc == "INVTYPE_WEAPONMAINHAND" or itemEquipLoc == "INVTYPE_WEAPONOFFHAND" or
+        itemEquipLoc == "INVTYPE_RANGED" or itemEquipLoc == "INVTYPE_THROWN" or
+        itemEquipLoc == "INVTYPE_RANGEDRIGHT" or itemEquipLoc == "INVTYPE_SHIELD"
+    )
+    
+    if isWeapon and itemSubType then
+        local classWeapons = CLASS_WEAPON_RESTRICTIONS[class]
+        if classWeapons and not classWeapons[itemSubType] then
+            if addon.config.debugMode then
+                print(string.format("|cff00ff00[GuildItemScanner]|r %s cannot use %s weapons", class, itemSubType))
+            end
+            return false
+        end
+    end
+    
+    -- Items like rings, trinkets, necks, etc. can be used by all classes
+    return true
+end
+
 local function isItemUpgrade(itemLink)
     if addon.config.debugMode then
         print(string.format("|cff00ff00[GuildItemScanner]|r isItemUpgrade: Checking %s", itemLink))
+    end
+    
+    -- First check if the player can even use this item
+    if not canPlayerUseItem(itemLink) then
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GuildItemScanner]|r Player cannot use %s", itemLink))
+        end
+        return false
     end
 
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
@@ -211,7 +332,9 @@ local function onSlashCommand(msg)
         addon.config.greedMode = not addon.config.greedMode
         print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (addon.config.greedMode and "enabled" or "disabled"))
     elseif cmd == "status" then
+        local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
+        print("  Player class: " .. class)
         print("  Debug mode: " .. (addon.config.debugMode and "enabled" or "disabled"))
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
@@ -228,7 +351,8 @@ end
 -- Initialization
 local function onPlayerLogin()
     LoadSavedVariables()
-    print("|cff00ff00[GuildItemScanner]|r Loaded. Type /gis for commands.")
+    local _, class = UnitClass("player")
+    print("|cff00ff00[GuildItemScanner]|r Loaded for " .. class .. ". Type /gis for commands.")
 end
 
 -- Event registration
