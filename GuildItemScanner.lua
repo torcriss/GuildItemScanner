@@ -8,7 +8,8 @@ addon.config = {
     greedMode = true,
     alertDuration = 10,
     debugMode = false,
-    autoGZ = false,  -- New config option for auto-congratulations
+    autoGZ = false,  -- Auto-congratulations for achievements
+    autoRIP = false,  -- Auto-RIP for deaths
 }
 
 local MAX_HISTORY = 20
@@ -450,6 +451,10 @@ local function onSlashCommand(msg)
         addon.config.autoGZ = not addon.config.autoGZ
         print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (addon.config.autoGZ and "enabled" or "disabled"))
         GuildItemScannerDB.config = addon.config  -- Save the setting
+    elseif cmd == "rip" then
+        addon.config.autoRIP = not addon.config.autoRIP
+        print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (addon.config.autoRIP and "enabled" or "disabled"))
+        GuildItemScannerDB.config = addon.config  -- Save the setting
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
@@ -458,6 +463,7 @@ local function onSlashCommand(msg)
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
         print("  Auto-GZ mode: " .. (addon.config.autoGZ and "enabled" or "disabled"))
+        print("  Auto-RIP mode: " .. (addon.config.autoRIP and "enabled" or "disabled"))
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
         print(" /gis test - Test an equipment alert")
@@ -465,6 +471,7 @@ local function onSlashCommand(msg)
         print(" /gis whisper - Toggle whisper mode")
         print(" /gis greed - Toggle loot message mode")
         print(" /gis gz - Toggle auto-congratulations for achievements")
+        print(" /gis rip - Toggle auto-RIPBOZO for deaths")
         print(" /gis status - Show current configuration")
     end
 end
@@ -474,33 +481,58 @@ local function HookChatFrame()
     local originalAddMessage = DEFAULT_CHAT_FRAME.AddMessage
     DEFAULT_CHAT_FRAME.AddMessage = function(self, text, ...)
         -- Check if this is a Frontier achievement message (but NOT our debug message)
-        if text and string.find(text, "%[Frontier%]") and string.find(text, "earned achievement:") and not string.find(text, "%[GIS Debug%]") then
-            -- Strip color codes and extract player name
+        if text and string.find(text, "%[Frontier%]") and not string.find(text, "%[GIS Debug%]") then
+            -- Strip color codes
             local cleanText = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
             cleanText = string.gsub(cleanText, "|r", "")
             
-            -- Extract player name from the cleaned message
-            local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*earned achievement:")
-            
-            if addon.config.debugMode then
-                -- Use original function directly to avoid recursion
-                originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught achievement: " .. text)
-                originalAddMessage(self, "|cff00ff00[GIS Debug]|r Clean text: " .. cleanText)
-                if playerName then
-                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Player name: " .. playerName)
-                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Auto-GZ enabled: " .. tostring(addon.config.autoGZ))
-                else
-                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Failed to extract player name")
+            -- Check for achievement messages
+            if string.find(text, "earned achievement:") then
+                -- Extract player name from achievement message
+                local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*earned achievement:")
+                
+                if addon.config.debugMode then
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught achievement: " .. text)
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Clean text: " .. cleanText)
+                    if playerName then
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Player name: " .. playerName)
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Auto-GZ enabled: " .. tostring(addon.config.autoGZ))
+                    else
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Failed to extract player name")
+                    end
                 end
-            end
+                
+                if playerName and addon.config.autoGZ then
+                    -- Wait 1 second before sending GZ to avoid appearing automated
+                    C_Timer.After(1, function()
+                        SendChatMessage("GZ", "GUILD")
+                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
+                    end)
+                end
             
-            if playerName and addon.config.autoGZ then
-                -- Wait 1 second before sending GZ to avoid appearing automated
-                C_Timer.After(1, function()
-                    SendChatMessage("GZ", "GUILD")
-                    -- Use original function directly for the confirmation message
-                    originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
-                end)
+            -- Check for death messages
+            elseif string.find(text, "has died") then
+                -- Extract player name from death message
+                local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*has died")
+                
+                if addon.config.debugMode then
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught death: " .. text)
+                    originalAddMessage(self, "|cff00ff00[GIS Debug]|r Clean text: " .. cleanText)
+                    if playerName then
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Player name: " .. playerName)
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Auto-RIP enabled: " .. tostring(addon.config.autoRIP))
+                    else
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Failed to extract player name")
+                    end
+                end
+                
+                if playerName and addon.config.autoRIP then
+                    -- Wait 1 second before sending RIPBOZO to avoid appearing automated
+                    C_Timer.After(1, function()
+                        SendChatMessage("RIPBOZO", "GUILD")
+                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s!", playerName))
+                    end)
+                end
             end
         end
         
