@@ -165,8 +165,9 @@ local function canPlayerUseItem(itemLink)
     local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
     
     if addon.config.debugMode then
-        print(string.format("|cff00ff00[GuildItemScanner]|r Class check: %s, Item subtype: %s, Equip loc: %s", 
-            class, itemSubType or "nil", itemEquipLoc or "nil"))
+        local slotName = SLOT_MAPPING[itemEquipLoc] or itemEquipLoc or "unknown"
+        print(string.format("|cff00ff00[GIS Debug]|r %s %s (%s)", 
+            itemSubType or "Unknown", slotName, class))
     end
     
     -- Check armor restrictions
@@ -182,7 +183,7 @@ local function canPlayerUseItem(itemLink)
         local classRestrictions = CLASS_ARMOR_RESTRICTIONS[class]
         if classRestrictions and not classRestrictions[itemSubType] then
             if addon.config.debugMode then
-                print(string.format("|cff00ff00[GuildItemScanner]|r %s cannot use %s armor", class, itemSubType))
+                print(string.format("|cff00ff00[GIS Debug]|r Cannot use: %s armor", itemSubType))
             end
             return false
         end
@@ -200,7 +201,7 @@ local function canPlayerUseItem(itemLink)
         local classWeapons = CLASS_WEAPON_RESTRICTIONS[class]
         if classWeapons and not classWeapons[itemSubType] then
             if addon.config.debugMode then
-                print(string.format("|cff00ff00[GuildItemScanner]|r %s cannot use %s weapons", class, itemSubType))
+                print(string.format("|cff00ff00[GIS Debug]|r Cannot use: %s", itemSubType))
             end
             return false
         end
@@ -212,13 +213,13 @@ end
 
 local function isItemUpgrade(itemLink)
     if addon.config.debugMode then
-        print(string.format("|cff00ff00[GuildItemScanner]|r isItemUpgrade: Checking %s", itemLink))
+        print(string.format("|cff00ff00[GIS Debug]|r Checking: %s", itemLink))
     end
     
     -- First check if the player can even use this item
     if not canPlayerUseItem(itemLink) then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GuildItemScanner]|r Player cannot use %s", itemLink))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: Wrong class"))
         end
         return false
     end
@@ -226,7 +227,7 @@ local function isItemUpgrade(itemLink)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     if not (itemLevel and itemEquipLoc) then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GuildItemScanner]|r Warning: Missing item info for %s", itemLink))
+            print(string.format("|cff00ff00[GIS Debug]|r Missing item info"))
         end
         return false
     end
@@ -244,14 +245,14 @@ local function isItemUpgrade(itemLink)
     local slot = SLOT_ID_MAPPING[itemEquipLoc]
     if not slot then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GuildItemScanner]|r Warning: Invalid slot for equip loc %s (%s)", itemEquipLoc or "nil", itemLink))
+            print(string.format("|cff00ff00[GIS Debug]|r Invalid slot: %s", itemEquipLoc or "nil"))
         end
         return false
     end
 
     local equippedLevel = getEquippedItemLevel(slot)
     if addon.config.debugMode then
-        print(string.format("|cff00ff00[GuildItemScanner]|r Comparing item level %d to equipped level %d", itemLevel, equippedLevel))
+        print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, equippedLevel))
     end
     return itemLevel > equippedLevel
 end
@@ -288,11 +289,13 @@ local function showAlert(itemLink, playerName)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     local slot = SLOT_MAPPING[itemEquipLoc] or "unknown"
     local equippedLevel = getEquippedItemLevel(SLOT_ID_MAPPING[itemEquipLoc] or 1)
+    local ilvlDiff = itemLevel - equippedLevel
 
     addToHistory(itemLink, playerName)
 
-    -- Print to chat (keeping the original printout)
-    print(string.format("|cff00ff00[GuildItemScanner]|r Equipment upgrade from %s: %s (item level %d, better than equipped %s level %d)", playerName, itemLink, itemLevel or 0, slot, equippedLevel))
+    -- Print to chat (new concise format)
+    print(string.format("|cff00ff00[GuildItemScanner]|r +%d ilvl upgrade: %s", ilvlDiff, itemLink))
+    print(string.format("|cff00ff00[GuildItemScanner]|r From: %s (%d>%d %s)", playerName, itemLevel, equippedLevel, slot))
 
     -- Show alert frame
     currentAlert = {
@@ -370,7 +373,7 @@ function processItemLink(itemLink, playerName, skipCooldown)
 
     if bindType == 1 then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GuildItemScanner]|r Ignored item: %s (BoP)", itemLink))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: BoP"))
         end
         return
     end
@@ -378,7 +381,7 @@ function processItemLink(itemLink, playerName, skipCooldown)
     if isItemUpgrade(itemLink) then
         showAlert(itemLink, playerName)
     elseif addon.config.debugMode then
-        print(string.format("|cff00ff00[GuildItemScanner]|r Ignored item: %s (not upgrade)", itemLink))
+        print(string.format("|cff00ff00[GIS Debug]|r Rejected: Not upgrade"))
     end
 end
 
