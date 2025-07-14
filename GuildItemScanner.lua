@@ -932,7 +932,7 @@ local function onSlashCommand(msg)
         print(" /gis whisper - Toggle whisper mode")
         print(" /gis greed - Toggle loot message mode")
         print(" /gis gz - Toggle auto-congratulations for achievements")
-        print(" /gis rip - Toggle auto-RIPBOZO for deaths")
+        print(" /gis rip - Toggle auto-RIP for deaths (level-based messages)")
         print(" /gis prof - Manage your professions")
         print(" /gis recipe - Toggle recipe alerts")
         print(" /gis stat - Manage stat priorities for gear evaluation")
@@ -991,10 +991,32 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoRIP then
-                    -- Wait 1 second before sending RIPBOZO to avoid appearing automated
+                    -- Extract level from the death message if available
+                    local level = string.match(text, "Level (%d+)") or string.match(cleanText, "Level (%d+)")
+                    
+                    -- Determine message based on level
+                    local deathMessage = "RIPBOZO"  -- Default
+                    if level then
+                        level = tonumber(level)
+                        if level < 30 then
+                            deathMessage = "RIPBOZO"
+                        elseif level >= 30 and level <= 40 then
+                            deathMessage = "F"
+                        elseif level >= 41 and level <= 59 then
+                            deathMessage = "OMG F"
+                        elseif level >= 60 then
+                            deathMessage = "GIGA F"
+                        end
+                        
+                        if addon.config.debugMode then
+                            originalAddMessage(self, string.format("|cff00ff00[GIS Debug]|r Player level: %d, Message: %s", level, deathMessage))
+                        end
+                    end
+                    
+                    -- Wait 1 second before sending message to avoid appearing automated
                     C_Timer.After(1, function()
-                        SendChatMessage("RIPBOZO", "GUILD")
-                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s!", playerName))
+                        SendChatMessage(deathMessage, "GUILD")
+                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s: %s", playerName, deathMessage))
                     end)
                 end
             end
