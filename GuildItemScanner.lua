@@ -1,11 +1,12 @@
 -- GuildItemScanner Addon for WoW Classic Era (Interface 11507)
--- Monitors guild chat for BoE equipment upgrades and alerts when items are upgrades
+-- Monitors guild chat for BoE equipment upgrades and profession recipes, with visual and sound alerts
 
 local addonName, addon = ...
 addon.config = {
     soundAlert = true,
     whisperMode = false,
     greedMode = true,
+    recipeButton = true,  -- Enable recipe request button by default
     alertDuration = 10,
     debugMode = false,
     autoGZ = false,  -- Auto-congratulations for achievements
@@ -27,7 +28,7 @@ addon.uncachedHistory = {}
 -- Alert Frame
 local alertFrame = CreateFrame("Frame", "GuildItemScannerAlert", UIParent, "BackdropTemplate")
 alertFrame:SetSize(600, 120)
-alertFrame:SetPoint("TOP", 0, -200)
+alertFrame:SetPoint("TOP", UIParent, "TOP", 0, -200)
 alertFrame:SetBackdrop({
     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
     edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -37,6 +38,7 @@ alertFrame:SetBackdrop({
 alertFrame:SetBackdropColor(0, 0, 0, 0.9)
 alertFrame:EnableMouse(true)
 alertFrame:SetMovable(true)
+alertFrame:SetFrameStrata("DIALOG")
 alertFrame:RegisterForDrag("LeftButton")
 alertFrame:SetScript("OnDragStart", alertFrame.StartMoving)
 alertFrame:SetScript("OnDragStop", alertFrame.StopMovingOrSizing)
@@ -44,19 +46,25 @@ alertFrame:Hide()
 
 -- Alert text
 local alertText = alertFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-alertText:SetPoint("TOP", 0, -25)
+alertText:SetPoint("TOP", alertFrame, "TOP", 0, -25)
 alertText:SetWidth(580)
 alertText:SetJustifyH("CENTER")
 
 -- Greed button
 local greedButton = CreateFrame("Button", nil, alertFrame, "UIPanelButtonTemplate")
 greedButton:SetSize(100, 25)
-greedButton:SetPoint("BOTTOM", 0, 15)
+greedButton:SetPoint("BOTTOMLEFT", alertFrame, "BOTTOM", -60, 15)
 greedButton:SetText("Greed!")
+
+-- Recipe request button
+local recipeButton = CreateFrame("Button", nil, alertFrame, "UIPanelButtonTemplate")
+recipeButton:SetSize(100, 25)
+recipeButton:SetPoint("BOTTOMRIGHT", alertFrame, "BOTTOM", 60, 15)
+recipeButton:SetText("Request Recipe")
 
 -- Close button
 local closeButton = CreateFrame("Button", nil, alertFrame, "UIPanelCloseButton")
-closeButton:SetPoint("TOPRIGHT", -5, -5)
+closeButton:SetPoint("TOPRIGHT", alertFrame, "TOPRIGHT", -5, -5)
 closeButton:SetScript("OnClick", function() alertFrame:Hide() end)
 
 -- Alert management
@@ -148,35 +156,14 @@ local CLASS_WEAPON_RESTRICTIONS = {
     }
 }
 
-local function LoadSavedVariables()
-    GuildItemScannerDB = GuildItemScannerDB or {
-        config = {
-            soundAlert = true,
-            whisperMode = false,
-            greedMode = true,
-            alertDuration = 10,
-            debugMode = false,
-            autoGZ = false,
-            autoRIP = false,
-            recipeAlert = true,
-            myProfessions = {}
-        },
-        alertHistory = {},
-        uncachedHistory = {}
-    }
-    
-    -- Ensure all config fields exist
-    addon.config = GuildItemScannerDB.config
-    addon.config.myProfessions = addon.config.myProfessions or {}
-    addon.config.autoGZ = addon.config.autoGZ or false
-    addon.config.autoRIP = addon.config.autoRIP or false
-    addon.config.recipeAlert = addon.config.recipeAlert ~= false  -- Default to true
-    addon.config.statPriority = addon.config.statPriority or {}
-    addon.config.useStatPriority = addon.config.useStatPriority or false
-    
-    addon.alertHistory = GuildItemScannerDB.alertHistory
-    addon.uncachedHistory = GuildItemScannerDB.uncachedHistory
-end
+-- Recipe profession mappings
+local RECIPE_PROFESSIONS = {
+    ["Recipe: "] = {"Alchemy", "Cooking"},
+    ["Formula: "] = "Enchanting",
+    ["Pattern: "] = {"Tailoring", "Leatherworking"},
+    ["Plans: "] = "Blacksmithing",
+    ["Schematic: "] = "Engineering"
+}
 
 -- Stat patterns for Classic WoW
 local STAT_PATTERNS = {
@@ -186,7 +173,6 @@ local STAT_PATTERNS = {
     ["(%d+) Stamina"] = "stamina",
     ["(%d+) Intellect"] = "intellect",
     ["(%d+) Spirit"] = "spirit",
-    
     -- Secondary stats
     ["(%d+) Attack Power"] = "attackpower",
     ["(%d+) Spell Power"] = "spellpower",
@@ -198,39 +184,73 @@ local STAT_PATTERNS = {
     ["(%d+) Dodge Rating"] = "dodge",
     ["(%d+) Parry Rating"] = "parry",
     ["(%d+) Block Rating"] = "block",
-    
     -- Resistances
     ["(%d+) Fire Resistance"] = "fireres",
     ["(%d+) Nature Resistance"] = "natureres",
     ["(%d+) Frost Resistance"] = "frostres",
     ["(%d+) Shadow Resistance"] = "shadowres",
     ["(%d+) Arcane Resistance"] = "arcaneres",
-    
     -- All stats
     ["%+(%d+) All Stats"] = "allstats",
-    ["%+(%d+) to All Stats"] = "allstats"
+    ["%+(%d+) to All Stats"] = "allstats",
+    -- Additional stats
+    ["(%d+) Mana per 5 sec"] = "mp5",
+    ["(%d+) to all Resistances"] = "allres"
 }
+
+local function LoadSavedVariables()
+    GuildItemScannerDB = GuildItemScannerDB or {
+        config = {
+            soundAlert = true,
+            whisperMode = false,
+            greedMode = true,
+            recipeButton = true,
+            alertDuration = 10,
+            debugMode = false,
+            autoGZ = false,
+            autoRIP = false,
+            recipeAlert = true,
+            myProfessions = {},
+            statPriority = {},
+            useStatPriority = false
+        },
+        alertHistory = {},
+        uncachedHistory = {}
+    }
+    
+    -- Ensure all config fields exist
+    addon.config = GuildItemScannerDB.config
+    addon.config.myProfessions = addon.config.myProfessions or {}
+    addon.config.autoGZ = addon.config.autoGZ or false
+    addon.config.autoRIP = addon.config.autoRIP or false
+    addon.config.recipeAlert = addon.config.recipeAlert ~= false
+    addon.config.recipeButton = addon.config.recipeButton ~= false
+    addon.config.statPriority = addon.config.statPriority or {}
+    addon.config.useStatPriority = addon.config.useStatPriority or false
+    
+    addon.alertHistory = GuildItemScannerDB.alertHistory
+    addon.uncachedHistory = GuildItemScannerDB.uncachedHistory
+end
+
+-- Reusable tooltip for scanning
+local scanTip = CreateFrame("GameTooltip", "GIScanTooltip", nil, "GameTooltipTemplate")
 
 -- Function to get item stats
 local function getItemStats(itemLink)
     local stats = {}
     
-    -- Create a tooltip to scan
-    local scanTip = CreateFrame("GameTooltip", "GIScanTooltip", nil, "GameTooltipTemplate")
     scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:ClearLines()
     scanTip:SetHyperlink(itemLink)
     
-    -- Scan tooltip lines
     for i = 1, scanTip:NumLines() do
         local text = _G["GIScanTooltipTextLeft" .. i]:GetText()
         if text then
-            -- Check each stat pattern
             for pattern, statName in pairs(STAT_PATTERNS) do
                 local value = string.match(text, pattern)
                 if value then
                     value = tonumber(value)
                     if statName == "allstats" then
-                        -- Add to all primary stats
                         stats.strength = (stats.strength or 0) + value
                         stats.agility = (stats.agility or 0) + value
                         stats.stamina = (stats.stamina or 0) + value
@@ -263,7 +283,7 @@ end
 -- Function to compare items by stats
 local function compareItemsByStats(newItemLink, equippedItemLink)
     if not equippedItemLink then
-        return true, 0  -- No item equipped, new item is upgrade
+        return true, 0
     end
     
     local newStats = getItemStats(newItemLink)
@@ -296,7 +316,6 @@ local function canPlayerUseItem(itemLink)
             itemSubType or "Unknown", slotName, class))
     end
     
-    -- Check armor restrictions
     local isArmor = itemEquipLoc and (
         itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_SHOULDER" or
         itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_WAIST" or
@@ -315,7 +334,6 @@ local function canPlayerUseItem(itemLink)
         end
     end
     
-    -- Check weapon restrictions
     local isWeapon = itemEquipLoc and (
         itemEquipLoc == "INVTYPE_WEAPON" or itemEquipLoc == "INVTYPE_2HWEAPON" or
         itemEquipLoc == "INVTYPE_WEAPONMAINHAND" or itemEquipLoc == "INVTYPE_WEAPONOFFHAND" or
@@ -333,16 +351,14 @@ local function canPlayerUseItem(itemLink)
         end
     end
     
-    -- Items like rings, trinkets, necks, etc. can be used by all classes
     return true
 end
 
 local function isItemUpgrade(itemLink)
     if addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r Checking: %s", itemLink))
+        print(string.format("|cff00ff00[GIS Debug]|r Checking upgrade: %s", itemLink))
     end
     
-    -- First check if the player can even use this item
     if not canPlayerUseItem(itemLink) then
         if addon.config.debugMode then
             print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Wrong class|r"))
@@ -353,12 +369,11 @@ local function isItemUpgrade(itemLink)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     if not (itemLevel and itemEquipLoc) then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Missing item info"))
+            print(string.format("|cff00ff00[GIS Debug]|r Missing item info for %s", itemLink))
         end
         return false
     end
 
-    -- Determine which slots to check
     local slotsToCheck = {}
     if itemEquipLoc == "INVTYPE_FINGER" then
         slotsToCheck = {11, 12}
@@ -378,9 +393,7 @@ local function isItemUpgrade(itemLink)
         return false
     end
 
-    -- Use stat priority if enabled and configured
     if addon.config.useStatPriority and next(addon.config.statPriority) then
-        -- Check against each possible slot
         for _, slot in ipairs(slotsToCheck) do
             local equippedLink = GetInventoryItemLink("player", slot)
             local isUpgrade, scoreDiff = compareItemsByStats(itemLink, equippedLink)
@@ -394,11 +407,10 @@ local function isItemUpgrade(itemLink)
         end
         
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Not a stat upgrade"))
+            print(string.format("|cff00ff00[GIS Debug]|r Not a stat upgrade for %s", itemLink))
         end
         return false
     else
-        -- Original item level based comparison
         local lowestEquippedLevel = 999
         for _, slot in ipairs(slotsToCheck) do
             local equippedLevel = getEquippedItemLevel(slot)
@@ -411,19 +423,19 @@ local function isItemUpgrade(itemLink)
             if itemLevel > lowestEquippedLevel then
                 print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
             else
-                print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, lowestEquippedLevel))
+                print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d for %s", itemLevel, lowestEquippedLevel, itemLink))
             end
         end
         return itemLevel > lowestEquippedLevel, itemLevel - lowestEquippedLevel
     end
 end
 
-local function addToHistory(itemLink, playerName)
+local function addToHistory(itemLink, playerName, itemType)
     table.insert(addon.alertHistory, 1, {
         time = date("%H:%M:%S"),
         player = playerName,
         item = itemLink,
-        type = "Equipment",
+        type = itemType or "Equipment",
         status = "POSTED"
     })
     while #addon.alertHistory > MAX_HISTORY do
@@ -446,20 +458,61 @@ greedButton:SetScript("OnClick", function()
     end
 end)
 
+-- Recipe request button click handler
+recipeButton:SetScript("OnClick", function()
+    if currentAlert then
+        local msg = "Can I have that " .. currentAlert.itemLink .. "? Thanks!"
+        if addon.config.whisperMode then
+            SendChatMessage(msg, "WHISPER", nil, currentAlert.playerName)
+            print("|cff00ff00[GuildItemScanner]|r Whispered recipe request to " .. currentAlert.playerName)
+        else
+            SendChatMessage(msg, "GUILD")
+            print("|cff00ff00[GuildItemScanner]|r Sent recipe request to guild")
+        end
+        alertFrame:Hide()
+    end
+end)
+
+local function playAlertSound()
+    if addon.config.soundAlert then
+        local soundEnabled = GetCVar("Sound_EnableSFX") == "1"
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Sound settings: soundAlert=%s, Sound_EnableSFX=%s", 
+                tostring(addon.config.soundAlert), GetCVar("Sound_EnableSFX")))
+        end
+        
+        local success = PlaySoundFile("Interface\\AddOns\\GuildItemScanner\\Sounds\\Alert.ogg")
+        if not success then
+            -- Primary fallback
+            success = PlaySound(SOUNDKIT.UI_BONUS_LOOT_ROLL_END)
+            if not success then
+                -- Secondary fallback
+                PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
+                if addon.config.debugMode then
+                    print("|cff00ff00[GIS Debug]|r Custom sound and UI_BONUS_LOOT_ROLL_END failed, using IG_MAINMENU_OPEN")
+                end
+            elseif addon.config.debugMode then
+                print("|cff00ff00[GIS Debug]|r Custom sound failed, using UI_BONUS_LOOT_ROLL_END")
+            end
+        elseif addon.config.debugMode then
+            print("|cff00ff00[GIS Debug]|r Played custom sound")
+        end
+    elseif addon.config.debugMode then
+        print("|cff00ff00[GIS Debug]|r Sound alert disabled")
+    end
+end
+
 local function showAlert(itemLink, playerName)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     local slot = SLOT_MAPPING[itemEquipLoc] or "unknown"
     
-    addToHistory(itemLink, playerName)
+    addToHistory(itemLink, playerName, "Equipment")
 
-    -- Get upgrade info based on current mode
     local upgradeText, detailText
     if addon.config.useStatPriority and next(addon.config.statPriority) then
-        -- Stat-based evaluation
         local isUpgrade, scoreDiff = isItemUpgrade(itemLink)
         upgradeText = string.format("+%.1f stat score upgrade: %s", scoreDiff, itemLink)
         
-        -- Show which stats make it an upgrade
         local stats = getItemStats(itemLink)
         local statList = {}
         for stat, value in pairs(stats) do
@@ -469,7 +522,6 @@ local function showAlert(itemLink, playerName)
         end
         detailText = string.format("From: %s (%s)", playerName, #statList > 0 and table.concat(statList, ", ") or "no priority stats")
     else
-        -- Item level based evaluation
         local equippedLevel = 0
         if itemEquipLoc == "INVTYPE_FINGER" then
             equippedLevel = math.min(getEquippedItemLevel(11), getEquippedItemLevel(12))
@@ -484,11 +536,9 @@ local function showAlert(itemLink, playerName)
         detailText = string.format("From: %s (%d>%d %s)", playerName, itemLevel, equippedLevel, slot)
     end
 
-    -- Print to chat
     print(string.format("|cff00ff00[GuildItemScanner]|r %s", upgradeText))
     print(string.format("|cff00ff00[GuildItemScanner]|r %s", detailText))
 
-    -- Show alert frame
     currentAlert = {
         itemLink = itemLink,
         playerName = playerName,
@@ -496,31 +546,76 @@ local function showAlert(itemLink, playerName)
         slot = slot
     }
     
-    if addon.config.useStatPriority and next(addon.config.statPriority) then
-        alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00%s|r", 
-            playerName, itemLink, detailText))
-    else
-        alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00Item level %d (%s)|r", 
-            playerName, itemLink, itemLevel or 0, slot))
-    end
+    alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00%s|r", 
+        playerName, itemLink, detailText))
     
-    -- Show or hide greed button based on config
     if addon.config.greedMode then
         greedButton:Show()
     else
         greedButton:Hide()
     end
+    recipeButton:Hide()
     
-    alertFrame:Show()
-    
-    if addon.config.soundAlert then
-        PlaySound(3332)
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Showing equipment alert for %s at %s, isVisible=%s", 
+            itemLink, alertFrame:GetPoint(1), tostring(alertFrame:IsVisible())))
     end
     
-    -- Auto-hide after configured duration
+    alertFrame:Show()
+    alertFrame:SetFrameLevel(10)
+    playAlertSound()
+    
     C_Timer.After(addon.config.alertDuration, function()
         if alertFrame:IsShown() then
             alertFrame:Hide()
+            if addon.config.debugMode then
+                print("|cff00ff00[GIS Debug]|r Equipment alert hidden after duration")
+            end
+        end
+    end)
+end
+
+local function showRecipeAlert(itemLink, playerName, profession)
+    addToHistory(itemLink, playerName, "Recipe")
+
+    local alertMsg = string.format("%s recipe detected: %s", profession, itemLink)
+    local detailText = string.format("From: %s", playerName)
+
+    print(string.format("|cff00ff00[GuildItemScanner]|r |cffffcc00%s|r", alertMsg))
+    print(string.format("|cff00ff00[GuildItemScanner]|r %s", detailText))
+
+    currentAlert = {
+        itemLink = itemLink,
+        playerName = playerName,
+        slot = "recipe",
+        profession = profession
+    }
+    
+    alertText:SetText(string.format("%s recipe from %s:\n%s\n|cff00ff00%s|r", 
+        profession, playerName, itemLink, detailText))
+    
+    greedButton:Hide()
+    if addon.config.recipeButton then
+        recipeButton:Show()
+    else
+        recipeButton:Hide()
+    end
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Showing recipe alert for %s (%s) at %s, isVisible=%s", 
+            itemLink, profession, alertFrame:GetPoint(1), tostring(alertFrame:IsVisible())))
+    end
+    
+    alertFrame:Show()
+    alertFrame:SetFrameLevel(10)
+    playAlertSound()
+    
+    C_Timer.After(addon.config.alertDuration, function()
+        if alertFrame:IsShown() then
+            alertFrame:Hide()
+            if addon.config.debugMode then
+                print("|cff00ff00[GIS Debug]|r Recipe alert hidden after duration")
+            end
         end
     end)
 end
@@ -529,6 +624,9 @@ local function extractItemLinks(message)
     local items = {}
     for itemLink in string.gmatch(message, "|c%x+|Hitem:.-|h%[.-%]|h|r") do
         table.insert(items, itemLink)
+    end
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Extracted %d item links from message: %s", #items, message))
     end
     return items
 end
@@ -549,6 +647,9 @@ local function retryUncachedItems()
     if #retryQueue == 0 then return end
     local retryEntry = table.remove(retryQueue, 1)
     if retryEntry.retryCount >= MAX_RETRIES then
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Max retries reached for %s", retryEntry.itemLink))
+        end
         return
     end
     retryEntry.retryCount = retryEntry.retryCount + 1
@@ -556,19 +657,39 @@ local function retryUncachedItems()
 end
 
 function processItemLink(itemLink, playerName, skipCooldown)
-    if not itemLink or not playerName then return end
+    if not itemLink or not playerName then
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Invalid itemLink or playerName: %s, %s", tostring(itemLink), tostring(playerName)))
+        end
+        return
+    end
 
-    local itemName, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(itemLink)
+    local itemName, _, _, _, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
     if not itemName then
         table.insert(retryQueue, { itemLink = itemLink, playerName = playerName, retryCount = 0 })
         addToUncachedHistory(itemLink, playerName, "Waiting for item info cache...")
         C_Timer.After(RETRY_DELAY, retryUncachedItems)
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Item info not cached for %s, retrying", itemLink))
+        end
+        return
+    end
+
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Processing item: %s, bindType=%s, equipLoc=%s", 
+            itemLink, tostring(bindType), itemEquipLoc or "nil"))
+    end
+
+    if itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Skipped non-equippable item: %s", itemLink))
+        end
         return
     end
 
     if bindType == 1 then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000BoP|r"))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000BoP|r %s", itemLink))
         end
         return
     end
@@ -576,141 +697,60 @@ function processItemLink(itemLink, playerName, skipCooldown)
     if isItemUpgrade(itemLink) then
         showAlert(itemLink, playerName)
     elseif addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Not upgrade|r"))
+        print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Not upgrade|r %s", itemLink))
     end
-end
-
--- Stat patterns for Classic WoW
-local STAT_PATTERNS = {
-    -- Primary stats
-    ["(%d+) Strength"] = "strength",
-    ["(%d+) Agility"] = "agility",
-    ["(%d+) Stamina"] = "stamina",
-    ["(%d+) Intellect"] = "intellect",
-    ["(%d+) Spirit"] = "spirit",
-    
-    -- Secondary stats
-    ["(%d+) Attack Power"] = "attackpower",
-    ["(%d+) Spell Power"] = "spellpower",
-    ["(%d+) Healing"] = "healing",
-    ["(%d+) Spell Damage"] = "spelldamage",
-    ["Improves your chance to get a critical strike by (%d+)%%"] = "crit",
-    ["Improves your chance to hit by (%d+)%%"] = "hit",
-    ["(%d+) Defense Rating"] = "defense",
-    ["(%d+) Dodge Rating"] = "dodge",
-    ["(%d+) Parry Rating"] = "parry",
-    ["(%d+) Block Rating"] = "block",
-    
-    -- Resistances
-    ["(%d+) Fire Resistance"] = "fireres",
-    ["(%d+) Nature Resistance"] = "natureres",
-    ["(%d+) Frost Resistance"] = "frostres",
-    ["(%d+) Shadow Resistance"] = "shadowres",
-    ["(%d+) Arcane Resistance"] = "arcaneres",
-    
-    -- All stats
-    ["%+(%d+) All Stats"] = "allstats",
-    ["%+(%d+) to All Stats"] = "allstats"
-}
-
--- Function to get item stats
-local function getItemStats(itemLink)
-    local stats = {}
-    
-    -- Create a tooltip to scan
-    local scanTip = CreateFrame("GameTooltip", "GIScanTooltip", nil, "GameTooltipTemplate")
-    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
-    scanTip:SetHyperlink(itemLink)
-    
-    -- Scan tooltip lines
-    for i = 1, scanTip:NumLines() do
-        local text = _G["GIScanTooltipTextLeft" .. i]:GetText()
-        if text then
-            -- Check each stat pattern
-            for pattern, statName in pairs(STAT_PATTERNS) do
-                local value = string.match(text, pattern)
-                if value then
-                    value = tonumber(value)
-                    if statName == "allstats" then
-                        -- Add to all primary stats
-                        stats.strength = (stats.strength or 0) + value
-                        stats.agility = (stats.agility or 0) + value
-                        stats.stamina = (stats.stamina or 0) + value
-                        stats.intellect = (stats.intellect or 0) + value
-                        stats.spirit = (stats.spirit or 0) + value
-                    else
-                        stats[statName] = (stats[statName] or 0) + value
-                    end
-                end
-            end
-        end
-    end
-    
-    scanTip:Hide()
-    return stats
-end
-
--- Function to calculate stat score based on priorities
-local function calculateStatScore(stats)
-    local score = 0
-    for stat, value in pairs(stats) do
-        local priority = addon.config.statPriority[stat]
-        if priority and priority > 0 then
-            score = score + (value * priority)
-        end
-    end
-    return score
-end
-
--- Function to compare items by stats
-local function compareItemsByStats(newItemLink, equippedItemLink)
-    if not equippedItemLink then
-        return true, 0  -- No item equipped, new item is upgrade
-    end
-    
-    local newStats = getItemStats(newItemLink)
-    local equippedStats = getItemStats(equippedItemLink)
-    
-    local newScore = calculateStatScore(newStats)
-    local equippedScore = calculateStatScore(equippedStats)
-    
-    if addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r New item score: %.1f, Equipped score: %.1f", newScore, equippedScore))
-    end
-    
-    return newScore > equippedScore, newScore - equippedScore
 end
 
 -- Function to check if a recipe is for player's professions
 local function isRecipeForMyProfession(itemLink)
-    -- Ensure config and tables exist
-    if not addon.config then return false end
-    addon.config.myProfessions = addon.config.myProfessions or {}
-    
-    if not addon.config.recipeAlert or #addon.config.myProfessions == 0 then
+    if not addon.config or not addon.config.recipeAlert or #addon.config.myProfessions == 0 then
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Recipe check skipped: Alerts %s, Professions %d",
+                tostring(addon.config.recipeAlert), #addon.config.myProfessions))
+        end
         return false
     end
     
     local itemName = string.match(itemLink, "|h%[(.-)%]|h")
-    if not itemName then return false end
+    if not itemName then
+        if addon.config.debugMode then
+            print("|cff00ff00[GIS Debug]|r No item name found in link")
+        end
+        return false
+    end
     
-    -- Ensure RECIPE_PROFESSIONS exists
-    if not RECIPE_PROFESSIONS then return false end
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Checking recipe: %s", itemName))
+    end
     
-    -- Check each recipe type
     for prefix, professions in pairs(RECIPE_PROFESSIONS) do
-        if string.find(itemName, prefix) then
-            -- Handle both single profession and multiple profession cases
+        if string.find(itemName, prefix, 1, true) then
             if type(professions) == "string" then
                 for _, myProf in ipairs(addon.config.myProfessions) do
                     if string.lower(professions) == string.lower(myProf) then
+                        if addon.config.debugMode then
+                            print(string.format("|cff00ff00[GIS Debug]|r Matched %s recipe for %s", professions, myProf))
+                        end
                         return true, professions
                     end
                 end
             elseif type(professions) == "table" then
+                -- Prioritize Cooking for "Recipe: " if player has Cooking
+                for _, myProf in ipairs(addon.config.myProfessions) do
+                    if string.lower(myProf) == "cooking" and prefix == "Recipe: " then
+                        if addon.config.debugMode then
+                            print(string.format("|cff00ff00[GIS Debug]|r Matched Cooking recipe for %s", myProf))
+                        end
+                        return true, "Cooking"
+                    end
+                end
+                -- Check other professions
                 for _, prof in ipairs(professions) do
                     for _, myProf in ipairs(addon.config.myProfessions) do
                         if string.lower(prof) == string.lower(myProf) then
+                            if addon.config.debugMode then
+                                print(string.format("|cff00ff00[GIS Debug]|r Matched %s recipe for %s", prof, myProf))
+                            end
                             return true, prof
                         end
                     end
@@ -719,35 +759,27 @@ local function isRecipeForMyProfession(itemLink)
         end
     end
     
-    -- Special check for cooking recipes (they don't always have a prefix)
-    if string.find(itemName, "Recipe") and not string.find(itemName, "Recipe: ") then
-        for _, myProf in ipairs(addon.config.myProfessions) do
-            if string.lower(myProf) == "cooking" then
-                return true, "Cooking"
-            end
-        end
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r No profession match for: %s", itemName))
     end
-    
     return false
 end
 
 -- Chat message handler
 local function onChatMessage(self, event, message, sender, ...)
-    -- Only process guild messages for items now
     if event == "CHAT_MSG_GUILD" then
-        -- Check for item links in guild chat
-        for _, itemLink in ipairs(extractItemLinks(message)) do
-            -- Check for recipes first
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Processing guild chat from %s: %s", sender, message))
+        end
+        local itemLinks = extractItemLinks(message)
+        if #itemLinks == 0 and addon.config.debugMode then
+            print("|cff00ff00[GIS Debug]|r No item links found in message")
+        end
+        for _, itemLink in ipairs(itemLinks) do
             local isRecipe, profession = isRecipeForMyProfession(itemLink)
             if isRecipe then
-                print(string.format("|cff00ff00[GuildItemScanner]|r |cffffcc00%s recipe detected!|r %s", profession, itemLink))
-                print(string.format("|cff00ff00[GuildItemScanner]|r From: %s", sender))
-                
-                if addon.config.soundAlert then
-                    PlaySound(3332)
-                end
+                showRecipeAlert(itemLink, sender, profession)
             else
-                -- Check for equipment upgrades
                 processItemLink(itemLink, sender)
             end
         end
@@ -763,10 +795,14 @@ local function onSlashCommand(msg)
     if cmd == "test" then
         local playerName = UnitName("player")
         processItemLink("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", playerName, true)
-    elseif cmd == "testgz" then
-        -- Test the achievement detection
-        checkForAchievement("[Frontier] TestPlayer earned achievement: Test Achievement")
-        print("|cff00ff00[GuildItemScanner]|r Tested achievement detection")
+    elseif cmd == "testrecipe" then
+        local playerName = UnitName("player")
+        local isRecipe, profession = isRecipeForMyProfession("|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r")
+        if isRecipe then
+            showRecipeAlert("|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r", playerName, profession)
+        else
+            print("|cff00ff00[GuildItemScanner]|r No recipe match for test item")
+        end
     elseif cmd == "debug" then
         addon.config.debugMode = not addon.config.debugMode
         print("|cff00ff00[GuildItemScanner]|r Debug mode " .. (addon.config.debugMode and "enabled" or "disabled"))
@@ -776,18 +812,20 @@ local function onSlashCommand(msg)
     elseif cmd == "greed" then
         addon.config.greedMode = not addon.config.greedMode
         print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (addon.config.greedMode and "enabled" or "disabled"))
-        -- Note: greed mode now only affects whether the button appears
+    elseif cmd == "recipebutton" then
+        addon.config.recipeButton = not addon.config.recipeButton
+        print("|cff00ff00[GuildItemScanner]|r Recipe request button " .. (addon.config.recipeButton and "enabled" or "disabled"))
+        GuildItemScannerDB.config = addon.config
     elseif cmd == "gz" then
         addon.config.autoGZ = not addon.config.autoGZ
         print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (addon.config.autoGZ and "enabled" or "disabled"))
-        GuildItemScannerDB.config = addon.config  -- Save the setting
+        GuildItemScannerDB.config = addon.config
     elseif cmd == "rip" then
         addon.config.autoRIP = not addon.config.autoRIP
         print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (addon.config.autoRIP and "enabled" or "disabled"))
-        GuildItemScannerDB.config = addon.config  -- Save the setting
+        GuildItemScannerDB.config = addon.config
     elseif cmd == "prof" then
         if args == "" then
-            -- Show current professions
             if #addon.config.myProfessions == 0 then
                 print("|cff00ff00[GuildItemScanner]|r No professions set. Use /gis prof add <profession> or /gis prof clear")
             else
@@ -804,9 +842,7 @@ local function onSlashCommand(msg)
             end
             
             if subCmd == "add" and profession ~= "" then
-                -- Capitalize first letter
                 profession = profession:gsub("^%l", string.upper)
-                -- Check for duplicates
                 local alreadyExists = false
                 for _, prof in ipairs(addon.config.myProfessions) do
                     if string.lower(prof) == string.lower(profession) then
@@ -851,7 +887,6 @@ local function onSlashCommand(msg)
         GuildItemScannerDB.config = addon.config
     elseif cmd == "stat" or cmd == "stats" then
         if args == "" then
-            -- Show current stat priorities
             if not next(addon.config.statPriority) then
                 print("|cff00ff00[GuildItemScanner]|r No stat priorities set. Use /gis stat <stat> <weight>")
                 print("|cff00ff00[GuildItemScanner]|r Example: /gis stat agility 2.5")
@@ -861,7 +896,7 @@ local function onSlashCommand(msg)
                     print(string.format("  %s: %.1f", stat, weight))
                 end
             end
-            print("|cff00ff00[GuildItemScanner]|r Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, crit, hit, defense")
+            print("|cff00ff00[GuildItemScanner]|r Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, crit, hit, defense, dodge, parry, block, mp5, allres")
             print("|cff00ff00[GuildItemScanner]|r Use /gis stat clear to reset all priorities")
             print("|cff00ff00[GuildItemScanner]|r Use /gis stat mode to toggle between stat and ilvl evaluation")
         else
@@ -881,16 +916,14 @@ local function onSlashCommand(msg)
                 end
                 GuildItemScannerDB.config = addon.config
             else
-                -- Setting a stat priority
                 local weight = tonumber(rest)
                 if weight then
                     addon.config.statPriority[subCmd] = weight
                     print(string.format("|cff00ff00[GuildItemScanner]|r Set %s priority to %.1f", subCmd, weight))
                     GuildItemScannerDB.config = addon.config
                 elseif rest == "" then
-                    -- Remove stat priority
                     addon.config.statPriority[subCmd] = nil
-                    print(string.format("|cff00ff00[GuildItemScanner]|r Removed %s priority", subCmd))
+                    print(string.format("|cff00ff00[GIS Debug]|r Removed %s priority", subCmd))
                     GuildItemScannerDB.config = addon.config
                 else
                     print("|cff00ff00[GuildItemScanner]|r Usage: /gis stat <stat> <weight>")
@@ -905,19 +938,18 @@ local function onSlashCommand(msg)
         print("  Debug mode: " .. (addon.config.debugMode and "enabled" or "disabled"))
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
+        print("  Recipe request button: " .. (addon.config.recipeButton and "enabled" or "disabled"))
         print("  Auto-GZ mode: " .. (addon.config.autoGZ and "enabled" or "disabled"))
         print("  Auto-RIP mode: " .. (addon.config.autoRIP and "enabled" or "disabled"))
         print("  Recipe alerts: " .. (addon.config.recipeAlert and "enabled" or "disabled"))
         print("  Professions: " .. (#addon.config.myProfessions > 0 and table.concat(addon.config.myProfessions, ", ") or "None"))
         print("  Evaluation mode: " .. (addon.config.useStatPriority and "Stat Priority" or "Item Level"))
         
-        -- Show stat priorities sorted by weight
         if next(addon.config.statPriority) then
             local statList = {}
             for stat, weight in pairs(addon.config.statPriority) do
                 table.insert(statList, {stat = stat, weight = weight})
             end
-            -- Sort by weight (highest first)
             table.sort(statList, function(a, b) return a.weight > b.weight end)
             
             print("  Stat priorities (highest to lowest):")
@@ -928,9 +960,11 @@ local function onSlashCommand(msg)
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
         print(" /gis test - Test an equipment alert")
+        print(" /gis testrecipe - Test a recipe alert")
         print(" /gis debug - Toggle debug logging")
         print(" /gis whisper - Toggle whisper mode")
         print(" /gis greed - Toggle loot message mode")
+        print(" /gis recipebutton - Toggle recipe request button")
         print(" /gis gz - Toggle auto-congratulations for achievements")
         print(" /gis rip - Toggle auto-RIP for deaths (level-based messages)")
         print(" /gis prof - Manage your professions")
@@ -944,16 +978,12 @@ end
 local function HookChatFrame()
     local originalAddMessage = DEFAULT_CHAT_FRAME.AddMessage
     DEFAULT_CHAT_FRAME.AddMessage = function(self, text, ...)
-        -- Check if this is a Frontier achievement message (but NOT our debug message)
         if text and string.find(text, "%[Frontier%]") and not string.find(text, "%[GIS Debug%]") then
-            -- Strip color codes
             local cleanText = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
             cleanText = string.gsub(cleanText, "|r", "")
             
-            -- Check for achievement messages
-            if string.find(text, "earned achievement:") then
-                -- Extract player name from achievement message
-                local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*earned achievement:")
+            if string.find(cleanText, "earned achievement:") then
+                local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*earned achievement:")
                 
                 if addon.config.debugMode then
                     originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught achievement: " .. text)
@@ -967,17 +997,13 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoGZ then
-                    -- Wait 1 second before sending GZ to avoid appearing automated
                     C_Timer.After(1, function()
                         SendChatMessage("GZ", "GUILD")
                         originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
                     end)
                 end
-            
-            -- Check for death messages
-            elseif string.find(text, "has died") then
-                -- Extract player name from death message
-                local playerName = string.match(cleanText, "%[Frontier%]%s*(.-)%s*has died")
+            elseif string.find(cleanText, "has died") then
+                local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*has died")
                 
                 if addon.config.debugMode then
                     originalAddMessage(self, "|cff00ff00[GIS Debug]|r Caught death: " .. text)
@@ -991,11 +1017,8 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoRIP then
-                    -- Extract level from the death message if available
                     local level = string.match(text, "Level (%d+)") or string.match(cleanText, "Level (%d+)")
-                    
-                    -- Determine message based on level
-                    local deathMessage = "RIPBOZO"  -- Default
+                    local deathMessage = "RIPBOZO"
                     if level then
                         level = tonumber(level)
                         if level < 30 then
@@ -1013,7 +1036,6 @@ local function HookChatFrame()
                         end
                     end
                     
-                    -- Wait 1 second before sending message to avoid appearing automated
                     C_Timer.After(1, function()
                         SendChatMessage(deathMessage, "GUILD")
                         originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s: %s", playerName, deathMessage))
@@ -1022,7 +1044,6 @@ local function HookChatFrame()
             end
         end
         
-        -- Call the original function for all other messages
         return originalAddMessage(self, text, ...)
     end
 end
@@ -1030,9 +1051,13 @@ end
 -- Initialization
 local function onPlayerLogin()
     LoadSavedVariables()
-    HookChatFrame()  -- Hook the chat frame when player logs in
+    HookChatFrame()
     local _, class = UnitClass("player")
     print("|cff00ff00[GuildItemScanner]|r Loaded for " .. class .. ". Type /gis for commands.")
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Alert frame initialized at %s, isVisible=%s", 
+            alertFrame:GetPoint(1), tostring(alertFrame:IsVisible())))
+    end
 end
 
 -- Event registration
