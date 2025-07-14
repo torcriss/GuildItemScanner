@@ -11,7 +11,9 @@ addon.config = {
     autoGZ = false,  -- Auto-congratulations for achievements
     autoRIP = false,  -- Auto-RIP for deaths
     recipeAlert = true,  -- Alert for profession recipes
-    myProfessions = {}  -- Player's professions
+    myProfessions = {},  -- Player's professions
+    statPriority = {},  -- Stat priorities for gear evaluation
+    useStatPriority = false  -- Whether to use stat priority instead of ilvl
 }
 
 local MAX_HISTORY = 20
@@ -169,9 +171,112 @@ local function LoadSavedVariables()
     addon.config.autoGZ = addon.config.autoGZ or false
     addon.config.autoRIP = addon.config.autoRIP or false
     addon.config.recipeAlert = addon.config.recipeAlert ~= false  -- Default to true
+    addon.config.statPriority = addon.config.statPriority or {}
+    addon.config.useStatPriority = addon.config.useStatPriority or false
     
     addon.alertHistory = GuildItemScannerDB.alertHistory
     addon.uncachedHistory = GuildItemScannerDB.uncachedHistory
+end
+
+-- Stat patterns for Classic WoW
+local STAT_PATTERNS = {
+    -- Primary stats
+    ["(%d+) Strength"] = "strength",
+    ["(%d+) Agility"] = "agility",
+    ["(%d+) Stamina"] = "stamina",
+    ["(%d+) Intellect"] = "intellect",
+    ["(%d+) Spirit"] = "spirit",
+    
+    -- Secondary stats
+    ["(%d+) Attack Power"] = "attackpower",
+    ["(%d+) Spell Power"] = "spellpower",
+    ["(%d+) Healing"] = "healing",
+    ["(%d+) Spell Damage"] = "spelldamage",
+    ["Improves your chance to get a critical strike by (%d+)%%"] = "crit",
+    ["Improves your chance to hit by (%d+)%%"] = "hit",
+    ["(%d+) Defense Rating"] = "defense",
+    ["(%d+) Dodge Rating"] = "dodge",
+    ["(%d+) Parry Rating"] = "parry",
+    ["(%d+) Block Rating"] = "block",
+    
+    -- Resistances
+    ["(%d+) Fire Resistance"] = "fireres",
+    ["(%d+) Nature Resistance"] = "natureres",
+    ["(%d+) Frost Resistance"] = "frostres",
+    ["(%d+) Shadow Resistance"] = "shadowres",
+    ["(%d+) Arcane Resistance"] = "arcaneres",
+    
+    -- All stats
+    ["%+(%d+) All Stats"] = "allstats",
+    ["%+(%d+) to All Stats"] = "allstats"
+}
+
+-- Function to get item stats
+local function getItemStats(itemLink)
+    local stats = {}
+    
+    -- Create a tooltip to scan
+    local scanTip = CreateFrame("GameTooltip", "GIScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetHyperlink(itemLink)
+    
+    -- Scan tooltip lines
+    for i = 1, scanTip:NumLines() do
+        local text = _G["GIScanTooltipTextLeft" .. i]:GetText()
+        if text then
+            -- Check each stat pattern
+            for pattern, statName in pairs(STAT_PATTERNS) do
+                local value = string.match(text, pattern)
+                if value then
+                    value = tonumber(value)
+                    if statName == "allstats" then
+                        -- Add to all primary stats
+                        stats.strength = (stats.strength or 0) + value
+                        stats.agility = (stats.agility or 0) + value
+                        stats.stamina = (stats.stamina or 0) + value
+                        stats.intellect = (stats.intellect or 0) + value
+                        stats.spirit = (stats.spirit or 0) + value
+                    else
+                        stats[statName] = (stats[statName] or 0) + value
+                    end
+                end
+            end
+        end
+    end
+    
+    scanTip:Hide()
+    return stats
+end
+
+-- Function to calculate stat score based on priorities
+local function calculateStatScore(stats)
+    local score = 0
+    for stat, value in pairs(stats) do
+        local priority = addon.config.statPriority[stat]
+        if priority and priority > 0 then
+            score = score + (value * priority)
+        end
+    end
+    return score
+end
+
+-- Function to compare items by stats
+local function compareItemsByStats(newItemLink, equippedItemLink)
+    if not equippedItemLink then
+        return true, 0  -- No item equipped, new item is upgrade
+    end
+    
+    local newStats = getItemStats(newItemLink)
+    local equippedStats = getItemStats(equippedItemLink)
+    
+    local newScore = calculateStatScore(newStats)
+    local equippedScore = calculateStatScore(equippedStats)
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r New item score: %.1f, Equipped score: %.1f", newScore, equippedScore))
+    end
+    
+    return newScore > equippedScore, newScore - equippedScore
 end
 
 local function getEquippedItemLevel(slot)
@@ -253,33 +358,64 @@ local function isItemUpgrade(itemLink)
         return false
     end
 
+    -- Determine which slots to check
+    local slotsToCheck = {}
     if itemEquipLoc == "INVTYPE_FINGER" then
-        local ring1 = getEquippedItemLevel(11)
-        local ring2 = getEquippedItemLevel(12)
-        return itemLevel > math.min(ring1, ring2)
+        slotsToCheck = {11, 12}
     elseif itemEquipLoc == "INVTYPE_TRINKET" then
-        local trinket1 = getEquippedItemLevel(13)
-        local trinket2 = getEquippedItemLevel(14)
-        return itemLevel > math.min(trinket1, trinket2)
+        slotsToCheck = {13, 14}
+    else
+        local slot = SLOT_ID_MAPPING[itemEquipLoc]
+        if slot then
+            slotsToCheck = {slot}
+        end
     end
 
-    local slot = SLOT_ID_MAPPING[itemEquipLoc]
-    if not slot then
+    if #slotsToCheck == 0 then
         if addon.config.debugMode then
             print(string.format("|cff00ff00[GIS Debug]|r Invalid slot: %s", itemEquipLoc or "nil"))
         end
         return false
     end
 
-    local equippedLevel = getEquippedItemLevel(slot)
-    if addon.config.debugMode then
-        if itemLevel > equippedLevel then
-            print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, equippedLevel))
-        else
-            print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, equippedLevel))
+    -- Use stat priority if enabled and configured
+    if addon.config.useStatPriority and next(addon.config.statPriority) then
+        -- Check against each possible slot
+        for _, slot in ipairs(slotsToCheck) do
+            local equippedLink = GetInventoryItemLink("player", slot)
+            local isUpgrade, scoreDiff = compareItemsByStats(itemLink, equippedLink)
+            
+            if isUpgrade then
+                if addon.config.debugMode then
+                    print(string.format("|cff00ff00[GIS Debug]|r Stat score +%.1f |cffa335eeUPGRADE!|r", scoreDiff))
+                end
+                return true, scoreDiff
+            end
         end
+        
+        if addon.config.debugMode then
+            print(string.format("|cff00ff00[GIS Debug]|r Not a stat upgrade"))
+        end
+        return false
+    else
+        -- Original item level based comparison
+        local lowestEquippedLevel = 999
+        for _, slot in ipairs(slotsToCheck) do
+            local equippedLevel = getEquippedItemLevel(slot)
+            if equippedLevel < lowestEquippedLevel then
+                lowestEquippedLevel = equippedLevel
+            end
+        end
+        
+        if addon.config.debugMode then
+            if itemLevel > lowestEquippedLevel then
+                print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
+            else
+                print(string.format("|cff00ff00[GIS Debug]|r ilvl %d vs %d", itemLevel, lowestEquippedLevel))
+            end
+        end
+        return itemLevel > lowestEquippedLevel, itemLevel - lowestEquippedLevel
     end
-    return itemLevel > equippedLevel
 end
 
 local function addToHistory(itemLink, playerName)
@@ -313,26 +449,60 @@ end)
 local function showAlert(itemLink, playerName)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
     local slot = SLOT_MAPPING[itemEquipLoc] or "unknown"
-    local equippedLevel = getEquippedItemLevel(SLOT_ID_MAPPING[itemEquipLoc] or 1)
-    local ilvlDiff = itemLevel - equippedLevel
-
+    
     addToHistory(itemLink, playerName)
 
-    -- Print to chat (new concise format)
-    print(string.format("|cff00ff00[GuildItemScanner]|r +%d ilvl upgrade: %s", ilvlDiff, itemLink))
-    print(string.format("|cff00ff00[GuildItemScanner]|r From: %s (%d>%d %s)", playerName, itemLevel, equippedLevel, slot))
+    -- Get upgrade info based on current mode
+    local upgradeText, detailText
+    if addon.config.useStatPriority and next(addon.config.statPriority) then
+        -- Stat-based evaluation
+        local isUpgrade, scoreDiff = isItemUpgrade(itemLink)
+        upgradeText = string.format("+%.1f stat score upgrade: %s", scoreDiff, itemLink)
+        
+        -- Show which stats make it an upgrade
+        local stats = getItemStats(itemLink)
+        local statList = {}
+        for stat, value in pairs(stats) do
+            if addon.config.statPriority[stat] and addon.config.statPriority[stat] > 0 then
+                table.insert(statList, string.format("%s: %d (x%.1f)", stat, value, addon.config.statPriority[stat]))
+            end
+        end
+        detailText = string.format("From: %s (%s)", playerName, #statList > 0 and table.concat(statList, ", ") or "no priority stats")
+    else
+        -- Item level based evaluation
+        local equippedLevel = 0
+        if itemEquipLoc == "INVTYPE_FINGER" then
+            equippedLevel = math.min(getEquippedItemLevel(11), getEquippedItemLevel(12))
+        elseif itemEquipLoc == "INVTYPE_TRINKET" then
+            equippedLevel = math.min(getEquippedItemLevel(13), getEquippedItemLevel(14))
+        else
+            equippedLevel = getEquippedItemLevel(SLOT_ID_MAPPING[itemEquipLoc] or 1)
+        end
+        
+        local ilvlDiff = itemLevel - equippedLevel
+        upgradeText = string.format("+%d ilvl upgrade: %s", ilvlDiff, itemLink)
+        detailText = string.format("From: %s (%d>%d %s)", playerName, itemLevel, equippedLevel, slot)
+    end
+
+    -- Print to chat
+    print(string.format("|cff00ff00[GuildItemScanner]|r %s", upgradeText))
+    print(string.format("|cff00ff00[GuildItemScanner]|r %s", detailText))
 
     -- Show alert frame
     currentAlert = {
         itemLink = itemLink,
         playerName = playerName,
         itemLevel = itemLevel,
-        slot = slot,
-        equippedLevel = equippedLevel
+        slot = slot
     }
     
-    alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00Item level %d > %d (%s)|r", 
-        playerName, itemLink, itemLevel or 0, equippedLevel, slot))
+    if addon.config.useStatPriority and next(addon.config.statPriority) then
+        alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00%s|r", 
+            playerName, itemLink, detailText))
+    else
+        alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00Item level %d (%s)|r", 
+            playerName, itemLink, itemLevel or 0, slot))
+    end
     
     -- Show or hide greed button based on config
     if addon.config.greedMode then
@@ -410,28 +580,122 @@ function processItemLink(itemLink, playerName, skipCooldown)
     end
 end
 
--- Recipe profession mapping
-local RECIPE_PROFESSIONS = {
-    -- Alchemy
-    ["Recipe: "] = {"Alchemy", "Cooking"},  -- Both Alchemy and Cooking use "Recipe: "
-    ["Formula: "] = "Enchanting",
-    ["Pattern: "] = {"Tailoring", "Leatherworking"},
-    ["Plans: "] = "Blacksmithing",
-    ["Schematic: "] = "Engineering",
-    -- Special cases
-    ["Manual: "] = "First Aid",
-    ["Book: "] = "Multiple", -- Could be various professions
-    ["Design: "] = "Jewelcrafting" -- For future expansions
+-- Stat patterns for Classic WoW
+local STAT_PATTERNS = {
+    -- Primary stats
+    ["(%d+) Strength"] = "strength",
+    ["(%d+) Agility"] = "agility",
+    ["(%d+) Stamina"] = "stamina",
+    ["(%d+) Intellect"] = "intellect",
+    ["(%d+) Spirit"] = "spirit",
+    
+    -- Secondary stats
+    ["(%d+) Attack Power"] = "attackpower",
+    ["(%d+) Spell Power"] = "spellpower",
+    ["(%d+) Healing"] = "healing",
+    ["(%d+) Spell Damage"] = "spelldamage",
+    ["Improves your chance to get a critical strike by (%d+)%%"] = "crit",
+    ["Improves your chance to hit by (%d+)%%"] = "hit",
+    ["(%d+) Defense Rating"] = "defense",
+    ["(%d+) Dodge Rating"] = "dodge",
+    ["(%d+) Parry Rating"] = "parry",
+    ["(%d+) Block Rating"] = "block",
+    
+    -- Resistances
+    ["(%d+) Fire Resistance"] = "fireres",
+    ["(%d+) Nature Resistance"] = "natureres",
+    ["(%d+) Frost Resistance"] = "frostres",
+    ["(%d+) Shadow Resistance"] = "shadowres",
+    ["(%d+) Arcane Resistance"] = "arcaneres",
+    
+    -- All stats
+    ["%+(%d+) All Stats"] = "allstats",
+    ["%+(%d+) to All Stats"] = "allstats"
 }
+
+-- Function to get item stats
+local function getItemStats(itemLink)
+    local stats = {}
+    
+    -- Create a tooltip to scan
+    local scanTip = CreateFrame("GameTooltip", "GIScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetHyperlink(itemLink)
+    
+    -- Scan tooltip lines
+    for i = 1, scanTip:NumLines() do
+        local text = _G["GIScanTooltipTextLeft" .. i]:GetText()
+        if text then
+            -- Check each stat pattern
+            for pattern, statName in pairs(STAT_PATTERNS) do
+                local value = string.match(text, pattern)
+                if value then
+                    value = tonumber(value)
+                    if statName == "allstats" then
+                        -- Add to all primary stats
+                        stats.strength = (stats.strength or 0) + value
+                        stats.agility = (stats.agility or 0) + value
+                        stats.stamina = (stats.stamina or 0) + value
+                        stats.intellect = (stats.intellect or 0) + value
+                        stats.spirit = (stats.spirit or 0) + value
+                    else
+                        stats[statName] = (stats[statName] or 0) + value
+                    end
+                end
+            end
+        end
+    end
+    
+    scanTip:Hide()
+    return stats
+end
+
+-- Function to calculate stat score based on priorities
+local function calculateStatScore(stats)
+    local score = 0
+    for stat, value in pairs(stats) do
+        local priority = addon.config.statPriority[stat]
+        if priority and priority > 0 then
+            score = score + (value * priority)
+        end
+    end
+    return score
+end
+
+-- Function to compare items by stats
+local function compareItemsByStats(newItemLink, equippedItemLink)
+    if not equippedItemLink then
+        return true, 0  -- No item equipped, new item is upgrade
+    end
+    
+    local newStats = getItemStats(newItemLink)
+    local equippedStats = getItemStats(equippedItemLink)
+    
+    local newScore = calculateStatScore(newStats)
+    local equippedScore = calculateStatScore(equippedStats)
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r New item score: %.1f, Equipped score: %.1f", newScore, equippedScore))
+    end
+    
+    return newScore > equippedScore, newScore - equippedScore
+end
 
 -- Function to check if a recipe is for player's professions
 local function isRecipeForMyProfession(itemLink)
+    -- Ensure config and tables exist
+    if not addon.config then return false end
+    addon.config.myProfessions = addon.config.myProfessions or {}
+    
     if not addon.config.recipeAlert or #addon.config.myProfessions == 0 then
         return false
     end
     
     local itemName = string.match(itemLink, "|h%[(.-)%]|h")
     if not itemName then return false end
+    
+    -- Ensure RECIPE_PROFESSIONS exists
+    if not RECIPE_PROFESSIONS then return false end
     
     -- Check each recipe type
     for prefix, professions in pairs(RECIPE_PROFESSIONS) do
@@ -585,6 +849,55 @@ local function onSlashCommand(msg)
         addon.config.recipeAlert = not addon.config.recipeAlert
         print("|cff00ff00[GuildItemScanner]|r Recipe alerts " .. (addon.config.recipeAlert and "enabled" or "disabled"))
         GuildItemScannerDB.config = addon.config
+    elseif cmd == "stat" or cmd == "stats" then
+        if args == "" then
+            -- Show current stat priorities
+            if not next(addon.config.statPriority) then
+                print("|cff00ff00[GuildItemScanner]|r No stat priorities set. Use /gis stat <stat> <weight>")
+                print("|cff00ff00[GuildItemScanner]|r Example: /gis stat agility 2.5")
+            else
+                print("|cff00ff00[GuildItemScanner]|r Current stat priorities:")
+                for stat, weight in pairs(addon.config.statPriority) do
+                    print(string.format("  %s: %.1f", stat, weight))
+                end
+            end
+            print("|cff00ff00[GuildItemScanner]|r Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, crit, hit, defense")
+            print("|cff00ff00[GuildItemScanner]|r Use /gis stat clear to reset all priorities")
+            print("|cff00ff00[GuildItemScanner]|r Use /gis stat mode to toggle between stat and ilvl evaluation")
+        else
+            local subCmd, rest = args:match("^(%S+)%s*(.*)$")
+            subCmd = subCmd and subCmd:lower() or ""
+            
+            if subCmd == "clear" then
+                addon.config.statPriority = {}
+                print("|cff00ff00[GuildItemScanner]|r Cleared all stat priorities")
+                GuildItemScannerDB.config = addon.config
+            elseif subCmd == "mode" then
+                addon.config.useStatPriority = not addon.config.useStatPriority
+                if addon.config.useStatPriority and not next(addon.config.statPriority) then
+                    print("|cff00ff00[GuildItemScanner]|r Stat priority mode enabled but no priorities set!")
+                else
+                    print("|cff00ff00[GuildItemScanner]|r Evaluation mode: " .. (addon.config.useStatPriority and "Stat Priority" or "Item Level"))
+                end
+                GuildItemScannerDB.config = addon.config
+            else
+                -- Setting a stat priority
+                local weight = tonumber(rest)
+                if weight then
+                    addon.config.statPriority[subCmd] = weight
+                    print(string.format("|cff00ff00[GuildItemScanner]|r Set %s priority to %.1f", subCmd, weight))
+                    GuildItemScannerDB.config = addon.config
+                elseif rest == "" then
+                    -- Remove stat priority
+                    addon.config.statPriority[subCmd] = nil
+                    print(string.format("|cff00ff00[GuildItemScanner]|r Removed %s priority", subCmd))
+                    GuildItemScannerDB.config = addon.config
+                else
+                    print("|cff00ff00[GuildItemScanner]|r Usage: /gis stat <stat> <weight>")
+                    print("|cff00ff00[GuildItemScanner]|r Example: /gis stat agility 2.5")
+                end
+            end
+        end
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
@@ -596,6 +909,22 @@ local function onSlashCommand(msg)
         print("  Auto-RIP mode: " .. (addon.config.autoRIP and "enabled" or "disabled"))
         print("  Recipe alerts: " .. (addon.config.recipeAlert and "enabled" or "disabled"))
         print("  Professions: " .. (#addon.config.myProfessions > 0 and table.concat(addon.config.myProfessions, ", ") or "None"))
+        print("  Evaluation mode: " .. (addon.config.useStatPriority and "Stat Priority" or "Item Level"))
+        
+        -- Show stat priorities sorted by weight
+        if next(addon.config.statPriority) then
+            local statList = {}
+            for stat, weight in pairs(addon.config.statPriority) do
+                table.insert(statList, {stat = stat, weight = weight})
+            end
+            -- Sort by weight (highest first)
+            table.sort(statList, function(a, b) return a.weight > b.weight end)
+            
+            print("  Stat priorities (highest to lowest):")
+            for _, entry in ipairs(statList) do
+                print(string.format("    %s: %.1f", entry.stat, entry.weight))
+            end
+        end
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
         print(" /gis test - Test an equipment alert")
@@ -606,6 +935,7 @@ local function onSlashCommand(msg)
         print(" /gis rip - Toggle auto-RIPBOZO for deaths")
         print(" /gis prof - Manage your professions")
         print(" /gis recipe - Toggle recipe alerts")
+        print(" /gis stat - Manage stat priorities for gear evaluation")
         print(" /gis status - Show current configuration")
     end
 end
