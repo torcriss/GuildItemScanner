@@ -10,6 +10,8 @@ addon.config = {
     debugMode = false,
     autoGZ = false,  -- Auto-congratulations for achievements
     autoRIP = false,  -- Auto-RIP for deaths
+    recipeAlert = true,  -- Alert for profession recipes
+    myProfessions = {}  -- Player's professions
 }
 
 local MAX_HISTORY = 20
@@ -146,11 +148,28 @@ local CLASS_WEAPON_RESTRICTIONS = {
 
 local function LoadSavedVariables()
     GuildItemScannerDB = GuildItemScannerDB or {
-        config = addon.config,
+        config = {
+            soundAlert = true,
+            whisperMode = false,
+            greedMode = true,
+            alertDuration = 10,
+            debugMode = false,
+            autoGZ = false,
+            autoRIP = false,
+            recipeAlert = true,
+            myProfessions = {}
+        },
         alertHistory = {},
         uncachedHistory = {}
     }
+    
+    -- Ensure all config fields exist
     addon.config = GuildItemScannerDB.config
+    addon.config.myProfessions = addon.config.myProfessions or {}
+    addon.config.autoGZ = addon.config.autoGZ or false
+    addon.config.autoRIP = addon.config.autoRIP or false
+    addon.config.recipeAlert = addon.config.recipeAlert ~= false  -- Default to true
+    
     addon.alertHistory = GuildItemScannerDB.alertHistory
     addon.uncachedHistory = GuildItemScannerDB.uncachedHistory
 end
@@ -391,29 +410,61 @@ function processItemLink(itemLink, playerName, skipCooldown)
     end
 end
 
--- Function to check for achievement messages
-local function checkForAchievement(message)
-    -- Pattern to match achievement messages
-    -- Example: "[Frontier] Renzore earned achievement: Achievement Name"
-    local achievementPattern = "%[.-%] (.+) earned achievement:"
-    local playerName = string.match(message, achievementPattern)
+-- Recipe profession mapping
+local RECIPE_PROFESSIONS = {
+    -- Alchemy
+    ["Recipe: "] = {"Alchemy", "Cooking"},  -- Both Alchemy and Cooking use "Recipe: "
+    ["Formula: "] = "Enchanting",
+    ["Pattern: "] = {"Tailoring", "Leatherworking"},
+    ["Plans: "] = "Blacksmithing",
+    ["Schematic: "] = "Engineering",
+    -- Special cases
+    ["Manual: "] = "First Aid",
+    ["Book: "] = "Multiple", -- Could be various professions
+    ["Design: "] = "Jewelcrafting" -- For future expansions
+}
+
+-- Function to check if a recipe is for player's professions
+local function isRecipeForMyProfession(itemLink)
+    if not addon.config.recipeAlert or #addon.config.myProfessions == 0 then
+        return false
+    end
     
-    if addon.config.debugMode then
-        print(string.format("|cff00ff00[GIS Debug]|r Checking message: %s", message))
-        if playerName then
-            print(string.format("|cff00ff00[GIS Debug]|r Found achievement for: %s", playerName))
-        else
-            print("|cff00ff00[GIS Debug]|r No achievement pattern match")
+    local itemName = string.match(itemLink, "|h%[(.-)%]|h")
+    if not itemName then return false end
+    
+    -- Check each recipe type
+    for prefix, professions in pairs(RECIPE_PROFESSIONS) do
+        if string.find(itemName, prefix) then
+            -- Handle both single profession and multiple profession cases
+            if type(professions) == "string" then
+                for _, myProf in ipairs(addon.config.myProfessions) do
+                    if string.lower(professions) == string.lower(myProf) then
+                        return true, professions
+                    end
+                end
+            elseif type(professions) == "table" then
+                for _, prof in ipairs(professions) do
+                    for _, myProf in ipairs(addon.config.myProfessions) do
+                        if string.lower(prof) == string.lower(myProf) then
+                            return true, prof
+                        end
+                    end
+                end
+            end
         end
     end
     
-    if playerName and addon.config.autoGZ then
-        -- Wait 1 second before sending GZ to avoid appearing automated
-        C_Timer.After(1, function()
-            SendChatMessage("GZ", "GUILD")
-            print(string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
-        end)
+    -- Special check for cooking recipes (they don't always have a prefix)
+    if string.find(itemName, "Recipe") and not string.find(itemName, "Recipe: ") then
+        for _, myProf in ipairs(addon.config.myProfessions) do
+            if string.lower(myProf) == "cooking" then
+                return true, "Cooking"
+            end
+        end
     end
+    
+    return false
 end
 
 -- Chat message handler
@@ -422,14 +473,29 @@ local function onChatMessage(self, event, message, sender, ...)
     if event == "CHAT_MSG_GUILD" then
         -- Check for item links in guild chat
         for _, itemLink in ipairs(extractItemLinks(message)) do
-            processItemLink(itemLink, sender)
+            -- Check for recipes first
+            local isRecipe, profession = isRecipeForMyProfession(itemLink)
+            if isRecipe then
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffffcc00%s recipe detected!|r %s", profession, itemLink))
+                print(string.format("|cff00ff00[GuildItemScanner]|r From: %s", sender))
+                
+                if addon.config.soundAlert then
+                    PlaySound(3332)
+                end
+            else
+                -- Check for equipment upgrades
+                processItemLink(itemLink, sender)
+            end
         end
     end
 end
 
 -- Slash commands
 local function onSlashCommand(msg)
-    local cmd = msg:lower()
+    local cmd, args = msg:match("^(%S+)%s*(.*)$")
+    cmd = cmd and cmd:lower() or ""
+    args = args or ""
+    
     if cmd == "test" then
         local playerName = UnitName("player")
         processItemLink("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", playerName, true)
@@ -455,6 +521,70 @@ local function onSlashCommand(msg)
         addon.config.autoRIP = not addon.config.autoRIP
         print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (addon.config.autoRIP and "enabled" or "disabled"))
         GuildItemScannerDB.config = addon.config  -- Save the setting
+    elseif cmd == "prof" then
+        if args == "" then
+            -- Show current professions
+            if #addon.config.myProfessions == 0 then
+                print("|cff00ff00[GuildItemScanner]|r No professions set. Use /gis prof add <profession> or /gis prof clear")
+            else
+                print("|cff00ff00[GuildItemScanner]|r Your professions: " .. table.concat(addon.config.myProfessions, ", "))
+            end
+            print("|cff00ff00[GuildItemScanner]|r Valid professions: Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Tailoring")
+        else
+            local subCmd, profession = args:match("^(%S+)%s*(.*)$")
+            subCmd = subCmd and subCmd:lower() or ""
+            profession = profession or ""
+            
+            if addon.config.debugMode then
+                print(string.format("|cff00ff00[GIS Debug]|r args='%s', subCmd='%s', profession='%s'", args, subCmd, profession))
+            end
+            
+            if subCmd == "add" and profession ~= "" then
+                -- Capitalize first letter
+                profession = profession:gsub("^%l", string.upper)
+                -- Check for duplicates
+                local alreadyExists = false
+                for _, prof in ipairs(addon.config.myProfessions) do
+                    if string.lower(prof) == string.lower(profession) then
+                        alreadyExists = true
+                        break
+                    end
+                end
+                
+                if not alreadyExists then
+                    table.insert(addon.config.myProfessions, profession)
+                    print("|cff00ff00[GuildItemScanner]|r Added profession: " .. profession)
+                    GuildItemScannerDB.config = addon.config
+                else
+                    print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
+                end
+            elseif subCmd == "remove" and profession ~= "" then
+                profession = profession:gsub("^%l", string.upper)
+                local removed = false
+                for i, prof in ipairs(addon.config.myProfessions) do
+                    if string.lower(prof) == string.lower(profession) then
+                        table.remove(addon.config.myProfessions, i)
+                        print("|cff00ff00[GuildItemScanner]|r Removed profession: " .. profession)
+                        GuildItemScannerDB.config = addon.config
+                        removed = true
+                        break
+                    end
+                end
+                if not removed then
+                    print("|cff00ff00[GuildItemScanner]|r You don't have " .. profession)
+                end
+            elseif subCmd == "clear" then
+                addon.config.myProfessions = {}
+                print("|cff00ff00[GuildItemScanner]|r Cleared all professions")
+                GuildItemScannerDB.config = addon.config
+            else
+                print("|cff00ff00[GuildItemScanner]|r Usage: /gis prof [add|remove|clear] <profession>")
+            end
+        end
+    elseif cmd == "recipe" then
+        addon.config.recipeAlert = not addon.config.recipeAlert
+        print("|cff00ff00[GuildItemScanner]|r Recipe alerts " .. (addon.config.recipeAlert and "enabled" or "disabled"))
+        GuildItemScannerDB.config = addon.config
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
@@ -464,6 +594,8 @@ local function onSlashCommand(msg)
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
         print("  Auto-GZ mode: " .. (addon.config.autoGZ and "enabled" or "disabled"))
         print("  Auto-RIP mode: " .. (addon.config.autoRIP and "enabled" or "disabled"))
+        print("  Recipe alerts: " .. (addon.config.recipeAlert and "enabled" or "disabled"))
+        print("  Professions: " .. (#addon.config.myProfessions > 0 and table.concat(addon.config.myProfessions, ", ") or "None"))
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
         print(" /gis test - Test an equipment alert")
@@ -472,6 +604,8 @@ local function onSlashCommand(msg)
         print(" /gis greed - Toggle loot message mode")
         print(" /gis gz - Toggle auto-congratulations for achievements")
         print(" /gis rip - Toggle auto-RIPBOZO for deaths")
+        print(" /gis prof - Manage your professions")
+        print(" /gis recipe - Toggle recipe alerts")
         print(" /gis status - Show current configuration")
     end
 end
