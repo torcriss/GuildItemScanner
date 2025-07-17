@@ -73,24 +73,24 @@ local currentAlert = nil
 local SLOT_MAPPING = {
     INVTYPE_FINGER = "finger", INVTYPE_TRINKET = "trinket", INVTYPE_HEAD = "head",
     INVTYPE_NECK = "neck", INVTYPE_SHOULDER = "shoulder", INVTYPE_BODY = "shirt",
-    INVTYPE_CHEST = "chest", INVTYPE_WAIST = "waist", INVTYPE_LEGS = "legs",
-    INVTYPE_FEET = "feet", INVTYPE_WRIST = "wrist", INVTYPE_HAND = "hands",
-    INVTYPE_CLOAK = "back", INVTYPE_WEAPON = "main hand", INVTYPE_SHIELD = "off hand",
-    INVTYPE_2HWEAPON = "two-hand", INVTYPE_WEAPONMAINHAND = "main hand",
-    INVTYPE_WEAPONOFFHAND = "off hand", INVTYPE_HOLDABLE = "off hand",
-    INVTYPE_RANGED = "ranged", INVTYPE_THROWN = "ranged",
+    INVTYPE_CHEST = "chest", INVTYPE_ROBE = "chest", INVTYPE_WAIST = "waist", 
+    INVTYPE_LEGS = "legs", INVTYPE_FEET = "feet", INVTYPE_WRIST = "wrist", 
+    INVTYPE_HAND = "hands", INVTYPE_CLOAK = "back", INVTYPE_WEAPON = "main hand", 
+    INVTYPE_SHIELD = "off hand", INVTYPE_2HWEAPON = "two-hand", 
+    INVTYPE_WEAPONMAINHAND = "main hand", INVTYPE_WEAPONOFFHAND = "off hand", 
+    INVTYPE_HOLDABLE = "off hand", INVTYPE_RANGED = "ranged", INVTYPE_THROWN = "ranged",
     INVTYPE_RANGEDRIGHT = "ranged", INVTYPE_RELIC = "ranged", INVTYPE_TABARD = "tabard"
 }
 
 local SLOT_ID_MAPPING = {
     INVTYPE_FINGER = 11, INVTYPE_TRINKET = 13, INVTYPE_HEAD = 1,
     INVTYPE_NECK = 2, INVTYPE_SHOULDER = 3, INVTYPE_BODY = 4,
-    INVTYPE_CHEST = 5, INVTYPE_WAIST = 6, INVTYPE_LEGS = 7,
-    INVTYPE_FEET = 8, INVTYPE_WRIST = 9, INVTYPE_HAND = 10,
-    INVTYPE_CLOAK = 15, INVTYPE_WEAPON = 16, INVTYPE_SHIELD = 17,
-    INVTYPE_2HWEAPON = 16, INVTYPE_WEAPONMAINHAND = 16, INVTYPE_WEAPONOFFHAND = 17,
-    INVTYPE_HOLDABLE = 17, INVTYPE_RANGED = 18, INVTYPE_THROWN = 18,
-    INVTYPE_RANGEDRIGHT = 18, INVTYPE_RELIC = 18, INVTYPE_TABARD = 19
+    INVTYPE_CHEST = 5, INVTYPE_ROBE = 5, INVTYPE_WAIST = 6, 
+    INVTYPE_LEGS = 7, INVTYPE_FEET = 8, INVTYPE_WRIST = 9, 
+    INVTYPE_HAND = 10, INVTYPE_CLOAK = 15, INVTYPE_WEAPON = 16, 
+    INVTYPE_SHIELD = 17, INVTYPE_2HWEAPON = 16, INVTYPE_WEAPONMAINHAND = 16, 
+    INVTYPE_WEAPONOFFHAND = 17, INVTYPE_HOLDABLE = 17, INVTYPE_RANGED = 18, 
+    INVTYPE_THROWN = 18, INVTYPE_RANGEDRIGHT = 18, INVTYPE_RELIC = 18, INVTYPE_TABARD = 19
 }
 
 -- Class armor restrictions
@@ -318,10 +318,11 @@ local function canPlayerUseItem(itemLink)
     
     local isArmor = itemEquipLoc and (
         itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_SHOULDER" or
-        itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_WAIST" or
-        itemEquipLoc == "INVTYPE_LEGS" or itemEquipLoc == "INVTYPE_FEET" or
-        itemEquipLoc == "INVTYPE_WRIST" or itemEquipLoc == "INVTYPE_HAND" or
-        itemEquipLoc == "INVTYPE_CLOAK" or itemEquipLoc == "INVTYPE_BODY"
+        itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_ROBE" or
+        itemEquipLoc == "INVTYPE_WAIST" or itemEquipLoc == "INVTYPE_LEGS" or 
+        itemEquipLoc == "INVTYPE_FEET" or itemEquipLoc == "INVTYPE_WRIST" or 
+        itemEquipLoc == "INVTYPE_HAND" or itemEquipLoc == "INVTYPE_CLOAK" or 
+        itemEquipLoc == "INVTYPE_BODY"
     )
     
     if isArmor and itemSubType then
@@ -931,6 +932,177 @@ local function onSlashCommand(msg)
                 end
             end
         end
+    elseif cmd == "compare" then
+        if args == "" then
+            print("|cff00ff00[GuildItemScanner]|r Usage: /gis compare [item link]")
+            print("|cff00ff00[GuildItemScanner]|r Example: /gis compare [Thunderfury, Blessed Blade of the Windseeker]")
+            return
+        end
+        
+        -- Extract item link from the arguments
+        local itemLink = string.match(args, "|c%x+|Hitem:.-|h%[.-%]|h|r")
+        if not itemLink then
+            print("|cff00ff00[GuildItemScanner]|r Invalid item link. Please provide a valid item link.")
+            return
+        end
+        
+        -- Get item info
+        local itemName, _, _, itemLevel, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
+        if not itemName then
+            print("|cff00ff00[GuildItemScanner]|r Unable to retrieve item information. The item may not be cached.")
+            return
+        end
+        
+        -- Check if player can use the item (class/armor/weapon restrictions)
+        if not canPlayerUseItem(itemLink) then
+            print("|cff00ff00[GuildItemScanner]|r |cffff0000You cannot use this item due to class restrictions.|r")
+            return
+        end
+        
+        -- Check if it's an equippable item
+        if not itemEquipLoc or itemEquipLoc == "" or itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
+            print("|cff00ff00[GuildItemScanner]|r This item is not equippable.")
+            return
+        end
+        
+        -- Get slot info
+        local slot = SLOT_MAPPING[itemEquipLoc] or "unknown"
+        local slotsToCheck = {}
+        
+        if itemEquipLoc == "INVTYPE_FINGER" then
+            slotsToCheck = {11, 12}
+        elseif itemEquipLoc == "INVTYPE_TRINKET" then
+            slotsToCheck = {13, 14}
+        else
+            local slotId = SLOT_ID_MAPPING[itemEquipLoc]
+            if slotId then
+                slotsToCheck = {slotId}
+            end
+        end
+        
+        if #slotsToCheck == 0 then
+            print("|cff00ff00[GuildItemScanner]|r Unable to determine equipment slot for this item.")
+            return
+        end
+        
+        -- Print item info
+        local bindText = bindType == 1 and "|cffff0000BoP|r" or "|cff00ff00BoE|r"
+        print(string.format("|cff00ff00[GuildItemScanner]|r Comparing: %s (%s, %s slot, ilvl %d)", 
+            itemLink, bindText, slot, itemLevel))
+        
+        -- Compare using stat priority or item level
+        if addon.config.useStatPriority and next(addon.config.statPriority) then
+            -- Stat-based comparison
+            local stats = getItemStats(itemLink)
+            local statScore = calculateStatScore(stats)
+            
+            -- Print item stats
+            print("|cff00ff00[GuildItemScanner]|r Item stats:")
+            local hasRelevantStats = false
+            for stat, value in pairs(stats) do
+                local priority = addon.config.statPriority[stat]
+                if priority and priority > 0 then
+                    print(string.format("  %s: %d (x%.1f = %.1f score)", stat, value, priority, value * priority))
+                    hasRelevantStats = true
+                elseif value > 0 then
+                    print(string.format("  %s: %d (no priority)", stat, value))
+                end
+            end
+            
+            if not hasRelevantStats then
+                print("  No prioritized stats found on this item")
+            end
+            
+            print(string.format("|cff00ff00[GuildItemScanner]|r Total stat score: %.1f", statScore))
+            
+            -- Compare with equipped items
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison:")
+            local bestUpgrade = nil
+            local bestScoreDiff = -999999
+            
+            for i, slotId in ipairs(slotsToCheck) do
+                local equippedLink = GetInventoryItemLink("player", slotId)
+                if equippedLink then
+                    local equippedStats = getItemStats(equippedLink)
+                    local equippedScore = calculateStatScore(equippedStats)
+                    local scoreDiff = statScore - equippedScore
+                    
+                    local slotName = ""
+                    if #slotsToCheck > 1 then
+                        slotName = string.format(" (slot %d)", i)
+                    end
+                    
+                    if scoreDiff > 0 then
+                        print(string.format("  %s%s: |cffa335ee+%.1f upgrade|r (%.1f vs %.1f)", 
+                            equippedLink, slotName, scoreDiff, statScore, equippedScore))
+                    else
+                        print(string.format("  %s%s: |cffff0000%.1f downgrade|r (%.1f vs %.1f)", 
+                            equippedLink, slotName, scoreDiff, statScore, equippedScore))
+                    end
+                    
+                    if scoreDiff > bestScoreDiff then
+                        bestScoreDiff = scoreDiff
+                        bestUpgrade = equippedLink
+                    end
+                else
+                    print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
+                    if bestScoreDiff < statScore then
+                        bestScoreDiff = statScore
+                        bestUpgrade = "empty slot"
+                    end
+                end
+            end
+            
+            -- Summary
+            if bestScoreDiff > 0 then
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%.1f stat score|r", bestScoreDiff))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%.1f stat score)|r", bestScoreDiff))
+            end
+            
+        else
+            -- Item level comparison
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by item level):")
+            local lowestEquippedLevel = 999
+            local lowestEquippedLink = nil
+            
+            for i, slotId in ipairs(slotsToCheck) do
+                local equippedLink = GetInventoryItemLink("player", slotId)
+                local equippedLevel = getEquippedItemLevel(slotId)
+                
+                local slotName = ""
+                if #slotsToCheck > 1 then
+                    slotName = string.format(" (slot %d)", i)
+                end
+                
+                if equippedLink then
+                    if itemLevel > equippedLevel then
+                        print(string.format("  %s%s: |cffa335ee+%d ilvl upgrade|r (ilvl %d)", 
+                            equippedLink, slotName, itemLevel - equippedLevel, equippedLevel))
+                    else
+                        print(string.format("  %s%s: |cffff0000-%d ilvl downgrade|r (ilvl %d)", 
+                            equippedLink, slotName, equippedLevel - itemLevel, equippedLevel))
+                    end
+                else
+                    print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
+                    equippedLevel = 0
+                end
+                
+                if equippedLevel < lowestEquippedLevel then
+                    lowestEquippedLevel = equippedLevel
+                    lowestEquippedLink = equippedLink or "empty slot"
+                end
+            end
+            
+            -- Summary
+            if itemLevel > lowestEquippedLevel then
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d item levels|r", 
+                    itemLevel - lowestEquippedLevel))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%d item levels)|r", 
+                    itemLevel - lowestEquippedLevel))
+            end
+        end
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
@@ -970,6 +1142,7 @@ local function onSlashCommand(msg)
         print(" /gis prof - Manage your professions")
         print(" /gis recipe - Toggle recipe alerts")
         print(" /gis stat - Manage stat priorities for gear evaluation")
+        print(" /gis compare [item] - Compare any item with your equipped gear")
         print(" /gis status - Show current configuration")
     end
 end
