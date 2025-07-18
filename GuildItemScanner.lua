@@ -181,9 +181,14 @@ local STAT_PATTERNS = {
     ["Improves your chance to get a critical strike by (%d+)%%"] = "crit",
     ["Improves your chance to hit by (%d+)%%"] = "hit",
     ["(%d+) Defense Rating"] = "defense",
+    ["(%d+) Defense"] = "defense",  -- Classic version
+    ["Defense %+(%d+)"] = "defense",  -- Another Classic format
     ["(%d+) Dodge Rating"] = "dodge",
+    ["(%d+) Dodge"] = "dodge",  -- Classic version
     ["(%d+) Parry Rating"] = "parry",
+    ["(%d+) Parry"] = "parry",  -- Classic version
     ["(%d+) Block Rating"] = "block",
+    ["(%d+) Block"] = "block",  -- Classic version
     -- Resistances
     ["(%d+) Fire Resistance"] = "fireres",
     ["(%d+) Nature Resistance"] = "natureres",
@@ -195,7 +200,13 @@ local STAT_PATTERNS = {
     ["%+(%d+) to All Stats"] = "allstats",
     -- Additional stats
     ["(%d+) Mana per 5 sec"] = "mp5",
-    ["(%d+) to all Resistances"] = "allres"
+    ["(%d+) to all Resistances"] = "allres",
+    ["Mana Regen (%d+) per 5 sec%."] = "mp5",  -- Alternative format
+    -- Weapon stats
+    ["%+(%d+) Weapon Damage"] = "weapondamage",
+    -- Armor
+    ["(%d+) Armor"] = "armor",
+    ["%+(%d+) Armor"] = "armor"
 }
 
 local function LoadSavedVariables()
@@ -271,6 +282,19 @@ local function getItemStats(itemLink)
                         print(string.format("|cff00ff00[GIS Debug]|r Found stat: %s = %d", statName, value))
                     end
                 end
+            end
+            
+            -- Check for "Equip:" bonuses (Classic format)
+            if string.find(text, "Equip:") then
+                -- Equip: Defense +X
+                local defense = string.match(text, "Equip: Defense %+(%d+)")
+                if defense then
+                    stats.defense = (stats.defense or 0) + tonumber(defense)
+                    if addon.config.debugMode then
+                        print(string.format("|cff00ff00[GIS Debug]|r Found equip bonus: defense = %d", tonumber(defense)))
+                    end
+                end
+                -- Add more Equip: patterns as needed
             end
         end
     end
@@ -908,7 +932,7 @@ local function onSlashCommand(msg)
                     print(string.format("  %s: %.1f", stat, weight))
                 end
             end
-            print("|cff00ff00[GuildItemScanner]|r Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, crit, hit, defense, dodge, parry, block, mp5, allres")
+            print("|cff00ff00[GuildItemScanner]|r Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, spelldamage, crit, hit, defense, dodge, parry, block, mp5, allres, armor, weapondamage")
             print("|cff00ff00[GuildItemScanner]|r Use /gis stat clear to reset all priorities")
             print("|cff00ff00[GuildItemScanner]|r Use /gis stat mode to toggle between stat and ilvl evaluation")
         else
@@ -974,6 +998,14 @@ local function onSlashCommand(msg)
         if not itemEquipLoc or itemEquipLoc == "" or itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
             print("|cff00ff00[GuildItemScanner]|r This item is not equippable.")
             return
+        end
+        
+        -- Force item to cache by requesting tooltip
+        local itemID = string.match(itemLink, "item:(%d+)")
+        if itemID then
+            GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+            GameTooltip:SetHyperlink("item:" .. itemID)
+            GameTooltip:Hide()
         end
         
         -- Get slot info
