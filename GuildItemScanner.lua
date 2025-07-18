@@ -243,9 +243,17 @@ local function getItemStats(itemLink)
     scanTip:ClearLines()
     scanTip:SetHyperlink(itemLink)
     
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Scanning stats for: %s", itemLink))
+        print(string.format("|cff00ff00[GIS Debug]|r Tooltip lines: %d", scanTip:NumLines()))
+    end
+    
     for i = 1, scanTip:NumLines() do
         local text = _G["GIScanTooltipTextLeft" .. i]:GetText()
         if text then
+            if addon.config.debugMode and i <= 10 then -- Only show first 10 lines in debug
+                print(string.format("|cff00ff00[GIS Debug]|r Line %d: %s", i, text))
+            end
             for pattern, statName in pairs(STAT_PATTERNS) do
                 local value = string.match(text, pattern)
                 if value then
@@ -258,6 +266,9 @@ local function getItemStats(itemLink)
                         stats.spirit = (stats.spirit or 0) + value
                     else
                         stats[statName] = (stats[statName] or 0) + value
+                    end
+                    if addon.config.debugMode then
+                        print(string.format("|cff00ff00[GIS Debug]|r Found stat: %s = %d", statName, value))
                     end
                 end
             end
@@ -999,7 +1010,9 @@ local function onSlashCommand(msg)
             -- Print item stats
             print("|cff00ff00[GuildItemScanner]|r Item stats:")
             local hasRelevantStats = false
+            local hasAnyStats = false
             for stat, value in pairs(stats) do
+                hasAnyStats = true
                 local priority = addon.config.statPriority[stat]
                 if priority and priority > 0 then
                     print(string.format("  %s: %d (x%.1f = %.1f score)", stat, value, priority, value * priority))
@@ -1009,7 +1022,10 @@ local function onSlashCommand(msg)
                 end
             end
             
-            if not hasRelevantStats then
+            if not hasAnyStats then
+                print("  |cffff0000No stats found on this item!|r")
+                print("  |cffff0000This may be due to the item not being cached. Try again.|r")
+            elseif not hasRelevantStats then
                 print("  No prioritized stats found on this item")
             end
             
