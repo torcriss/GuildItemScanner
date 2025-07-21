@@ -22,12 +22,12 @@
 - **Recipe Request Button**: Quick-request recipes with one click
 
 ### Social Features
-- **Auto-Congratulations**: Automatically says "GZ" for guild achievements (Frontier addon)
-- **Level-Based Condolences**: Auto-responds to deaths with level-appropriate messages:
-  - Level < 30: "RIPBOZO"
+- **Auto-Congratulations**: Automatically says "GZ" for guild achievements (70% chance, 2-6s delay)
+- **Level-Based Condolences**: Auto-responds to deaths with randomized messages (60% chance, 3-8s delay):
+  - Level < 30: "RIP" or "F" (50/50 chance)
   - Level 30-40: "F"  
-  - Level 41-59: "OMG F"
-  - Level 60: "GIGA F"
+  - Level 41-59: "F" (70%) or "OMG F" (30%)
+  - Level 60: "F" (40%), "OMG F" (40%), or "GIGA F" (20%)
 
 ### Additional Features
 - **Whisper Mode**: Send responses privately instead of guild chat
