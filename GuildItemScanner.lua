@@ -3,6 +3,7 @@
 
 local addonName, addon = ...
 addon.config = {
+    enabled = true,  -- Global on/off switch
     soundAlert = true,
     whisperMode = false,
     greedMode = true,
@@ -212,6 +213,7 @@ local STAT_PATTERNS = {
 local function LoadSavedVariables()
     GuildItemScannerDB = GuildItemScannerDB or {
         config = {
+            enabled = true,
             soundAlert = true,
             whisperMode = false,
             greedMode = true,
@@ -231,6 +233,7 @@ local function LoadSavedVariables()
     
     -- Ensure all config fields exist
     addon.config = GuildItemScannerDB.config
+    addon.config.enabled = addon.config.enabled ~= false  -- Default to true if not set
     addon.config.myProfessions = addon.config.myProfessions or {}
     addon.config.autoGZ = addon.config.autoGZ or false
     addon.config.autoRIP = addon.config.autoRIP or false
@@ -803,6 +806,14 @@ end
 
 -- Chat message handler
 local function onChatMessage(self, event, message, sender, ...)
+    -- Check if addon is globally disabled
+    if not addon.config.enabled then
+        if addon.config.debugMode then
+            print("|cff00ff00[GIS Debug]|r Addon is disabled, ignoring message")
+        end
+        return
+    end
+    
     if event == "CHAT_MSG_GUILD" then
         if addon.config.debugMode then
             print(string.format("|cff00ff00[GIS Debug]|r Processing guild chat from %s: %s", sender, message))
@@ -828,7 +839,15 @@ local function onSlashCommand(msg)
     cmd = cmd and cmd:lower() or ""
     args = args or ""
     
-    if cmd == "test" then
+    if cmd == "on" then
+        addon.config.enabled = true
+        print("|cff00ff00[GuildItemScanner]|r Addon |cff00ff00ENABLED|r - Scanning guild chat for upgrades")
+        GuildItemScannerDB.config = addon.config
+    elseif cmd == "off" then
+        addon.config.enabled = false
+        print("|cff00ff00[GuildItemScanner]|r Addon |cffff0000DISABLED|r - Not scanning guild chat")
+        GuildItemScannerDB.config = addon.config
+    elseif cmd == "test" then
         local playerName = UnitName("player")
         processItemLink("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", playerName, true)
     elseif cmd == "testrecipe" then
@@ -1154,6 +1173,7 @@ local function onSlashCommand(msg)
     elseif cmd == "status" then
         local _, class = UnitClass("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
+        print("  Addon: " .. (addon.config.enabled and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"))
         print("  Player class: " .. class)
         print("  Debug mode: " .. (addon.config.debugMode and "enabled" or "disabled"))
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
@@ -1179,6 +1199,8 @@ local function onSlashCommand(msg)
         end
     else
         print("|cff00ff00[GuildItemScanner]|r Commands:")
+        print(" /gis on - Enable scanning (turn addon ON)")
+        print(" /gis off - Disable scanning (turn addon OFF)")
         print(" /gis test - Test an equipment alert")
         print(" /gis testrecipe - Test a recipe alert")
         print(" /gis debug - Toggle debug logging")
@@ -1199,6 +1221,11 @@ end
 local function HookChatFrame()
     local originalAddMessage = DEFAULT_CHAT_FRAME.AddMessage
     DEFAULT_CHAT_FRAME.AddMessage = function(self, text, ...)
+        -- Check if addon is globally disabled
+        if not addon.config.enabled then
+            return originalAddMessage(self, text, ...)
+        end
+        
         if text and string.find(text, "%[Frontier%]") and not string.find(text, "%[GIS Debug%]") then
             local cleanText = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
             cleanText = string.gsub(cleanText, "|r", "")
@@ -1274,7 +1301,8 @@ local function onPlayerLogin()
     LoadSavedVariables()
     HookChatFrame()
     local _, class = UnitClass("player")
-    print("|cff00ff00[GuildItemScanner]|r Loaded for " .. class .. ". Type /gis for commands.")
+    local statusText = addon.config.enabled and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"
+    print(string.format("|cff00ff00[GuildItemScanner]|r Loaded for %s - Addon is %s. Type /gis for commands.", class, statusText))
     if addon.config.debugMode then
         print(string.format("|cff00ff00[GIS Debug]|r Alert frame initialized at %s, isVisible=%s", 
             alertFrame:GetPoint(1), tostring(alertFrame:IsVisible())))
