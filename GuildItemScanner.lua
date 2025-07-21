@@ -1245,10 +1245,18 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoGZ then
-                    C_Timer.After(1, function()
-                        SendChatMessage("GZ", "GUILD")
-                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement!", playerName))
-                    end)
+                    -- 70% chance to congratulate
+                    local shouldCongratulate = math.random() <= 0.7
+                    if shouldCongratulate then
+                        -- Random delay between 2-6 seconds
+                        local delay = math.random(2, 6) + math.random() -- Add fractional seconds
+                        C_Timer.After(delay, function()
+                            SendChatMessage("GZ", "GUILD")
+                            originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement! (%.1fs delay)", playerName, delay))
+                        end)
+                    elseif addon.config.debugMode then
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ (30% chance)")
+                    end
                 end
             elseif string.find(cleanText, "has died") then
                 local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*has died")
@@ -1266,28 +1274,49 @@ local function HookChatFrame()
                 
                 if playerName and addon.config.autoRIP then
                     local level = string.match(text, "Level (%d+)") or string.match(cleanText, "Level (%d+)")
-                    local deathMessage = "RIPBOZO"
+                    local deathMessage = "F"
                     if level then
                         level = tonumber(level)
                         if level < 30 then
-                            deathMessage = "RIPBOZO"
+                            -- Randomly choose between "RIP" and "F" for low levels
+                            deathMessage = math.random() <= 0.5 and "RIP" or "F"
                         elseif level >= 30 and level <= 40 then
                             deathMessage = "F"
                         elseif level >= 41 and level <= 59 then
-                            deathMessage = "OMG F"
+                            -- Randomly choose between "OMG F" and "F" for mid levels
+                            deathMessage = math.random() <= 0.7 and "F" or "OMG F"
                         elseif level >= 60 then
-                            deathMessage = "GIGA F"
+                            -- Randomly choose between "F", "OMG F", and "GIGA F" for max level
+                            local roll = math.random()
+                            if roll <= 0.4 then
+                                deathMessage = "F"
+                            elseif roll <= 0.8 then
+                                deathMessage = "OMG F"
+                            else
+                                deathMessage = "GIGA F"
+                            end
                         end
                         
                         if addon.config.debugMode then
                             originalAddMessage(self, string.format("|cff00ff00[GIS Debug]|r Player level: %d, Message: %s", level, deathMessage))
                         end
+                    else
+                        -- No level info, just use simple message
+                        deathMessage = math.random() <= 0.7 and "F" or "RIP"
                     end
                     
-                    C_Timer.After(1, function()
-                        SendChatMessage(deathMessage, "GUILD")
-                        originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s: %s", playerName, deathMessage))
-                    end)
+                    -- 60% chance to send RIP message
+                    local shouldSendRIP = math.random() <= 0.6
+                    if shouldSendRIP then
+                        -- Random delay between 3-8 seconds
+                        local delay = math.random(3, 8) + math.random() -- Add fractional seconds
+                        C_Timer.After(delay, function()
+                            SendChatMessage(deathMessage, "GUILD")
+                            originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-RIP for %s: %s (%.1fs delay)", playerName, deathMessage, delay))
+                        end)
+                    elseif addon.config.debugMode then
+                        originalAddMessage(self, string.format("|cff00ff00[GIS Debug]|r Skipped RIP for %s (40%% chance)", playerName))
+                    end
                 end
             end
         end
