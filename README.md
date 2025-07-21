@@ -4,16 +4,22 @@
 
 ## Features
 
+### Core Functionality
+- **Global On/Off Toggle**: Quickly enable/disable all scanning with `/gis on` and `/gis off`
+- **Persistent State**: Addon remembers if it was enabled/disabled between sessions
+
 ### Gear Detection
 - **Smart Upgrade Detection**: Evaluates gear based on either item level OR customizable stat priorities
 - **Class-Specific Filtering**: Only alerts for items your class can use
 - **Stat Priority System**: Set custom weights for stats that matter to your build
 - **Visual & Audio Alerts**: Pop-up window with sound notifications for upgrades
+- **Item Comparison Tool**: Compare any item with your equipped gear using `/gis compare`
 
 ### Profession Support
 - **Recipe Detection**: Alerts when recipes for your professions are posted
 - **Multi-Profession Tracking**: Track multiple professions simultaneously
-- **Smart Recipe Matching**: Recognizes Recipe:, Pattern:, Plans:, Formula:, Schematic:, and Manual: prefixes
+- **Smart Recipe Matching**: Recognizes Recipe:, Pattern:, Plans:, Formula:, Schematic: prefixes
+- **Recipe Request Button**: Quick-request recipes with one click
 
 ### Social Features
 - **Auto-Congratulations**: Automatically says "GZ" for guild achievements (Frontier addon)
@@ -34,10 +40,14 @@
 | Command | Description |
 |---------|-------------|
 | `/gis` | Show command help |
+| `/gis on` | Enable addon (turn scanning ON) |
+| `/gis off` | Disable addon (turn scanning OFF) |
 | `/gis test` | Test an equipment alert |
+| `/gis testrecipe` | Test a recipe alert |
 | `/gis debug` | Toggle debug logging |
 | `/gis whisper` | Toggle whisper mode for greed messages |
 | `/gis greed` | Toggle greed button display |
+| `/gis recipebutton` | Toggle recipe request button |
 | `/gis gz` | Toggle auto-congratulations for achievements |
 | `/gis rip` | Toggle auto-condolences for deaths |
 | `/gis prof` | Manage your professions |
@@ -49,6 +59,7 @@
 | `/gis stat <stat> <weight>` | Set stat priority (e.g., `/gis stat agility 2.5`) |
 | `/gis stat clear` | Clear all stat priorities |
 | `/gis stat mode` | Toggle between stat priority and item level evaluation |
+| `/gis compare [item link]` | Compare any item with your equipped gear |
 | `/gis status` | Show current configuration and priorities |
 
 ## Stat Priority System
@@ -57,9 +68,25 @@
 - **Primary**: strength, agility, stamina, intellect, spirit
 - **Secondary**: attackpower, spellpower, healing, spelldamage, crit, hit
 - **Defensive**: defense, dodge, parry, block
-- **Resistances**: fireres, natureres, frostres, shadowres, arcaneres
+- **Resistances**: fireres, natureres, frostres, shadowres, arcaneres, allres
+- **Other**: mp5, armor, weapondamage
 
-### Example: Bear Tank Setup
+### Example Configurations
+
+#### Feral DPS Druid
+```
+/gis stat clear
+/gis stat hit 10.0
+/gis stat strength 2.4
+/gis stat crit 2.0
+/gis stat agility 1.0
+/gis stat attackpower 1.0
+/gis stat stamina 0.5
+/gis stat mode
+```
+
+#### Bear Tank
+```
 /gis stat clear
 /gis stat hit 3.0
 /gis stat defense 2.5
@@ -68,6 +95,18 @@
 /gis stat agility 1.8
 /gis stat strength 1.0
 /gis stat mode
+```
+
+#### Holy Priest
+```
+/gis stat clear
+/gis stat healing 1.0
+/gis stat mp5 2.0
+/gis stat intellect 0.8
+/gis stat spirit 1.5
+/gis stat stamina 0.3
+/gis stat mode
+```
 
 ## Profession Setup
 
@@ -82,13 +121,30 @@
 - Tailoring
 
 ### Example Setup
+```
 /gis prof add alchemy
-/gis prof add herbalism
+/gis prof add cooking
 /gis recipe
+```
+
+## Item Comparison Feature
+
+The `/gis compare` command allows you to compare any item with your currently equipped gear:
+
+```
+/gis compare [Thunderfury, Blessed Blade of the Windseeker]
+```
+
+This will show:
+- Whether you can use the item (class restrictions)
+- Item level comparison OR stat score comparison (based on your mode)
+- Detailed breakdown of how it compares to each equipped item in that slot
+- Clear upgrade/downgrade indicators
 
 ## Saved Variables
 
 The addon saves:
+- Global enabled/disabled state
 - All configuration settings
 - Stat priorities
 - Profession list
@@ -103,6 +159,7 @@ The addon saves:
    - `GuildItemScanner.lua`
    - `GuildItemScanner.toc`
    - `README.md`
+   - `Sounds/` folder (optional, for custom alert sounds)
 4. Launch WoW Classic Era and enable the addon
 
 ## .toc File
@@ -113,7 +170,15 @@ Create `GuildItemScanner.toc` with:
 ## Title: GuildItemScanner
 ## Notes: Smart gear upgrades, recipe alerts, and social features for guild chat
 ## Author: YourNameHere
-## Version: 2.0
+## Version: 2.1
 ## SavedVariables: GuildItemScannerDB
 
 GuildItemScanner.lua
+```
+
+## Troubleshooting
+
+1. **No alerts showing**: Check if addon is enabled with `/gis status`
+2. **Wrong items alerting**: Verify your class is detected correctly and stat priorities are set
+3. **Recipe alerts not working**: Ensure you've added your professions with `/gis prof add`
+4. **Debug mode**: Enable with `/gis debug` for detailed logging
