@@ -344,7 +344,39 @@ local function getEquippedItemLevel(slot)
     return itemLevel or 0
 end
 
+-- Function to check if player meets item level requirements
+local function canPlayerUseItemLevel(itemLink)
+    local playerLevel = UnitLevel("player")
+    local _, _, _, _, requiredLevel = GetItemInfo(itemLink)
+    
+    if addon.config.debugMode then
+        print(string.format("|cff00ff00[GIS Debug]|r Player level: %d, Item required level: %s", 
+            playerLevel, tostring(requiredLevel)))
+    end
+    
+    -- If we can't get the required level, assume it's usable (fallback)
+    if not requiredLevel then
+        if addon.config.debugMode then
+            print("|cff00ff00[GIS Debug]|r Could not determine required level, allowing item")
+        end
+        return true
+    end
+    
+    local canUse = playerLevel >= requiredLevel
+    if addon.config.debugMode and not canUse then
+        print(string.format("|cff00ff00[GIS Debug]|r Cannot use: Level %d required (player is %d)", 
+            requiredLevel, playerLevel))
+    end
+    
+    return canUse
+end
+
 local function canPlayerUseItem(itemLink)
+    -- First check level requirements
+    if not canPlayerUseItemLevel(itemLink) then
+        return false
+    end
+    
     local _, class = UnitClass("player")
     local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
     
@@ -400,7 +432,7 @@ local function isItemUpgrade(itemLink)
     
     if not canPlayerUseItem(itemLink) then
         if addon.config.debugMode then
-            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Wrong class|r"))
+            print(string.format("|cff00ff00[GIS Debug]|r Rejected: |cffff0000Wrong class or level|r"))
         end
         return false
     end
@@ -1001,15 +1033,34 @@ local function onSlashCommand(msg)
         end
         
         -- Get item info
-        local itemName, _, _, itemLevel, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
+        local itemName, _, _, itemLevel, requiredLevel, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
         if not itemName then
             print("|cff00ff00[GuildItemScanner]|r Unable to retrieve item information. The item may not be cached.")
             return
         end
         
+        -- Print item info
+        local bindText = bindType == 1 and "|cffff0000BoP|r" or "|cff00ff00BoE|r"
+        print(string.format("|cff00ff00[GuildItemScanner]|r Comparing: %s (%s, ilvl %d)", 
+            itemLink, bindText, itemLevel))
+        
+        -- Print level requirements
+        if requiredLevel and requiredLevel > 1 then
+            local playerLevel = UnitLevel("player")
+            local levelText = playerLevel >= requiredLevel and 
+                string.format("|cff00ff00Level %d required (you have %d)|r", requiredLevel, playerLevel) or
+                string.format("|cffff0000Level %d required (you have %d)|r", requiredLevel, playerLevel)
+            print(string.format("|cff00ff00[GuildItemScanner]|r %s", levelText))
+            
+            if playerLevel < requiredLevel then
+                print("|cff00ff00[GuildItemScanner]|r |cffff0000This item cannot be equipped due to level requirements.|r")
+                return
+            end
+        end
+        
         -- Check if player can use the item (class/armor/weapon restrictions)
         if not canPlayerUseItem(itemLink) then
-            print("|cff00ff00[GuildItemScanner]|r |cffff0000You cannot use this item due to class restrictions.|r")
+            print("|cff00ff00[GuildItemScanner]|r |cffff0000You cannot use this item due to class or level restrictions.|r")
             return
         end
         
@@ -1047,10 +1098,7 @@ local function onSlashCommand(msg)
             return
         end
         
-        -- Print item info
-        local bindText = bindType == 1 and "|cffff0000BoP|r" or "|cff00ff00BoE|r"
-        print(string.format("|cff00ff00[GuildItemScanner]|r Comparing: %s (%s, %s slot, ilvl %d)", 
-            itemLink, bindText, slot, itemLevel))
+        print(string.format("|cff00ff00[GuildItemScanner]|r Equipment slot: %s", slot))
         
         -- Compare using stat priority or item level
         if addon.config.useStatPriority and next(addon.config.statPriority) then
@@ -1172,9 +1220,10 @@ local function onSlashCommand(msg)
         end
     elseif cmd == "status" then
         local _, class = UnitClass("player")
+        local playerLevel = UnitLevel("player")
         print("|cff00ff00[GuildItemScanner]|r Status:")
         print("  Addon: " .. (addon.config.enabled and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"))
-        print("  Player class: " .. class)
+        print("  Player: " .. class .. " (Level " .. playerLevel .. ")")
         print("  Debug mode: " .. (addon.config.debugMode and "enabled" or "disabled"))
         print("  Whisper mode: " .. (addon.config.whisperMode and "enabled" or "disabled"))
         print("  Greed mode: " .. (addon.config.greedMode and "enabled" or "disabled"))
@@ -1330,8 +1379,9 @@ local function onPlayerLogin()
     LoadSavedVariables()
     HookChatFrame()
     local _, class = UnitClass("player")
+    local playerLevel = UnitLevel("player")
     local statusText = addon.config.enabled and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"
-    print(string.format("|cff00ff00[GuildItemScanner]|r Loaded for %s - Addon is %s. Type /gis for commands.", class, statusText))
+    print(string.format("|cff00ff00[GuildItemScanner]|r Loaded for Level %d %s - Addon is %s. Type /gis for commands.", playerLevel, class, statusText))
     if addon.config.debugMode then
         print(string.format("|cff00ff00[GIS Debug]|r Alert frame initialized at %s, isVisible=%s", 
             alertFrame:GetPoint(1), tostring(alertFrame:IsVisible())))
