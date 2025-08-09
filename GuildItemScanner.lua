@@ -1,6 +1,15 @@
 -- GuildItemScanner Addon for WoW Classic Era (Interface 11507)
 -- Monitors guild chat for BoE equipment upgrades and profession recipes, with visual and sound alerts
 
+local GZ_MESSAGES = {
+    "GZ",
+    "gz",
+    "grats!",
+    "LETSGOOO",
+    "gratz",
+	"grats"
+}
+
 local addonName, addon = ...
 addon.config = {
     enabled = true,  -- Global on/off switch
@@ -517,7 +526,7 @@ end
 -- Greed button click handler
 greedButton:SetScript("OnClick", function()
     if currentAlert then
-        local msg = "I'll take that " .. currentAlert.itemLink .. "! Thanks!"
+        local msg = "I'll take " .. currentAlert.itemLink .. " if no one needs"
         if addon.config.whisperMode then
             SendChatMessage(msg, "WHISPER", nil, currentAlert.playerName)
             print("|cff00ff00[GuildItemScanner]|r Whispered to " .. currentAlert.playerName)
@@ -1294,17 +1303,19 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoGZ then
-                    -- 70% chance to congratulate
-                    local shouldCongratulate = math.random() <= 0.7
+                    -- 50% chance to congratulate
+                    local shouldCongratulate = math.random() <= 0.5
                     if shouldCongratulate then
                         -- Random delay between 2-6 seconds
                         local delay = math.random(2, 6) + math.random() -- Add fractional seconds
                         C_Timer.After(delay, function()
-                            SendChatMessage("GZ", "GUILD")
+							-- Pick a random GZ message
+                            local gzMessage = GZ_MESSAGES[math.random(#GZ_MESSAGES)]
+                            SendChatMessage(gzMessage, "GUILD")
                             originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement! (%.1fs delay)", playerName, delay))
                         end)
                     elseif addon.config.debugMode then
-                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ (30% chance)")
+                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ (50% chance)")
                     end
                 end
             elseif string.find(cleanText, "has died") then
