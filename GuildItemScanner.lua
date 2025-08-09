@@ -7,6 +7,7 @@ local GZ_MESSAGES = {
     "grats!",
     "LETSGOOO",
     "gratz",
+	"DinkDonk",
 	"grats"
 }
 
@@ -1303,20 +1304,25 @@ local function HookChatFrame()
                 end
                 
                 if playerName and addon.config.autoGZ then
-                    -- 50% chance to congratulate
-                    local shouldCongratulate = math.random() <= 0.5
-                    if shouldCongratulate then
-                        -- Random delay between 2-6 seconds
-                        local delay = math.random(2, 6) + math.random() -- Add fractional seconds
-                        C_Timer.After(delay, function()
-							-- Pick a random GZ message
-                            local gzMessage = GZ_MESSAGES[math.random(#GZ_MESSAGES)]
-                            SendChatMessage(gzMessage, "GUILD")
-                            originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement! (%.1fs delay)", playerName, delay))
-                        end)
-                    elseif addon.config.debugMode then
-                        originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ (50% chance)")
-                    end
+					-- Don't congratulate yourself
+					if playerName ~= UnitName("player") then
+						-- 50% chance to congratulate
+						local shouldCongratulate = math.random() <= 0.5
+						if shouldCongratulate then
+							-- Random delay between 2-6 seconds
+							local delay = math.random(2, 6) + math.random() -- Add fractional seconds
+							C_Timer.After(delay, function()
+								-- Pick a random GZ message
+								local gzMessage = GZ_MESSAGES[math.random(#GZ_MESSAGES)]
+								SendChatMessage(gzMessage, "GUILD")
+								originalAddMessage(DEFAULT_CHAT_FRAME, string.format("|cff00ff00[GIS]|r Auto-congratulated %s for their achievement! (%.1fs delay)", playerName, delay))
+							end)
+						elseif addon.config.debugMode then
+							originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ (50% chance)")
+						end
+					elseif addon.config.debugMode then
+						originalAddMessage(self, "|cff00ff00[GIS Debug]|r Skipped GZ for self (%s)", playerName)
+					end
                 end
             elseif string.find(cleanText, "has died") then
                 local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*has died")
@@ -1332,7 +1338,7 @@ local function HookChatFrame()
                     end
                 end
                 
-                if playerName and addon.config.autoRIP then
+				if playerName and playerName ~= UnitName("player") and addon.config.autoRIP then
                     local level = string.match(text, "Level (%d+)") or string.match(cleanText, "Level (%d+)")
                     local deathMessage = "F"
                     if level then
