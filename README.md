@@ -1,5 +1,7 @@
 # GuildItemScanner
 
+https://claude.ai/public/artifacts/cfb39e89-abda-4525-880c-3eb9d62d7b55
+
 **GuildItemScanner** is a comprehensive World of Warcraft Classic Era addon that monitors guild chat for equipment upgrades, profession recipes, achievements, and more.
 
 ## Features
@@ -182,3 +184,4 @@ GuildItemScanner.lua
 2. **Wrong items alerting**: Verify your class is detected correctly and stat priorities are set
 3. **Recipe alerts not working**: Ensure you've added your professions with `/gis prof add`
 4. **Debug mode**: Enable with `/gis debug` for detailed logging
+
