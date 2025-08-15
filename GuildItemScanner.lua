@@ -348,11 +348,26 @@ local function extractItemLinks(message)
 end
 
 local function extractItemQuantity(message, itemName)
+    -- Escape special characters in item name for pattern matching
+    local escapedName = itemName:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+    
     local patterns = {
-        "%[" .. itemName:gsub("%-", "%%-") .. "%]%s*x(%d+)",
-        "(%d+)x?%s*%[" .. itemName:gsub("%-", "%%-") .. "%]",
-        "WTS%s+(%d+)%s+%[" .. itemName:gsub("%-", "%%-") .. "%]",
-        "[Ss]elling%s+(%d+)%s+%[" .. itemName:gsub("%-", "%%-") .. "%]"
+        -- [Item] x50
+        "%[" .. escapedName .. "%]%s*x(%d+)",
+        -- 50x [Item] or 50 [Item] 
+        "(%d+)x?%s*%[" .. escapedName .. "%]",
+        -- [Item] (50)
+        "%[" .. escapedName .. "%]%s*%((%d+)%)",
+        -- WTS 50 [Item]
+        "WTS%s+(%d+)%s+%[" .. escapedName .. "%]",
+        -- Selling 50 [Item]
+        "[Ss]elling%s+(%d+)%s+%[" .. escapedName .. "%]",
+        -- [Item] 50x
+        "%[" .. escapedName .. "%]%s+(%d+)x",
+        -- [Item] 50
+        "%[" .. escapedName .. "%]%s+(%d+)",
+        -- 50 [Item] (standalone number before item)
+        "(%d+)%s+%[" .. escapedName .. "%]"
     }
     
     for _, pattern in ipairs(patterns) do
@@ -362,7 +377,7 @@ local function extractItemQuantity(message, itemName)
         end
     end
     
-    return 1
+    return 1 -- Default to 1 if no quantity found
 end
 
 local function addToHistory(itemLink, playerName, itemType)
