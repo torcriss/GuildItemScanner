@@ -1,5 +1,5 @@
 -- GuildItemScanner Addon for WoW Classic Era (Interface 11507)
--- Complete working version with all systems implemented
+-- Complete working version with equipment, recipes, materials, and bags
 
 -- Addon namespace
 local addonName, addon = ...
@@ -28,7 +28,10 @@ local defaultConfig = {
     materialAlert = true,
     materialButton = true,
     materialRarityFilter = "common",
-    materialQuantityThreshold = 5
+    materialQuantityThreshold = 5,
+    bagAlert = true,
+    bagButton = true,
+    bagSizeFilter = 6
 }
 
 -- Initialize addon
@@ -47,6 +50,47 @@ local retryQueue = {}
 addon.alertHistory = {}
 addon.uncachedHistory = {}
 local currentAlert = nil
+
+-- Comprehensive bag database for Classic WoW
+local BAG_DATABASE = {
+    -- 6-slot bags
+    ["Small Brown Pouch"] = {slots = 6, level = 5, rarity = "common"},
+    ["Small Silk Pack"] = {slots = 6, level = 15, rarity = "common"},
+    
+    -- 8-slot bags
+    ["Embroidered Bag"] = {slots = 8, level = 15, rarity = "common"},
+    ["Small Leather Bag"] = {slots = 8, level = 15, rarity = "common"},
+    ["Herb Pouch"] = {slots = 8, level = 15, rarity = "common"},
+    ["Mining Bag"] = {slots = 8, level = 15, rarity = "common"},
+    
+    -- 10-slot bags
+    ["Silk Bag"] = {slots = 10, level = 25, rarity = "common"},
+    ["Green Leather Bag"] = {slots = 10, level = 25, rarity = "common"},
+    ["Red Woolen Bag"] = {slots = 10, level = 25, rarity = "uncommon"},
+    
+    -- 12-slot bags
+    ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
+    ["Red Linen Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
+    ["Jeweled Pouch"] = {slots = 12, level = 35, rarity = "uncommon"},
+    
+    -- 14-slot bags
+    ["Runecloth Bag"] = {slots = 14, level = 50, rarity = "common"},
+    ["Big Bag of Enchantment"] = {slots = 14, level = 50, rarity = "uncommon"},
+    
+    -- 16-slot bags
+    ["Mooncloth Bag"] = {slots = 16, level = 60, rarity = "rare"},
+    ["Felcloth Bag"] = {slots = 16, level = 60, rarity = "rare"},
+    ["Bottomless Bag"] = {slots = 16, level = 60, rarity = "rare"},
+    
+    -- 18-slot bags (rare/epic)
+    ["Onyxia Hide Backpack"] = {slots = 18, level = 60, rarity = "epic"},
+    ["Core Felcloth Bag"] = {slots = 18, level = 60, rarity = "epic"},
+    
+    -- 20+ slot bags (very rare)
+    ["Satchel of Cenarius"] = {slots = 20, level = 60, rarity = "epic"},
+    ["Soul Bag"] = {slots = 24, level = 60, rarity = "rare", type = "soul"},
+    ["Cenarion Herb Bag"] = {slots = 24, level = 60, rarity = "epic", type = "herb"}
+}
 
 -- Comprehensive profession materials database
 local PROFESSION_MATERIALS = {
@@ -281,7 +325,7 @@ greedButton:SetSize(100, 25)
 greedButton:SetPoint("BOTTOMLEFT", alertFrame, "BOTTOM", -60, 15)
 greedButton:SetText("Greed!")
 
--- Recipe/Material request button
+-- Recipe/Material/Bag request button
 local recipeButton = CreateFrame("Button", nil, alertFrame, "UIPanelButtonTemplate")
 recipeButton:SetSize(100, 25)
 recipeButton:SetPoint("BOTTOMRIGHT", alertFrame, "BOTTOM", 60, 15)
@@ -348,25 +392,16 @@ local function extractItemLinks(message)
 end
 
 local function extractItemQuantity(message, itemName)
-    -- Escape special characters in item name for pattern matching
     local escapedName = itemName:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
     
     local patterns = {
-        -- [Item] x50
         "%[" .. escapedName .. "%]%s*x(%d+)",
-        -- 50x [Item] or 50 [Item] 
         "(%d+)x?%s*%[" .. escapedName .. "%]",
-        -- [Item] (50)
         "%[" .. escapedName .. "%]%s*%((%d+)%)",
-        -- WTS 50 [Item]
         "WTS%s+(%d+)%s+%[" .. escapedName .. "%]",
-        -- Selling 50 [Item]
         "[Ss]elling%s+(%d+)%s+%[" .. escapedName .. "%]",
-        -- [Item] 50x
         "%[" .. escapedName .. "%]%s+(%d+)x",
-        -- [Item] 50
         "%[" .. escapedName .. "%]%s+(%d+)",
-        -- 50 [Item] (standalone number before item)
         "(%d+)%s+%[" .. escapedName .. "%]"
     }
     
@@ -377,7 +412,7 @@ local function extractItemQuantity(message, itemName)
         end
     end
     
-    return 1 -- Default to 1 if no quantity found
+    return 1
 end
 
 local function addToHistory(itemLink, playerName, itemType)
@@ -542,6 +577,29 @@ local function isMaterialForMyProfession(itemLink, message)
     return false
 end
 
+-- Bag checking
+local function isBagNeeded(itemLink, message)
+    if not addon.config.bagAlert then
+        return false
+    end
+    
+    local itemName = string.match(itemLink, "|h%[(.-)%]|h")
+    if not itemName then
+        return false
+    end
+    
+    local bagInfo = BAG_DATABASE[itemName]
+    if not bagInfo then
+        return false
+    end
+    
+    if bagInfo.slots < addon.config.bagSizeFilter then
+        return false
+    end
+    
+    return true, bagInfo
+end
+
 -- Alert functions
 local function showAlert(itemLink, playerName)
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
@@ -654,6 +712,50 @@ local function showMaterialAlert(itemLink, playerName, profession, material, qua
     end)
 end
 
+local function showBagAlert(itemLink, playerName, bagInfo)
+    addToHistory(itemLink, playerName, "Bag")
+
+    local rarityColor = {
+        common = "|cffffffff",
+        uncommon = "|cff1eff00", 
+        rare = "|cff0070dd",
+        epic = "|cffa335ee",
+        legendary = "|cffff8000"
+    }
+    
+    local colorCode = rarityColor[bagInfo.rarity] or "|cffffffff"
+    local specialText = bagInfo.type and string.format(" (%s bag)", bagInfo.type) or ""
+    local alertMsg = string.format("Bag detected: %s%s|r%s", colorCode, itemLink, specialText)
+    local detailText = string.format("From: %s | %d slots | %s rarity", 
+        playerName, bagInfo.slots, bagInfo.rarity)
+
+    print(string.format("|cff00ff00[GuildItemScanner]|r |cffff69b4%s|r", alertMsg))
+    print(string.format("|cff00ff00[GuildItemScanner]|r %s", detailText))
+
+    currentAlert = {
+        itemLink = itemLink,
+        playerName = playerName,
+        bagInfo = bagInfo,
+        type = "bag"
+    }
+    
+    alertText:SetText(string.format("Bag from %s:\n%s%s|r%s\n|cff00ff00%s|r", 
+        playerName, colorCode, itemLink, specialText, detailText))
+    
+    greedButton:Hide()
+    recipeButton:SetShown(addon.config.bagButton)
+    recipeButton:SetText("Request Bag")
+    
+    alertFrame:Show()
+    playAlertSound()
+    
+    C_Timer.After(addon.config.alertDuration, function()
+        if alertFrame:IsShown() then
+            alertFrame:Hide()
+        end
+    end)
+end
+
 -- Item processing
 local function processItemLink(itemLink, playerName)
     if not itemLink or not playerName then
@@ -696,6 +798,8 @@ recipeButton:SetScript("OnClick", function()
             msg = "Can I have that " .. currentAlert.itemLink .. "? Thanks!"
         elseif currentAlert.type == "material" then
             msg = "Can I get that " .. currentAlert.itemLink .. " for " .. currentAlert.profession .. "? Thanks!"
+        elseif currentAlert.type == "bag" then
+            msg = "Can I get that " .. currentAlert.itemLink .. "? Need bag space! Thanks!"
         else
             msg = "Can I have that " .. currentAlert.itemLink .. "? Thanks!"
         end
@@ -721,7 +825,7 @@ local function onChatMessage(self, event, message, sender, ...)
         local itemLinks = extractItemLinks(message)
         
         for _, itemLink in ipairs(itemLinks) do
-            -- Priority: Recipes > Materials > Equipment
+            -- Priority: Recipes > Materials > Bags > Equipment
             local isRecipe, profession = isRecipeForMyProfession(itemLink)
             if isRecipe then
                 showRecipeAlert(itemLink, sender, profession)
@@ -730,7 +834,12 @@ local function onChatMessage(self, event, message, sender, ...)
                 if isMaterial then
                     showMaterialAlert(itemLink, sender, matProfession, material, quantity, rarity)
                 else
-                    processItemLink(itemLink, sender)
+                    local isBag, bagInfo = isBagNeeded(itemLink, message)
+                    if isBag then
+                        showBagAlert(itemLink, sender, bagInfo)
+                    else
+                        processItemLink(itemLink, sender)
+                    end
                 end
             end
         end
@@ -822,6 +931,9 @@ local function onSlashCommand(msg)
         else
             print("|cff00ff00[GuildItemScanner]|r Add a profession first: /gis prof add Engineering")
         end
+    elseif cmd == "testbag" then
+        local playerName = UnitName("player")
+        showBagAlert("|cff0070dd|Hitem:14156::::::::60:::::::|h[Mooncloth Bag]|h|r", playerName, {slots = 16, rarity = "rare"})
     elseif cmd == "testrecipe" then
         local playerName = UnitName("player")
         if #addon.config.myProfessions > 0 then
@@ -849,6 +961,28 @@ local function onSlashCommand(msg)
         addon.config.materialButton = not addon.config.materialButton
         print("|cff00ff00[GuildItemScanner]|r Material request button " .. (addon.config.materialButton and "enabled" or "disabled"))
         SaveConfig()
+    elseif cmd == "bag" then
+        addon.config.bagAlert = not addon.config.bagAlert
+        print("|cff00ff00[GuildItemScanner]|r Bag alerts " .. (addon.config.bagAlert and "enabled" or "disabled"))
+        SaveConfig()
+    elseif cmd == "bagbutton" then
+        addon.config.bagButton = not addon.config.bagButton
+        print("|cff00ff00[GuildItemScanner]|r Bag request button " .. (addon.config.bagButton and "enabled" or "disabled"))
+        SaveConfig()
+    elseif cmd == "bagsize" then
+        if args == "" then
+            print("|cff00ff00[GuildItemScanner]|r Current bag size filter: " .. addon.config.bagSizeFilter)
+            print("|cff00ff00[GuildItemScanner]|r Example: /gis bagsize 10 (only alert for 10+ slot bags)")
+        else
+            local size = tonumber(args)
+            if size and size >= 6 and size <= 24 then
+                addon.config.bagSizeFilter = size
+                print("|cff00ff00[GuildItemScanner]|r Bag size filter set to: " .. size .. "+ slots")
+                SaveConfig()
+            else
+                print("|cff00ff00[GuildItemScanner]|r Invalid bag size. Must be between 6 and 24")
+            end
+        end
     elseif cmd == "recipe" then
         addon.config.recipeAlert = not addon.config.recipeAlert
         print("|cff00ff00[GuildItemScanner]|r Recipe alerts " .. (addon.config.recipeAlert and "enabled" or "disabled"))
@@ -954,8 +1088,10 @@ local function onSlashCommand(msg)
         print("  Equipment alerts: " .. (addon.config.enabled and "enabled" or "disabled"))
         print("  Recipe alerts: " .. (addon.config.recipeAlert and "enabled" or "disabled"))
         print("  Material alerts: " .. (addon.config.materialAlert and "enabled" or "disabled"))
+        print("  Bag alerts: " .. (addon.config.bagAlert and "enabled" or "disabled"))
         print("  Material rarity filter: " .. addon.config.materialRarityFilter)
         print("  Material quantity threshold: " .. addon.config.materialQuantityThreshold)
+        print("  Bag size filter: " .. addon.config.bagSizeFilter .. "+ slots")
         print("  Auto-GZ: " .. (addon.config.autoGZ and "enabled" or "disabled"))
         print("  Auto-RIP: " .. (addon.config.autoRIP and "enabled" or "disabled"))
         print("  Professions: " .. (#addon.config.myProfessions > 0 and table.concat(addon.config.myProfessions, ", ") or "None"))
@@ -977,11 +1113,15 @@ local function onSlashCommand(msg)
         print(" /gis matbutton - Toggle material request button")
         print(" /gis rarity <level> - Set material rarity filter")
         print(" /gis quantity <num> - Set minimum stack size")
+        print(" |cffFFD700Bags:|r")
+        print(" /gis bag - Toggle bag alerts")
+        print(" /gis bagbutton - Toggle bag request button")
+        print(" /gis bagsize <num> - Set minimum bag size filter")
         print(" |cffFFD700Social:|r")
         print(" /gis gz - Toggle auto-congratulations")
         print(" /gis rip - Toggle auto-condolences")
         print(" |cffFFD700Testing:|r")
-        print(" /gis test/testrecipe/testmat - Test alerts")
+        print(" /gis test/testrecipe/testmat/testbag - Test alerts")
     end
 end
 
