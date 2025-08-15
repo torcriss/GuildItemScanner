@@ -1,187 +1,261 @@
 # GuildItemScanner
 
-https://claude.ai/public/artifacts/cfb39e89-abda-4525-880c-3eb9d62d7b55
+**Advanced WoW Classic Era guild chat monitor with comprehensive item detection and social automation.**
 
-**GuildItemScanner** is a comprehensive World of Warcraft Classic Era addon that monitors guild chat for equipment upgrades, profession recipes, achievements, and more.
+GuildItemScanner automatically scans guild chat for equipment upgrades, profession recipes, crafting materials, storage bags, and useful potions. Features visual alerts, smart filtering, and automated social responses for a seamless guild experience.
 
-## Features
+## ✨ Features
 
-### Core Functionality
-- **Global On/Off Toggle**: Quickly enable/disable all scanning with `/gis on` and `/gis off`
-- **Persistent State**: Addon remembers if it was enabled/disabled between sessions
+### 🎯 **Five Detection Systems**
+- **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation
+- **📜 Profession Recipes** - All 8 professions with smart pattern matching  
+- **🏭 Crafting Materials** - 200+ materials with quantity/rarity filtering
+- **👜 Storage Bags** - 40+ bags with customizable size filtering
+- **🧪 Potions & Consumables** - 70+ potions with type filtering
 
-### Gear Detection
-- **Smart Upgrade Detection**: Evaluates gear based on either item level OR customizable stat priorities
-- **Class-Specific Filtering**: Only alerts for items your class can use
-- **Stat Priority System**: Set custom weights for stats that matter to your build
-- **Visual & Audio Alerts**: Pop-up window with sound notifications for upgrades
-- **Item Comparison Tool**: Compare any item with your equipped gear using `/gis compare`
+### 🤖 **Social Automation**
+- **Auto-Congratulations** - Random GZ messages for achievements (50% chance, 2-6s delay)
+- **Auto-Condolences** - Level-based RIP messages for deaths (60% chance, 3-8s delay)  
+- **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
-### Profession Support
-- **Recipe Detection**: Alerts when recipes for your professions are posted
-- **Multi-Profession Tracking**: Track multiple professions simultaneously
-- **Smart Recipe Matching**: Recognizes Recipe:, Pattern:, Plans:, Formula:, Schematic: prefixes
-- **Recipe Request Button**: Quick-request recipes with one click
+### 🔧 **Smart Filtering**
+- **Class Restrictions** - Only alerts for gear your class can use
+- **Level Requirements** - Respects item level requirements
+- **BoP Detection** - Excludes Bind on Pickup items
+- **Profession Matching** - Materials only for your learned professions
+- **Rarity Filtering** - Material alerts by rarity (common/rare/epic/legendary)
+- **Quantity Thresholds** - Minimum stack sizes to prevent spam
+- **Bag Size Filtering** - Only bags above specified slot count
+- **Potion Categories** - Filter by combat/profession/misc types
 
-### Social Features
-- **Auto-Congratulations**: Automatically says "GZ" for guild achievements (70% chance, 2-6s delay)
-- **Level-Based Condolences**: Auto-responds to deaths with randomized messages (60% chance, 3-8s delay):
-  - Level < 30: "RIP" or "F" (50/50 chance)
-  - Level 30-40: "F"  
-  - Level 41-59: "F" (70%) or "OMG F" (30%)
-  - Level 60: "F" (40%), "OMG F" (40%), or "GIGA F" (20%)
+### 🎨 **Visual & Audio Alerts**
+- **Draggable Alert Frame** - Movable popup with item details
+- **Color-Coded Alerts** - Different colors for each item type
+- **Smart Buttons** - Context-aware "Greed", "Request Recipe", "Request Material", etc.
+- **Sound Notifications** - Customizable audio alerts with fallbacks
+- **Auto-Hide Timers** - Configurable alert duration
 
-### Additional Features
-- **Whisper Mode**: Send responses privately instead of guild chat
-- **Greed Button**: Quick-claim items with one click
-- **Debug Mode**: Detailed logging for troubleshooting
-- **Persistent Settings**: All configurations saved between sessions
+## 🚀 Installation
 
-## Slash Commands
+1. **Download** the addon files
+2. **Extract** to `World of Warcraft\_classic_era_\Interface\AddOns\GuildItemScanner\`
+3. **Ensure** you have both files:
+   - `GuildItemScanner.toc`
+   - `GuildItemScanner.lua`
+4. **Launch** WoW Classic Era and enable the addon
+5. **Configure** with `/gis` commands
 
+## ⚙️ Quick Setup
+
+```lua
+/gis prof add Engineering     -- Add your professions
+/gis prof add Blacksmithing
+/gis rarity rare             -- Set material filter to rare+
+/gis quantity 10             -- Only alert for stacks of 10+
+/gis bagsize 12              -- Only alert for 12+ slot bags  
+/gis potiontype combat       -- Only combat potions
+/gis status                  -- Verify configuration
+```
+
+## 📋 Command Reference
+
+### **Core Commands**
 | Command | Description |
 |---------|-------------|
-| `/gis` | Show command help |
-| `/gis on` | Enable addon (turn scanning ON) |
-| `/gis off` | Disable addon (turn scanning OFF) |
-| `/gis test` | Test an equipment alert |
-| `/gis testrecipe` | Test a recipe alert |
+| `/gis on/off` | Enable/disable the entire addon |
+| `/gis status` | Show complete configuration |
 | `/gis debug` | Toggle debug logging |
-| `/gis whisper` | Toggle whisper mode for greed messages |
-| `/gis greed` | Toggle greed button display |
+
+### **Equipment Settings**
+| Command | Description |
+|---------|-------------|
+| `/gis whisper` | Toggle whisper vs guild chat mode |
+| `/gis greed` | Toggle "Greed!" button for equipment |
+
+### **Profession Management**
+| Command | Description |
+|---------|-------------|
+| `/gis prof` | List your current professions |
+| `/gis prof add <name>` | Add a profession |
+| `/gis prof remove <name>` | Remove a profession |
+| `/gis prof clear` | Remove all professions |
+| `/gis recipe` | Toggle recipe alerts |
 | `/gis recipebutton` | Toggle recipe request button |
+
+### **Material Filtering**
+| Command | Description |
+|---------|-------------|
+| `/gis material` | Toggle material alerts |
+| `/gis matbutton` | Toggle material request button |
+| `/gis rarity <level>` | Set rarity filter (common/rare/epic/legendary) |
+| `/gis quantity <num>` | Set minimum stack size (1-1000) |
+
+### **Bag Settings**
+| Command | Description |
+|---------|-------------|
+| `/gis bag` | Toggle bag alerts |
+| `/gis bagbutton` | Toggle bag request button |
+| `/gis bagsize <num>` | Set minimum bag size (6-24 slots) |
+
+### **Potion Settings**
+| Command | Description |
+|---------|-------------|
+| `/gis potion` | Toggle potion alerts |
+| `/gis potionbutton` | Toggle potion request button |
+| `/gis potiontype <type>` | Filter by type (all/combat/profession/misc) |
+
+### **Social Features**
+| Command | Description |
+|---------|-------------|
 | `/gis gz` | Toggle auto-congratulations for achievements |
 | `/gis rip` | Toggle auto-condolences for deaths |
-| `/gis prof` | Manage your professions |
-| `/gis prof add <profession>` | Add a profession (e.g., `/gis prof add alchemy`) |
-| `/gis prof remove <profession>` | Remove a profession |
-| `/gis prof clear` | Clear all professions |
-| `/gis recipe` | Toggle recipe alerts |
-| `/gis stat` | Manage stat priorities |
-| `/gis stat <stat> <weight>` | Set stat priority (e.g., `/gis stat agility 2.5`) |
-| `/gis stat clear` | Clear all stat priorities |
-| `/gis stat mode` | Toggle between stat priority and item level evaluation |
-| `/gis compare [item link]` | Compare any item with your equipped gear |
-| `/gis status` | Show current configuration and priorities |
 
-## Stat Priority System
+### **Testing Commands**
+| Command | Description |
+|---------|-------------|
+| `/gis test` | Test equipment upgrade alert |
+| `/gis testmat` | Test material alert |
+| `/gis testbag` | Test bag alert |
+| `/gis testrecipe` | Test recipe alert |
+| `/gis testpotion` | Test potion alert |
 
-### Supported Stats
-- **Primary**: strength, agility, stamina, intellect, spirit
-- **Secondary**: attackpower, spellpower, healing, spelldamage, crit, hit
-- **Defensive**: defense, dodge, parry, block
-- **Resistances**: fireres, natureres, frostres, shadowres, arcaneres, allres
-- **Other**: mp5, armor, weapondamage
+## 🎯 Usage Examples
 
-### Example Configurations
-
-#### Feral DPS Druid
+### **Material Detection**
 ```
-/gis stat clear
-/gis stat hit 10.0
-/gis stat strength 2.4
-/gis stat crit 2.0
-/gis stat agility 1.0
-/gis stat attackpower 1.0
-/gis stat stamina 0.5
-/gis stat mode
+[Guild] [Miner]: WTS [Copper Ore] x50 cheap!
+→ GIS Alert: "Engineering material detected: [Copper Ore]"
+→ Button: "Request Material"
 ```
 
-#### Bear Tank
+### **Bag Detection**  
 ```
-/gis stat clear
-/gis stat hit 3.0
-/gis stat defense 2.5
-/gis stat stamina 2.0
-/gis stat dodge 2.0
-/gis stat agility 1.8
-/gis stat strength 1.0
-/gis stat mode
+[Guild] [Tailor]: [Mooncloth Bag] 16 slots, 50g
+→ GIS Alert: "Bag detected: [Mooncloth Bag] (16 slots)"
+→ Button: "Request Bag"
 ```
 
-#### Holy Priest
+### **Potion Detection**
 ```
-/gis stat clear
-/gis stat healing 1.0
-/gis stat mp5 2.0
-/gis stat intellect 0.8
-/gis stat spirit 1.5
-/gis stat stamina 0.3
-/gis stat mode
+[Guild] [Alchemist]: [Major Healing Potion] x20 for raid
+→ GIS Alert: "Potion detected: [Major Healing Potion] (combat)"
+→ Button: "Request Potion"
 ```
 
-## Profession Setup
-
-### Valid Professions
-- Alchemy
-- Blacksmithing
-- Cooking
-- Enchanting
-- Engineering
-- First Aid
-- Leatherworking
-- Tailoring
-
-### Example Setup
+### **Equipment Upgrade**
 ```
-/gis prof add alchemy
-/gis prof add cooking
-/gis recipe
+[Guild] [Player]: [Epic Sword] BoE, anyone need?
+→ GIS Alert: "+15 ilvl upgrade: [Epic Sword]"
+→ Button: "Greed!"
 ```
 
-## Item Comparison Feature
-
-The `/gis compare` command allows you to compare any item with your currently equipped gear:
-
+### **Social Automation**
 ```
-/gis compare [Thunderfury, Blessed Blade of the Windseeker]
-```
+[Frontier] PlayerName earned achievement: [Level 60]
+→ GIS: (50% chance) Sends "GZ" after 2-6 second delay
 
-This will show:
-- Whether you can use the item (class restrictions)
-- Item level comparison OR stat score comparison (based on your mode)
-- Detailed breakdown of how it compares to each equipped item in that slot
-- Clear upgrade/downgrade indicators
-
-## Saved Variables
-
-The addon saves:
-- Global enabled/disabled state
-- All configuration settings
-- Stat priorities
-- Profession list
-- Alert history
-- Evaluation mode preference
-
-## Installation
-
-1. Download the GuildItemScanner folder
-2. Place it in: `World of Warcraft/_classic_era_/Interface/AddOns/`
-3. Ensure the folder contains:
-   - `GuildItemScanner.lua`
-   - `GuildItemScanner.toc`
-   - `README.md`
-   - `Sounds/` folder (optional, for custom alert sounds)
-4. Launch WoW Classic Era and enable the addon
-
-## .toc File
-
-Create `GuildItemScanner.toc` with:
-```toc
-## Interface: 11507
-## Title: GuildItemScanner
-## Notes: Smart gear upgrades, recipe alerts, and social features for guild chat
-## Author: YourNameHere
-## Version: 2.1
-## SavedVariables: GuildItemScannerDB
-
-GuildItemScanner.lua
+[Frontier] PlayerName (Level 23) has died
+→ GIS: (60% chance) Sends "RIP" after 3-8 second delay
 ```
 
-## Troubleshooting
+## 🏭 Supported Professions
 
-1. **No alerts showing**: Check if addon is enabled with `/gis status`
-2. **Wrong items alerting**: Verify your class is detected correctly and stat priorities are set
-3. **Recipe alerts not working**: Ensure you've added your professions with `/gis prof add`
-4. **Debug mode**: Enable with `/gis debug` for detailed logging
+- **Alchemy** - All herbs, vials, reagents
+- **Blacksmithing** - Ores, bars, stones, gems
+- **Engineering** - Metals, cloth, parts, explosives
+- **Enchanting** - Dusts, essences, shards, crystals
+- **Tailoring** - Cloth, threads, dyes
+- **Leatherworking** - Leather, hides, scales
+- **Cooking** - Meats, fish, spices, ingredients
+- **First Aid** - Cloth, venom sacs
 
+## 🧪 Potion Categories
+
+### **Combat Potions** (`/gis potiontype combat`)
+- Health/Mana restoration potions
+- Stat buff elixirs (Strength, Agility, etc.)
+- Resistance potions (Fire, Frost, Nature, etc.)
+- High-end flasks for raiding
+- Special combat potions (Limited Invulnerability, Rage)
+
+### **Profession Potions** (`/gis potiontype profession`)  
+- Utility effects (Water Walking, Invisibility)
+- Detection potions (Detect Undead)
+- Movement effects (Swiftness, Free Action)
+
+### **Misc Potions** (`/gis potiontype misc`)
+- Fun potions (Noggenfogger, Savory Deviate Delight)
+- Antidotes and cures
+- Holiday/event potions
+
+## 🎨 Alert Priority System
+
+The addon processes items in this priority order:
+1. **Recipes** (highest) - For your professions
+2. **Materials** - For your professions with quantity/rarity filtering
+3. **Bags** - Storage solutions with size filtering  
+4. **Potions** - Consumables with type filtering
+5. **Equipment** (lowest) - BoE upgrades for your class
+
+## 🔧 Advanced Configuration
+
+### **Stat Priority System** (Future Feature)
+Configure custom stat weightings for more accurate upgrade detection than simple item level comparison.
+
+### **Debug Mode**
+Enable detailed logging to troubleshoot detection issues:
+```lua
+/gis debug
+```
+
+### **Whisper Mode**
+Send all requests as whispers instead of guild chat:
+```lua
+/gis whisper
+```
+
+## 🐛 Troubleshooting
+
+### **No Alerts Appearing**
+1. Check if addon is enabled: `/gis status`
+2. Verify professions are set: `/gis prof`
+3. Check filter settings: `/gis rarity common` and `/gis quantity 1`
+4. Test with: `/gis testmat`
+
+### **Button Text Cut Off**
+The request button has been widened to accommodate longer text like "Request Material".
+
+### **Social Features Not Working**
+Ensure you have the Frontier addon installed for achievement/death detection.
+
+### **Missing Materials**
+The addon tracks 200+ materials but may not include every single item. Report missing items for inclusion in future updates.
+
+## 📊 Performance
+
+- **Minimal Memory Usage** - Efficient event handling and smart filtering
+- **No Lag** - Asynchronous processing with retry queues for uncached items
+- **Scalable** - Works well in busy guilds with spam prevention
+
+## 🤝 Contributing
+
+Found a bug or want to suggest a feature? The addon is actively maintained and welcomes feedback for:
+- Missing materials/recipes/bags/potions
+- New filtering options
+- UI improvements
+- Performance optimizations
+
+## 📜 Version History
+
+- **v4.0** - Added comprehensive potion detection system
+- **v3.0** - Added bag detection and enhanced material system  
+- **v2.0** - Added material detection and social features
+- **v1.0** - Initial release with equipment and recipe detection
+
+## 📄 License
+
+This addon is free to use and modify for personal use. Please credit the original author if redistributing.
+
+---
+
+**GuildItemScanner** - Making guild chat useful again! 🎯
