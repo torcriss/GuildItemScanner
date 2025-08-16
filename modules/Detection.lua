@@ -212,7 +212,7 @@ local function isItemUpgrade(itemLink)
         if itemLevel > lowestEquippedLevel then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
         else
-            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d for %s", itemLevel, lowestEquippedLevel, itemLink))
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffff0000NOT AN UPGRADE|r for %s", itemLevel, lowestEquippedLevel, itemLink))
         end
     end
     return itemLevel > lowestEquippedLevel, itemLevel - lowestEquippedLevel
@@ -445,22 +445,37 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     -- Check for materials
     local isMaterial, matProfession, material, quantity, rarity = isMaterialForMyProfession(itemLink)
     if isMaterial and addon.Alerts then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s", itemName))
+        end
         addon.Alerts.ShowMaterialAlert(itemLink, playerName, matProfession, material, quantity, rarity)
         return
+    elseif addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a needed material: %s", itemName))
     end
     
     -- Check for bags
     local isBag, bagInfo = isBagNeeded(itemLink)
     if isBag and addon.Alerts then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBAG MATCH|r - Showing bag alert for: %s", itemName))
+        end
         addon.Alerts.ShowBagAlert(itemLink, playerName, bagInfo)
         return
+    elseif addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a needed bag: %s", itemName))
     end
     
     -- Check for potions
     local isPotion, potionInfo = isPotionUseful(itemLink)
     if isPotion and addon.Alerts then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eePOTION MATCH|r - Showing potion alert for: %s", itemName))
+        end
         addon.Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
         return
+    elseif addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a useful potion: %s", itemName))
     end
     
     -- Finally check for equipment upgrades
@@ -473,6 +488,8 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
             end
             addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
             return
+        elseif addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffff0000FINAL RESULT: Equipment not an upgrade|r - %s", itemName))
         end
     elseif addon.Config and addon.Config.Get("debugMode") then
         if itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
@@ -480,6 +497,11 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
         else
             print("|cff00ff00[GuildItemScanner Debug]|r Not equipment: " .. (itemEquipLoc or "nil"))
         end
+    end
+    
+    -- Add final debug output if no alerts were triggered
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cff808080FINAL RESULT: No alerts triggered for %s|r", itemName))
     end
 end
 

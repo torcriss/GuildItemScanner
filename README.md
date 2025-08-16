@@ -134,6 +134,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis testbag` | Test bag alert |
 | `/gis testrecipe` | Test recipe alert |
 | `/gis testpotion` | Test potion alert |
+| `/gis whispertest` | Toggle whisper-based testing mode |
+| `/gis compare [item]` | Compare any item with equipped gear |
 
 ## 🎯 Usage Examples
 
@@ -172,6 +174,22 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 [Frontier] PlayerName (Level 23) has died
 → GIS: (60% chance) Sends "RIP" after 3-8 second delay
+```
+
+### **Whisper Testing**
+```
+/gis whispertest                    -- Enable testing mode
+/w YourCharacter [Thunderfury]      -- Test with whispers
+→ GIS Alert: Shows upgrade analysis
+/gis whispertest                    -- Disable when done
+```
+
+### **Manual Item Comparison**
+```
+/gis compare [Thunderfury, Blessed Blade of the Windseeker]
+→ Equipment slot: main hand
+→ [Current Weapon]: +25 ilvl upgrade (ilvl 80)
+→ Summary: UPGRADE! +25 item levels
 ```
 
 ## 🏭 Supported Professions
@@ -243,6 +261,28 @@ Enable detailed logging to troubleshoot detection issues:
 /gis debug
 ```
 
+**Enhanced Debug Output:**
+- Clear upgrade/rejection reasoning: `|NOT AN UPGRADE|` vs `|UPGRADE!|`
+- Detection type results: `Not a needed material`, `|MATERIAL MATCH|`
+- Final processing outcome: `|FINAL RESULT: Equipment not an upgrade|`
+
+### **Whisper Testing Mode**
+Test GIS functionality privately without spamming guild chat:
+```lua
+/gis whispertest                    -- Enable testing
+/w YourCharacter [item link]        -- Test any item
+/gis whispertest                    -- Disable when done
+```
+
+### **Manual Item Comparison**
+Compare any item with your equipped gear:
+```lua
+/gis compare [item link]
+→ Shows detailed comparison with equipped items
+→ Displays upgrade/downgrade information
+→ Includes level requirements and class restrictions
+```
+
 ### **Whisper Mode**
 Send all requests as whispers instead of guild chat:
 ```lua
@@ -282,6 +322,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.1** - Enhanced testing and debugging features:
+  - Whisper-based testing mode for private item testing
+  - Manual item comparison command (`/gis compare`)
+  - Enhanced debug output with clear upgrade/rejection reasoning
+  - Fixed retry mechanism for uncached items
+  - Improved user experience with verbose feedback
 - **v2.0** - Complete modular refactor with enhanced features:
   - Modular architecture (7 separate modules)
   - Expanded databases (80+ potions, 50+ bags, 100+ materials)
