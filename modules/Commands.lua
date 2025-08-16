@@ -444,7 +444,9 @@ commandHandlers.whispertest = function()
         if enabled then
             print("|cff00ff00[GuildItemScanner]|r Whisper test mode |cff00ff00ENABLED|r")
             print("|cff00ff00[GuildItemScanner]|r You can now whisper yourself with item links to test detection")
-            print("|cff00ff00[GuildItemScanner]|r Example: /w " .. UnitName("player") .. " Check out this [item]!")
+            local playerName = UnitName("player")
+            print("|cff00ff00[GuildItemScanner]|r Example: /w " .. playerName .. " Check out this [item]!")
+            print("|cff00ff00[GuildItemScanner]|r (Works with both '" .. playerName .. "' and '" .. playerName .. "-" .. GetRealmName() .. "')")
         else
             print("|cff00ff00[GuildItemScanner]|r Whisper test mode |cffff0000DISABLED|r")
         end

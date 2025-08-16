@@ -51,7 +51,11 @@ GIS:SetScript("OnEvent", function(self, event, ...)
         local message, sender = ...
         if addon.Config and addon.Config.Get("whisperTestMode") then
             local playerName = UnitName("player")
-            if sender == playerName then
+            local playerWithRealm = UnitName("player") .. "-" .. GetRealmName()
+            -- Check both with and without realm name to handle different server configurations
+            local isSelf = (sender == playerName) or (sender == playerWithRealm)
+            
+            if isSelf then
                 if addon.Config and addon.Config.Get("debugMode") then
                     print(string.format("|cff00ff00[GuildItemScanner Debug]|r Whisper test event received from %s: %s", sender or "unknown", message or "nil"))
                 end
@@ -63,7 +67,7 @@ GIS:SetScript("OnEvent", function(self, event, ...)
                     end
                 end
             elseif addon.Config and addon.Config.Get("debugMode") then
-                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Ignoring whisper from %s (not self)", sender or "unknown"))
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Ignoring whisper from %s (not self, player=%s, realm=%s)", sender or "unknown", playerName, playerWithRealm))
             end
         elseif addon.Config and addon.Config.Get("debugMode") then
             print("|cff00ff00[GuildItemScanner Debug]|r Whisper test mode disabled, ignoring whisper")
