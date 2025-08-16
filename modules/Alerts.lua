@@ -49,6 +49,20 @@ local function createAlertFrame()
     alertText:SetWidth(580)
     alertText:SetJustifyH("CENTER")
     
+    -- Enable hyperlinks in the text
+    alertFrame:SetHyperlinksEnabled(true)
+    alertFrame:SetScript("OnHyperlinkClick", function(self, link, text, button)
+        if button == "LeftButton" and IsModifiedClick("CHATLINK") then
+            ChatEdit_InsertLink(link)
+        elseif button == "LeftButton" then
+            ShowUIPanel(ItemRefTooltip)
+            if not ItemRefTooltip:IsShown() then
+                ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
+            end
+            ItemRefTooltip:SetHyperlink(link)
+        end
+    end)
+    
     -- Greed button (for equipment)
     greedButton = CreateFrame("Button", nil, alertFrame, "UIPanelButtonTemplate")
     greedButton:SetSize(100, 25)
@@ -121,7 +135,8 @@ function Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
         improvement = improvement
     }
     
-    alertText:SetText(string.format("Equipment Upgrade from %s:\\n%s", playerName, itemLink))
+    local detailText = string.format("From: %s", playerName)
+    alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00%s|r", playerName, itemLink, detailText))
     
     greedButton:SetShown(addon.Config and addon.Config.Get("greedMode"))
     requestButton:Hide()
@@ -146,7 +161,8 @@ function Alerts.ShowRecipeAlert(itemLink, playerName, profession)
         type = "recipe" 
     }
     
-    alertText:SetText(string.format("%s Recipe from %s:\\n%s", profession, playerName, itemLink))
+    local detailText = string.format("From: %s", playerName)
+    alertText:SetText(string.format("%s recipe from %s:\n%s\n|cff00ff00%s|r", profession, playerName, itemLink, detailText))
     
     greedButton:Hide()
     requestButton:SetShown(addon.Config and addon.Config.Get("recipeButton"))
@@ -183,7 +199,8 @@ function Alerts.ShowMaterialAlert(itemLink, playerName, profession, material, qu
         type = "material" 
     }
     
-    alertText:SetText(string.format("%s Material from %s:\\n%s%s|r", profession, playerName, color, itemLink))
+    local detailText = string.format("From: %s", playerName)
+    alertText:SetText(string.format("%s Material from %s:\n%s%s|r\n|cff00ff00%s|r", profession, playerName, color, itemLink, detailText))
     
     greedButton:Hide()
     requestButton:SetShown(addon.Config and addon.Config.Get("materialButton"))
@@ -217,7 +234,8 @@ function Alerts.ShowBagAlert(itemLink, playerName, bagInfo)
     }
     
     local specialText = bagInfo.special and " (" .. bagInfo.special .. ")" or ""
-    alertText:SetText(string.format("Bag from %s:\\n%s%s|r\\n%d slots%s", playerName, color, itemLink, bagInfo.slots, specialText))
+    local detailText = string.format("From: %s (%d slots%s)", playerName, bagInfo.slots, specialText)
+    alertText:SetText(string.format("Bag from %s:\n%s%s|r\n|cff00ff00%s|r", playerName, color, itemLink, detailText))
     
     greedButton:Hide()
     requestButton:SetShown(addon.Config and addon.Config.Get("bagButton"))
@@ -256,7 +274,8 @@ function Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
         type = "potion" 
     }
     
-    alertText:SetText(string.format("Potion from %s:\\n%s%s|r\\n%s", playerName, color, itemLink, potionInfo.effect))
+    local detailText = string.format("From: %s (%s)", playerName, potionInfo.effect)
+    alertText:SetText(string.format("Potion from %s:\n%s%s|r\n|cff00ff00%s|r", playerName, color, itemLink, detailText))
     
     greedButton:Hide()
     requestButton:SetShown(addon.Config and addon.Config.Get("potionButton"))

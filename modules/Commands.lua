@@ -277,6 +277,56 @@ commandHandlers.clearhistory = function()
     end
 end
 
+commandHandlers.uncached = function()
+    if addon.History then
+        local uncachedHistory = addon.History.GetUncachedHistory()
+        if #uncachedHistory == 0 then
+            print("|cff00ff00[GuildItemScanner]|r No uncached items found.")
+            return
+        end
+        
+        print("|cff00ff00[GuildItemScanner]|r Uncached Item History:")
+        for i, entry in ipairs(uncachedHistory) do
+            if i > 10 then break end -- Show only last 10
+            print(string.format("  %s [%s] %s - %s", 
+                entry.time, entry.player, entry.item, entry.message))
+        end
+        
+        if #uncachedHistory > 10 then
+            print(string.format("  ... and %d more entries", #uncachedHistory - 10))
+        end
+    end
+end
+
+-- Cache diagnosis command
+commandHandlers.cachediag = function()
+    print("|cff00ff00[GuildItemScanner]|r Cache Diagnosis:")
+    
+    -- Test a few known items to see if cache is working
+    local testItems = {
+        {"|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r", "Recipe: Gooey Spider Cake"},
+        {"|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", "Thaumaturgist Staff"},
+        {"|cffffffff|Hitem:2770::::::::60:::::::|h[Copper Ore]|h|r", "Copper Ore"}
+    }
+    
+    for i, testData in ipairs(testItems) do
+        local itemLink, expectedName = testData[1], testData[2]
+        local actualName = GetItemInfo(itemLink)
+        
+        if actualName then
+            if actualName == expectedName then
+                print(string.format("  ✓ %s = '%s' |cff00ff00(CORRECT)|r", itemLink, actualName))
+            else
+                print(string.format("  ✗ %s = '%s' |cffff0000(WRONG, expected '%s')|r", itemLink, actualName, expectedName))
+            end
+        else
+            print(string.format("  ? %s = |cffff0000nil (NOT CACHED)|r", itemLink))
+        end
+    end
+    
+    print("|cff00ff00[GuildItemScanner]|r If cache is corrupted, try reloading UI (/reload) or restarting WoW.")
+end
+
 -- Testing Commands
 commandHandlers.testmat = function()
     if addon.Detection then
@@ -299,6 +349,24 @@ end
 commandHandlers.testpotion = function()
     if addon.Detection then
         addon.Detection.TestPotion()
+    end
+end
+
+commandHandlers.testfrontier = function()
+    if addon.Social then
+        addon.Social.TestFrontierPatterns()
+    end
+end
+
+commandHandlers.testgz = function()
+    if addon.Social then
+        addon.Social.TestAutoGZ()
+    end
+end
+
+commandHandlers.testrip = function()
+    if addon.Social then
+        addon.Social.TestAutoRIP()
     end
 end
 
@@ -370,8 +438,12 @@ commandHandlers.help = function()
     print(" |cffFFD700History Commands:|r")
     print(" /gis history [filter] - Show alert history")
     print(" /gis clearhistory - Clear alert history")
+    print(" /gis uncached - Show uncached item history (for debugging)")
+    print(" /gis cachediag - Diagnose item cache corruption issues")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test/testmat/testbag/testrecipe/testpotion - Test all alert types")
+    print(" /gis testfrontier - Test Frontier message pattern matching")
+    print(" /gis testgz/testrip - Test social automation features")
     print("Type |cffffff00/gis help|r to see this list again.")
 end
 

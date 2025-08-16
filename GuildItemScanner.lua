@@ -35,8 +35,16 @@ GIS:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
         Initialize()
     elseif event == "CHAT_MSG_GUILD" then
+        local message, sender = ...
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Guild event received from %s: %s", sender or "unknown", message or "nil"))
+        end
         if addon.Detection then
             addon.Detection.ProcessGuildMessage(...)
+        else
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r Detection module not loaded!")
+            end
         end
     end
 end)

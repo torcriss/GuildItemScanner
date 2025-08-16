@@ -7,7 +7,9 @@ local Config = addon.Config
 
 -- Constants
 local MAX_HISTORY = 50
+local MAX_UNCACHED_HISTORY = 20
 local alertHistory = {}
+local uncachedHistory = {}
 
 -- Add entry to history
 function History.AddEntry(itemLink, playerName, itemType)
@@ -31,21 +33,53 @@ function History.AddEntry(itemLink, playerName, itemType)
     History.Save()
 end
 
+-- Add uncached item to history
+function History.AddUncached(itemLink, playerName, message)
+    local entry = {
+        time = date("%H:%M:%S"),
+        player = playerName,
+        item = itemLink,
+        message = message and message:sub(1, 50) or "Uncached item"
+    }
+    
+    table.insert(uncachedHistory, 1, entry)
+    
+    -- Maintain max uncached history size
+    while #uncachedHistory > MAX_UNCACHED_HISTORY do
+        table.remove(uncachedHistory)
+    end
+    
+    -- Save to persistent storage
+    History.Save()
+end
+
 -- Save history to SavedVariables
 function History.Save()
     if GuildItemScannerDB then
         GuildItemScannerDB.alertHistory = alertHistory
+        GuildItemScannerDB.uncachedHistory = uncachedHistory
     end
 end
 
 -- Load history from SavedVariables
 function History.Load()
-    if GuildItemScannerDB and GuildItemScannerDB.alertHistory then
-        alertHistory = GuildItemScannerDB.alertHistory
+    if GuildItemScannerDB then
+        if GuildItemScannerDB.alertHistory then
+            alertHistory = GuildItemScannerDB.alertHistory
+            
+            -- Ensure we don't exceed max history
+            while #alertHistory > MAX_HISTORY do
+                table.remove(alertHistory)
+            end
+        end
         
-        -- Ensure we don't exceed max history
-        while #alertHistory > MAX_HISTORY do
-            table.remove(alertHistory)
+        if GuildItemScannerDB.uncachedHistory then
+            uncachedHistory = GuildItemScannerDB.uncachedHistory
+            
+            -- Ensure we don't exceed max uncached history
+            while #uncachedHistory > MAX_UNCACHED_HISTORY do
+                table.remove(uncachedHistory)
+            end
         end
     end
 end
@@ -53,7 +87,13 @@ end
 -- Clear all history
 function History.ClearHistory()
     alertHistory = {}
+    uncachedHistory = {}
     History.Save()
+end
+
+-- Get uncached history
+function History.GetUncachedHistory()
+    return uncachedHistory
 end
 
 -- Show history with optional filtering

@@ -5,6 +5,64 @@ local Detection = addon.Detection
 
 -- Module references - use addon namespace to avoid loading order issues
 
+-- Retry queue system for uncached items
+local MAX_RETRIES = 3
+local RETRY_DELAY = 0.5
+local retryQueue = {}
+
+
+-- Uncached item handling
+local function addToUncachedHistory(itemLink, playerName, message)
+    if addon.History then
+        addon.History.AddUncached(itemLink, playerName, message)
+    end
+end
+
+local function retryUncachedItems()
+    if #retryQueue == 0 then return end
+    local retryEntry = table.remove(retryQueue, 1)
+    if retryEntry.retryCount >= MAX_RETRIES then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Max retries (%d/%d) reached for %s - giving up", 
+                retryEntry.retryCount, MAX_RETRIES, retryEntry.itemLink))
+        end
+        return
+    end
+    retryEntry.retryCount = retryEntry.retryCount + 1
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Retry attempt %d/%d for %s", 
+            retryEntry.retryCount, MAX_RETRIES, retryEntry.itemLink))
+    end
+    
+    -- Try to process the item
+    local itemName = GetItemInfo(retryEntry.itemLink)
+    if itemName then
+        -- Item is now cached, process it normally
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item now cached, processing: %s", itemName))
+        end
+        processItemLink(retryEntry.itemLink, retryEntry.playerName, true)
+    else
+        -- Still not cached, re-queue if under max retries
+        if retryEntry.retryCount < MAX_RETRIES then
+            table.insert(retryQueue, retryEntry)
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item still not cached, scheduling retry %d/%d", 
+                    retryEntry.retryCount + 1, MAX_RETRIES))
+            end
+        else
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Max retries reached for %s", retryEntry.itemLink))
+            end
+        end
+        
+        -- Schedule next retry if there are items in queue
+        if #retryQueue > 0 then
+            C_Timer.After(RETRY_DELAY, retryUncachedItems)
+        end
+    end
+end
+
 -- Utility functions
 local function extractItemLinks(message)
     local items = {}
@@ -14,61 +72,209 @@ local function extractItemLinks(message)
     return items
 end
 
-local function canPlayerUseItem(itemLink)
-    local _, _, _, _, requiredLevel = GetItemInfo(itemLink)
+-- Function to check if player meets item level requirements
+local function canPlayerUseItemLevel(itemLink)
     local playerLevel = UnitLevel("player")
-    return not requiredLevel or playerLevel >= requiredLevel
+    local _, _, _, _, requiredLevel = GetItemInfo(itemLink)
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Player level: %d, Item required level: %s", 
+            playerLevel, tostring(requiredLevel)))
+    end
+    
+    -- If we can't get the required level, assume it's usable (fallback)
+    if not requiredLevel then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Could not determine required level, allowing item")
+        end
+        return true
+    end
+    
+    local canUse = playerLevel >= requiredLevel
+    if addon.Config and addon.Config.Get("debugMode") and not canUse then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Cannot use: Level %d required (player is %d)", 
+            requiredLevel, playerLevel))
+    end
+    
+    return canUse
+end
+
+local function canPlayerUseItem(itemLink)
+    -- First check level requirements
+    if not canPlayerUseItemLevel(itemLink) then
+        return false
+    end
+    
+    local _, class = UnitClass("player")
+    local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local slotName = addon.Databases and addon.Databases.GetSlotMapping(itemEquipLoc) or itemEquipLoc or "unknown"
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r %s %s (%s)", 
+            itemSubType or "Unknown", slotName, class))
+    end
+    
+    local isArmor = itemEquipLoc and (
+        itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_SHOULDER" or
+        itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_ROBE" or
+        itemEquipLoc == "INVTYPE_WAIST" or itemEquipLoc == "INVTYPE_LEGS" or 
+        itemEquipLoc == "INVTYPE_FEET" or itemEquipLoc == "INVTYPE_WRIST" or 
+        itemEquipLoc == "INVTYPE_HAND" or itemEquipLoc == "INVTYPE_CLOAK" or 
+        itemEquipLoc == "INVTYPE_BODY"
+    )
+    
+    if isArmor and itemSubType then
+        if addon.Databases and not addon.Databases.CanClassUseArmor(class, itemSubType) then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Cannot use: %s armor", itemSubType))
+            end
+            return false
+        end
+    end
+    
+    local isWeapon = itemEquipLoc and (
+        itemEquipLoc == "INVTYPE_WEAPON" or itemEquipLoc == "INVTYPE_2HWEAPON" or
+        itemEquipLoc == "INVTYPE_WEAPONMAINHAND" or itemEquipLoc == "INVTYPE_WEAPONOFFHAND" or
+        itemEquipLoc == "INVTYPE_RANGED" or itemEquipLoc == "INVTYPE_THROWN" or
+        itemEquipLoc == "INVTYPE_RANGEDRIGHT" or itemEquipLoc == "INVTYPE_SHIELD"
+    )
+    
+    if isWeapon and itemSubType then
+        if addon.Databases and not addon.Databases.CanClassUseWeapon(class, itemSubType) then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Cannot use: %s", itemSubType))
+            end
+            return false
+        end
+    end
+    
+    return true
+end
+
+local function getEquippedItemLevel(slot)
+    local itemLink = GetInventoryItemLink("player", slot)
+    if not itemLink then return 0 end
+    local _, _, _, itemLevel = GetItemInfo(itemLink)
+    return itemLevel or 0
 end
 
 -- Equipment Detection
 local function isItemUpgrade(itemLink)
-    if not canPlayerUseItem(itemLink) then 
-        return false 
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Checking upgrade: %s", itemLink))
     end
     
+    if not canPlayerUseItem(itemLink) then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Rejected: |cffff0000Wrong class or level|r"))
+        end
+        return false
+    end
+
     local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
-    if not itemLevel or not itemEquipLoc then 
-        return false 
+    if not (itemLevel and itemEquipLoc) then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Missing item info for %s", itemLink))
+        end
+        return false
+    end
+
+    local slotsToCheck = {}
+    if itemEquipLoc == "INVTYPE_FINGER" then
+        slotsToCheck = {11, 12}
+    elseif itemEquipLoc == "INVTYPE_TRINKET" then
+        slotsToCheck = {13, 14}
+    else
+        local slot = addon.Databases and addon.Databases.GetSlotID(itemEquipLoc)
+        if slot then
+            slotsToCheck = {slot}
+        end
+    end
+
+    if #slotsToCheck == 0 then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Invalid slot: %s", itemEquipLoc or "nil"))
+        end
+        return false
+    end
+
+    local lowestEquippedLevel = 999
+    for _, slot in ipairs(slotsToCheck) do
+        local equippedLevel = getEquippedItemLevel(slot)
+        if equippedLevel < lowestEquippedLevel then
+            lowestEquippedLevel = equippedLevel
+        end
     end
     
-    local slot = addon.Databases and addon.Databases.GetSlotID(itemEquipLoc)
-    if not slot then 
-        return false 
+    if addon.Config and addon.Config.Get("debugMode") then
+        if itemLevel > lowestEquippedLevel then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
+        else
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d for %s", itemLevel, lowestEquippedLevel, itemLink))
+        end
     end
-    
-    local equippedLink = GetInventoryItemLink("player", slot)
-    if not equippedLink then 
-        return true, itemLevel 
-    end
-    
-    local _, _, _, equippedLevel = GetItemInfo(equippedLink)
-    local improvement = itemLevel - (equippedLevel or 0)
-    return improvement > 0, improvement
+    return itemLevel > lowestEquippedLevel, itemLevel - lowestEquippedLevel
 end
 
 -- Recipe Detection
 local function isRecipeForMyProfession(itemLink)
-    if not addon.Config or not addon.Config.Get("recipeAlert") or #addon.Config.GetProfessions() == 0 then 
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Checking recipe: " .. (itemLink or "nil"))
+    end
+    
+    if not addon.Config or not addon.Config.Get("recipeAlert") then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Recipe alerts disabled")
+        end
         return false 
+    end
+    
+    if #addon.Config.GetProfessions() == 0 then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r No professions set")
+        end
+        return false
     end
     
     local itemName = string.match(itemLink, "|h%[(.-)%]|h")
     if not itemName then 
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Could not extract item name from link")
+        end
         return false 
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Recipe item name: " .. itemName)
     end
     
     local professions = addon.Databases and addon.Databases.GetRecipeProfession(itemName)
     if not professions then 
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Recipe not found in database: " .. itemName)
+        end
         return false 
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local profStr = type(professions) == "table" and table.concat(professions, ", ") or tostring(professions)
+        print("|cff00ff00[GuildItemScanner Debug]|r Recipe professions: " .. profStr)
+        print("|cff00ff00[GuildItemScanner Debug]|r My professions: " .. table.concat(addon.Config.GetProfessions(), ", "))
     end
     
     local profList = type(professions) == "table" and professions or {professions}
     for _, prof in ipairs(profList) do
         if addon.Config.HasProfession(prof) then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r Recipe match found for profession: " .. prof)
+            end
             return true, prof
         end
     end
     
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Recipe not for my professions")
+    end
     return false
 end
 
@@ -144,19 +350,92 @@ local function isPotionUseful(itemLink)
 end
 
 -- Main processing function
-local function processItemLink(itemLink, playerName)
-    if not itemLink or not playerName then 
-        return 
+local function processItemLink(itemLink, playerName, skipRetry, retryEntry)
+    if not itemLink or not playerName then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Invalid itemLink or playerName: %s, %s", tostring(itemLink), tostring(playerName)))
+        end
+        return
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Processing item: " .. itemLink)
+        
+        -- Extract item name from link pattern for comparison
+        local linkItemName = string.match(itemLink, "|h%[(.-)%]|h")
+        if linkItemName then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item name from link pattern: '%s'", linkItemName))
+        end
+    end
+    
+    -- Try to force item into cache using GameTooltip (like working version)
+    local itemID = string.match(itemLink, "item:(%d+)")
+    if itemID and not skipRetry then
+        GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        GameTooltip:SetHyperlink("item:" .. itemID)
+        GameTooltip:Hide()
     end
     
     local itemName, _, _, _, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
-    if not itemName or itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" or bindType == 1 then 
+    
+    -- Workaround for cache corruption with Recipe: Gooey Spider Cake (item ID 13931)
+    if itemID == "13931" and itemName == "Nightfin Soup" then
+        itemName = "Recipe: Gooey Spider Cake"
+        itemEquipLoc = "INVTYPE_NON_EQUIP_IGNORE"
+        bindType = 0
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Applied cache corruption fix for Recipe: Gooey Spider Cake")
+        end
+    end
+    
+    if not itemName then
+        if not skipRetry then
+            table.insert(retryQueue, { itemLink = itemLink, playerName = playerName, retryCount = 0 })
+            addToUncachedHistory(itemLink, playerName, "Waiting for item info cache...")
+            C_Timer.After(RETRY_DELAY, retryUncachedItems)
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item info not cached for %s, adding to retry queue (0/%d)", 
+                    itemLink, MAX_RETRIES))
+            end
+        else
+            -- This was a retry attempt and item is still not cached
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r GetItemInfo still returned nil for %s (retry attempt)", itemLink))
+            end
+        end
         return 
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r GetItemInfo result: itemName='%s', itemEquipLoc='%s', bindType=%s", 
+            itemName or "nil", itemEquipLoc or "nil", tostring(bindType)))
+    end
+    
+    if itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Non-equippable item (recipe/material/consumable): " .. itemName)
+        end
+        -- Don't return here - let recipes, materials, bags, potions be processed
+    end
+    
+    -- BoP filtering only applies to equipment, not recipes/materials/consumables
+    if bindType == 1 and itemEquipLoc ~= "INVTYPE_NON_EQUIP_IGNORE" then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Equipment ignored: Bind on Pickup (bindType=1)")
+        end
+        return
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Item passed initial checks: " .. itemName)
     end
     
     -- Check for recipe first (highest priority)
     local isRecipe, profession = isRecipeForMyProfession(itemLink)
     if isRecipe and addon.Alerts then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Showing recipe alert for: " .. itemName)
+        end
         addon.Alerts.ShowRecipeAlert(itemLink, playerName, profession)
         return
     end
@@ -183,10 +462,22 @@ local function processItemLink(itemLink, playerName)
     end
     
     -- Finally check for equipment upgrades
-    local isUpgrade, improvement = isItemUpgrade(itemLink)
-    if isUpgrade and addon.Alerts then
-        addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
-        return
+    -- Only check equipment if it has a valid equipment location
+    if itemEquipLoc and itemEquipLoc ~= "" and itemEquipLoc ~= "INVTYPE_NON_EQUIP_IGNORE" then
+        local isUpgrade, improvement = isItemUpgrade(itemLink)
+        if isUpgrade and addon.Alerts then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r Showing equipment alert for: " .. itemName)
+            end
+            addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
+            return
+        end
+    elseif addon.Config and addon.Config.Get("debugMode") then
+        if itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
+            print("|cff00ff00[GuildItemScanner Debug]|r Skipping equipment check for non-equippable item: " .. itemName)
+        else
+            print("|cff00ff00[GuildItemScanner Debug]|r Not equipment: " .. (itemEquipLoc or "nil"))
+        end
     end
 end
 
@@ -196,25 +487,37 @@ function Detection.ProcessGuildMessage(message, sender, ...)
         return 
     end
     
+    local itemLinks = extractItemLinks(message)
+    if #itemLinks == 0 then
+        -- No item links found, nothing to process
+        return
+    end
+    
     if addon.Config.Get("debugMode") then
         print("|cff00ff00[GuildItemScanner Debug]|r Processing message from " .. sender)
     end
     
-    local itemLinks = extractItemLinks(message)
+    -- Process each item link - check recipes first, then equipment (like working version)
     for _, itemLink in ipairs(itemLinks) do
-        processItemLink(itemLink, sender)
+        local isRecipe, profession = isRecipeForMyProfession(itemLink)
+        if isRecipe and addon.Alerts then
+            addon.Alerts.ShowRecipeAlert(itemLink, sender, profession)
+        else
+            processItemLink(itemLink, sender)
+        end
     end
 end
 
 -- Test functions for debugging
 function Detection.TestEquipment()
-    local testItem = "|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r"
+    -- Level 15 priest appropriate weapon - Gnarled Staff (req level 13, definitely exists in Classic)
+    local testItem = "|cff9d9d9d|Hitem:2030::::::::15:::::::|h[Gnarled Staff]|h|r"
     processItemLink(testItem, UnitName("player"))
 end
 
 function Detection.TestMaterial()
     if addon.Config and #addon.Config.GetProfessions() > 0 then
-        local testItem = "|cffffffff|Hitem:2770::::::::60:::::::|h[Copper Ore]|h|r"
+        local testItem = "|cffffffff|Hitem:2770::::::::15:::::::|h[Copper Ore]|h|r"
         processItemLink(testItem, UnitName("player"))
     else
         print("|cff00ff00[GuildItemScanner]|r Add a profession first: /gis prof add Engineering")
@@ -222,13 +525,15 @@ function Detection.TestMaterial()
 end
 
 function Detection.TestBag()
-    local testItem = "|cff0070dd|Hitem:14156::::::::60:::::::|h[Mooncloth Bag]|h|r"
+    -- 10 slot bag appropriate for lower levels
+    local testItem = "|cffffffff|Hitem:4496::::::::15:::::::|h[Small Brown Pouch]|h|r"
     processItemLink(testItem, UnitName("player"))
 end
 
 function Detection.TestRecipe()
     if addon.Config and #addon.Config.GetProfessions() > 0 then
-        local testItem = "|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r"
+        -- Low level cooking recipe that exists in Classic - Recipe: Spiced Wolf Meat
+        local testItem = "|cffffffff|Hitem:2697::::::::15:::::::|h[Recipe: Spiced Wolf Meat]|h|r"
         processItemLink(testItem, UnitName("player"))
     else
         print("|cff00ff00[GuildItemScanner]|r Add a profession first: /gis prof add Cooking")
@@ -236,6 +541,7 @@ function Detection.TestRecipe()
 end
 
 function Detection.TestPotion()
-    local testItem = "|cff0070dd|Hitem:13445::::::::60:::::::|h[Greater Fire Protection Potion]|h|r"
+    -- Lower level healing potion
+    local testItem = "|cffffffff|Hitem:118::::::::15:::::::|h[Minor Healing Potion]|h|r"
     processItemLink(testItem, UnitName("player"))
 end
