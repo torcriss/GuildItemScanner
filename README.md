@@ -9,9 +9,9 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🎯 **Five Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
-- **🏭 Crafting Materials** - 200+ materials with quantity/rarity filtering
-- **👜 Storage Bags** - 40+ bags with customizable size filtering
-- **🧪 Potions & Consumables** - 70+ potions with type filtering
+- **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering
+- **👜 Storage Bags** - 50+ bags with customizable size filtering
+- **🧪 Potions & Consumables** - 80+ potions with type filtering
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (50% chance, 2-6s delay)
@@ -39,9 +39,16 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 1. **Download** the addon files
 2. **Extract** to `World of Warcraft\_classic_era_\Interface\AddOns\GuildItemScanner\`
-3. **Ensure** you have both files:
+3. **Ensure** you have the complete modular structure:
    - `GuildItemScanner.toc`
    - `GuildItemScanner.lua`
+   - `modules/Config.lua`
+   - `modules/Databases.lua`
+   - `modules/Detection.lua`
+   - `modules/Alerts.lua`
+   - `modules/Commands.lua`
+   - `modules/History.lua`
+   - `modules/Social.lua`
 4. **Launch** WoW Classic Era and enable the addon
 5. **Configure** with `/gis` commands
 
@@ -65,6 +72,9 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis on/off` | Enable/disable the entire addon |
 | `/gis status` | Show complete configuration |
 | `/gis debug` | Toggle debug logging |
+| `/gis sound` | Toggle sound alerts |
+| `/gis duration <seconds>` | Set alert duration (1-60 seconds) |
+| `/gis reset` | Reset all settings to defaults |
 
 ### **Equipment Settings**
 | Command | Description |
@@ -109,6 +119,12 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 |---------|-------------|
 | `/gis gz` | Toggle auto-congratulations for achievements |
 | `/gis rip` | Toggle auto-condolences for deaths |
+
+### **History Commands**
+| Command | Description |
+|---------|-------------|
+| `/gis history [filter]` | Show alert history with optional filtering |
+| `/gis clearhistory` | Clear all alert history |
 
 ### **Testing Commands**
 | Command | Description |
@@ -197,6 +213,25 @@ The addon processes items in this priority order:
 4. **Potions** - Consumables with type filtering
 5. **Equipment** (lowest) - BoE upgrades for your class
 
+## 🏗️ Architecture
+
+### **Modular Design**
+The addon uses a clean modular architecture for maintainability:
+- **Config.lua** - Configuration management and SavedVariables
+- **Databases.lua** - Item databases (potions, bags, materials, equipment)
+- **Detection.lua** - Smart item detection logic
+- **Alerts.lua** - Visual alert system and UI
+- **Commands.lua** - Complete command system
+- **History.lua** - Persistent history tracking
+- **Social.lua** - Auto-GZ/RIP social features
+
+### **Extensible Databases**
+Each database is easily expandable with new items:
+- **80+ Potions** - All Classic WoW potions with effects and levels
+- **50+ Bags** - Including special profession bags
+- **100+ Materials** - Covering all 8 professions
+- **Complete Equipment** - All slot mappings and class restrictions
+
 ## 🔧 Advanced Configuration
 
 ### **Stat Priority System** (Future Feature)
@@ -229,7 +264,7 @@ The request button has been widened to accommodate longer text like "Request Mat
 Ensure you have the Frontier addon installed for achievement/death detection.
 
 ### **Missing Materials**
-The addon tracks 200+ materials but may not include every single item. Report missing items for inclusion in future updates.
+The addon tracks 100+ materials across all professions but may not include every single item. The modular database system makes it easy to add new materials. Report missing items for inclusion in future updates.
 
 ## 📊 Performance
 
@@ -247,10 +282,14 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
-- **v4.0** - Added comprehensive potion detection system
-- **v3.0** - Added bag detection and enhanced material system  
-- **v2.0** - Added material detection and social features
-- **v1.0** - Initial release with equipment and recipe detection
+- **v2.0** - Complete modular refactor with enhanced features:
+  - Modular architecture (7 separate modules)
+  - Expanded databases (80+ potions, 50+ bags, 100+ materials)
+  - Complete command system (40+ commands)
+  - Persistent history tracking
+  - Enhanced social features
+  - Comprehensive help system
+- **v1.0** - Initial monolithic version with basic detection
 
 ## 📄 License
 
