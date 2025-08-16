@@ -545,3 +545,81 @@ function Detection.TestPotion()
     local testItem = "|cffffffff|Hitem:118::::::::15:::::::|h[Minor Healing Potion]|h|r"
     processItemLink(testItem, UnitName("player"))
 end
+
+-- Export canPlayerUseItem function for use by Commands module
+function Detection.CanPlayerUseItem(itemLink)
+    return canPlayerUseItem(itemLink)
+end
+
+-- Compare item with equipped gear (used by /gis compare command)
+function Detection.CompareItemWithEquipped(itemLink)
+    local _, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(itemLink)
+    if not itemLevel or not itemEquipLoc then
+        print("|cff00ff00[GuildItemScanner]|r Unable to get item information.")
+        return
+    end
+    
+    -- Get slot info
+    local slot = addon.Databases and addon.Databases.GetSlotMapping(itemEquipLoc) or "unknown"
+    local slotsToCheck = {}
+    
+    if itemEquipLoc == "INVTYPE_FINGER" then
+        slotsToCheck = {11, 12}
+    elseif itemEquipLoc == "INVTYPE_TRINKET" then
+        slotsToCheck = {13, 14}
+    else
+        local slotId = addon.Databases and addon.Databases.GetSlotID(itemEquipLoc)
+        if slotId then
+            slotsToCheck = {slotId}
+        end
+    end
+    
+    if #slotsToCheck == 0 then
+        print("|cff00ff00[GuildItemScanner]|r Unable to determine equipment slot for this item.")
+        return
+    end
+    
+    print(string.format("|cff00ff00[GuildItemScanner]|r Equipment slot: %s", slot))
+    
+    -- Item level comparison
+    print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by item level):")
+    local lowestEquippedLevel = 999
+    local lowestEquippedLink = nil
+    
+    for i, slotId in ipairs(slotsToCheck) do
+        local equippedLink = GetInventoryItemLink("player", slotId)
+        local equippedLevel = getEquippedItemLevel(slotId)
+        
+        local slotName = ""
+        if #slotsToCheck > 1 then
+            slotName = string.format(" (slot %d)", i)
+        end
+        
+        if equippedLink then
+            if itemLevel > equippedLevel then
+                print(string.format("  %s%s: |cffa335ee+%d ilvl upgrade|r (ilvl %d)", 
+                    equippedLink, slotName, itemLevel - equippedLevel, equippedLevel))
+            else
+                print(string.format("  %s%s: |cffff0000-%d ilvl downgrade|r (ilvl %d)", 
+                    equippedLink, slotName, equippedLevel - itemLevel, equippedLevel))
+            end
+        else
+            print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
+            equippedLevel = 0
+        end
+        
+        if equippedLevel < lowestEquippedLevel then
+            lowestEquippedLevel = equippedLevel
+            lowestEquippedLink = equippedLink or "empty slot"
+        end
+    end
+    
+    -- Summary
+    if itemLevel > lowestEquippedLevel then
+        print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d item levels|r", 
+            itemLevel - lowestEquippedLevel))
+    else
+        print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%d item levels)|r", 
+            itemLevel - lowestEquippedLevel))
+    end
+end

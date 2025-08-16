@@ -327,6 +327,74 @@ commandHandlers.cachediag = function()
     print("|cff00ff00[GuildItemScanner]|r If cache is corrupted, try reloading UI (/reload) or restarting WoW.")
 end
 
+commandHandlers.compare = function(args)
+    if args == "" then
+        print("|cff00ff00[GuildItemScanner]|r Usage: /gis compare [item link]")
+        print("|cff00ff00[GuildItemScanner]|r Example: /gis compare [Thunderfury, Blessed Blade of the Windseeker]")
+        return
+    end
+    
+    -- Extract item link from the arguments
+    local itemLink = string.match(args, "|c%x+|Hitem:.-|h%[.-%]|h|r")
+    if not itemLink then
+        print("|cff00ff00[GuildItemScanner]|r Invalid item link. Please provide a valid item link.")
+        return
+    end
+    
+    -- Get item info
+    local itemName, _, _, itemLevel, requiredLevel, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
+    if not itemName then
+        print("|cff00ff00[GuildItemScanner]|r Unable to retrieve item information. The item may not be cached.")
+        return
+    end
+    
+    -- Print item info
+    local bindText = bindType == 1 and "|cffff0000BoP|r" or "|cff00ff00BoE|r"
+    print(string.format("|cff00ff00[GuildItemScanner]|r Comparing: %s (%s, ilvl %d)", 
+        itemLink, bindText, itemLevel))
+    
+    -- Print level requirements
+    if requiredLevel and requiredLevel > 1 then
+        local playerLevel = UnitLevel("player")
+        local levelText = playerLevel >= requiredLevel and 
+            string.format("|cff00ff00Level %d required (you have %d)|r", requiredLevel, playerLevel) or
+            string.format("|cffff0000Level %d required (you have %d)|r", requiredLevel, playerLevel)
+        print(string.format("|cff00ff00[GuildItemScanner]|r %s", levelText))
+        
+        if playerLevel < requiredLevel then
+            print("|cff00ff00[GuildItemScanner]|r |cffff0000This item cannot be equipped due to level requirements.|r")
+            return
+        end
+    end
+    
+    -- Check if player can use the item (class/armor/weapon restrictions)
+    if addon.Detection and not addon.Detection.CanPlayerUseItem(itemLink) then
+        print("|cff00ff00[GuildItemScanner]|r |cffff0000You cannot use this item due to class or level restrictions.|r")
+        return
+    end
+    
+    -- Check if it's an equippable item
+    if not itemEquipLoc or itemEquipLoc == "" or itemEquipLoc == "INVTYPE_NON_EQUIP_IGNORE" then
+        print("|cff00ff00[GuildItemScanner]|r This item is not equippable.")
+        return
+    end
+    
+    -- Force item to cache by requesting tooltip
+    local itemID = string.match(itemLink, "item:(%d+)")
+    if itemID then
+        GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        GameTooltip:SetHyperlink("item:" .. itemID)
+        GameTooltip:Hide()
+    end
+    
+    -- Use Detection module to check upgrade status
+    if addon.Detection then
+        addon.Detection.CompareItemWithEquipped(itemLink)
+    else
+        print("|cff00ff00[GuildItemScanner]|r Detection module not available.")
+    end
+end
+
 -- Testing Commands
 commandHandlers.testmat = function()
     if addon.Detection then
@@ -440,6 +508,7 @@ commandHandlers.help = function()
     print(" /gis clearhistory - Clear alert history")
     print(" /gis uncached - Show uncached item history (for debugging)")
     print(" /gis cachediag - Diagnose item cache corruption issues")
+    print(" /gis compare [item] - Compare any item with your equipped gear")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test/testmat/testbag/testrecipe/testpotion - Test all alert types")
     print(" /gis testfrontier - Test Frontier message pattern matching")
