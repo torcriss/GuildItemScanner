@@ -30,6 +30,7 @@ end
 -- Event handling
 local GIS = CreateFrame("Frame")
 GIS:RegisterEvent("CHAT_MSG_GUILD")
+GIS:RegisterEvent("CHAT_MSG_WHISPER")
 GIS:RegisterEvent("PLAYER_LOGIN")
 GIS:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
@@ -45,6 +46,27 @@ GIS:SetScript("OnEvent", function(self, event, ...)
             if addon.Config and addon.Config.Get("debugMode") then
                 print("|cff00ff00[GuildItemScanner Debug]|r Detection module not loaded!")
             end
+        end
+    elseif event == "CHAT_MSG_WHISPER" then
+        local message, sender = ...
+        if addon.Config and addon.Config.Get("whisperTestMode") then
+            local playerName = UnitName("player")
+            if sender == playerName then
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r Whisper test event received from %s: %s", sender or "unknown", message or "nil"))
+                end
+                if addon.Detection then
+                    addon.Detection.ProcessWhisperMessage(...)
+                else
+                    if addon.Config and addon.Config.Get("debugMode") then
+                        print("|cff00ff00[GuildItemScanner Debug]|r Detection module not loaded!")
+                    end
+                end
+            elseif addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Ignoring whisper from %s (not self)", sender or "unknown"))
+            end
+        elseif addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Whisper test mode disabled, ignoring whisper")
         end
     end
 end)

@@ -42,6 +42,9 @@ local defaultConfig = {
     -- Sound settings
     soundDuration = 2,
     
+    -- Testing settings
+    whisperTestMode = false,
+    
     -- Version tracking
     configVersion = "2.0"
 }

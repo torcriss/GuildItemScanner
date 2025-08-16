@@ -623,3 +623,33 @@ function Detection.CompareItemWithEquipped(itemLink)
             itemLevel - lowestEquippedLevel))
     end
 end
+
+-- Process whisper messages for testing (used by whisper test mode)
+function Detection.ProcessWhisperMessage(message, sender, ...)
+    if not addon.Config or not addon.Config.Get("enabled") then 
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Addon disabled, ignoring whisper test")
+        end
+        return 
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print("|cff00ff00[GuildItemScanner Debug]|r Processing whisper test message from " .. (sender or "unknown"))
+    end
+    
+    local itemLinks = extractItemLinks(message)
+    if #itemLinks == 0 then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r No item links found in whisper test message")
+        end
+        return
+    end
+    
+    -- Add visual indicator that this is a test
+    print("|cff00ff00[GuildItemScanner]|r |cffffff00[WHISPER TEST]|r Processing " .. #itemLinks .. " item(s) from test message")
+    
+    -- Process each item link using the same logic as guild messages
+    for _, itemLink in ipairs(itemLinks) do
+        processItemLink(itemLink, sender)
+    end
+end

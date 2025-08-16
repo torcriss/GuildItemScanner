@@ -438,6 +438,19 @@ commandHandlers.testrip = function()
     end
 end
 
+commandHandlers.whispertest = function()
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("whisperTestMode")
+        if enabled then
+            print("|cff00ff00[GuildItemScanner]|r Whisper test mode |cff00ff00ENABLED|r")
+            print("|cff00ff00[GuildItemScanner]|r You can now whisper yourself with item links to test detection")
+            print("|cff00ff00[GuildItemScanner]|r Example: /w " .. UnitName("player") .. " Check out this [item]!")
+        else
+            print("|cff00ff00[GuildItemScanner]|r Whisper test mode |cffff0000DISABLED|r")
+        end
+    end
+end
+
 -- Status Command
 commandHandlers.status = function()
     local _, class = UnitClass("player")
@@ -464,6 +477,8 @@ commandHandlers.status = function()
     print(" |cffFFD700Social Settings:|r")
     print("  Auto-GZ mode: " .. (addon.Config and addon.Config.Get("autoGZ") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Auto-RIP mode: " .. (addon.Config and addon.Config.Get("autoRIP") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print(" |cffFFD700Testing Settings:|r")
+    print("  Whisper test mode: " .. (addon.Config and addon.Config.Get("whisperTestMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print(" |cffFFD700Professions:|r")
     local professions = addon.Config and addon.Config.GetProfessions()
     print("  Active: " .. (#professions > 0 and table.concat(professions, ", ") or "|cff808080None|r"))
@@ -513,6 +528,7 @@ commandHandlers.help = function()
     print(" /gis test/testmat/testbag/testrecipe/testpotion - Test all alert types")
     print(" /gis testfrontier - Test Frontier message pattern matching")
     print(" /gis testgz/testrip - Test social automation features")
+    print(" /gis whispertest - Toggle whisper-based testing mode")
     print("Type |cffffff00/gis help|r to see this list again.")
 end
 
