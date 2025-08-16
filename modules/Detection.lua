@@ -10,6 +10,8 @@ local MAX_RETRIES = 3
 local RETRY_DELAY = 0.5
 local retryQueue = {}
 
+-- Forward declarations
+local processItemLink  -- Forward declaration to allow retryUncachedItems to call it
 
 -- Uncached item handling
 local function addToUncachedHistory(itemLink, playerName, message)
@@ -350,7 +352,7 @@ local function isPotionUseful(itemLink)
 end
 
 -- Main processing function
-local function processItemLink(itemLink, playerName, skipRetry, retryEntry)
+processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     if not itemLink or not playerName then
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r Invalid itemLink or playerName: %s, %s", tostring(itemLink), tostring(playerName)))
