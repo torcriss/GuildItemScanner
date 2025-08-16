@@ -228,6 +228,8 @@ Databases.MATERIALS = {
         ["Stringy Wolf Meat"] = {level = 1, type = "meat", rarity = "common"},
         ["Small Egg"] = {level = 1, type = "ingredient", rarity = "common"},
         ["Goretusk Liver"] = {level = 1, type = "meat", rarity = "common"},
+        ["Clam Meat"] = {level = 50, type = "meat", rarity = "common"},
+        ["Crab Claw"] = {level = 1, type = "meat", rarity = "common"},
         ["Murloc Eye"] = {level = 15, type = "ingredient", rarity = "common"},
         ["Lean Wolf Flank"] = {level = 25, type = "meat", rarity = "common"},
         ["Bear Meat"] = {level = 35, type = "meat", rarity = "common"},
@@ -239,14 +241,20 @@ Databases.MATERIALS = {
         ["Raw Longjaw Mud Snapper"] = {level = 35, type = "fish", rarity = "common"},
         ["Raw Loch Frenzy"] = {level = 50, type = "fish", rarity = "common"},
         ["Raw Rainbow Fin Albacore"] = {level = 50, type = "fish", rarity = "common"},
+        ["Raw Glossy Mightfish"] = {level = 200, type = "fish", rarity = "common"},
+        ["Lobster Tail"] = {level = 225, type = "fish", rarity = "common"},
         
         -- Mid-Level Meats (Level 75-125)
         ["Big Bear Meat"] = {level = 75, type = "meat", rarity = "common"},
         ["Tender Crab Meat"] = {level = 75, type = "meat", rarity = "common"},
+        ["Coyote Meat"] = {level = 75, type = "meat", rarity = "common"},
+        ["Lean Venison"] = {level = 110, type = "meat", rarity = "common"},
         ["Lion Meat"] = {level = 100, type = "meat", rarity = "common"},
         ["Raptor Flesh"] = {level = 125, type = "meat", rarity = "common"},
         ["Tiger Meat"] = {level = 125, type = "meat", rarity = "common"},
         ["Raptor Egg"] = {level = 125, type = "ingredient", rarity = "common"},
+        ["Buzzard Wing"] = {level = 35, type = "meat", rarity = "common"},
+        ["Carrion Bird Lung"] = {level = 175, type = "meat", rarity = "common"},
         
         -- Fish (Level 75-125)
         ["Raw Bristle Whisker Catfish"] = {level = 100, type = "fish", rarity = "common"},
@@ -289,6 +297,10 @@ Databases.MATERIALS = {
         ["Ice Cold Milk"] = {level = 35, type = "dairy", rarity = "common"},
         ["Sweet Nectar"] = {level = 75, type = "ingredient", rarity = "common"},
         ["Shiny Red Apple"] = {level = 50, type = "fruit", rarity = "common"},
+        ["Skin of Dwarven Stout"] = {level = 85, type = "ingredient", rarity = "common"},
+        ["Chunk of Flesh"] = {level = 1, type = "meat", rarity = "common"},
+        ["Bat Wing"] = {level = 1, type = "meat", rarity = "common"},
+        ["Spider Leg"] = {level = 1, type = "meat", rarity = "common"},
         
         -- Rare/Special Cooking Materials
         ["Zesty Clam Meat"] = {level = 85, type = "meat", rarity = "rare"},
