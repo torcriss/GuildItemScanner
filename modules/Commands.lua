@@ -41,14 +41,14 @@ end
 
 commandHandlers.debug = function()
     if addon.Config then
-        local enabled = addon.Config.Toggle("debugMode")
+        local enabled = addon.Config and addon.Config.Toggle("debugMode")
         print("|cff00ff00[GuildItemScanner]|r Debug mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     end
 end
 
 commandHandlers.sound = function()
     if addon.Config then
-        local enabled = addon.Config.Toggle("soundAlert")
+        local enabled = addon.Config and addon.Config.Toggle("soundAlert")
         print("|cff00ff00[GuildItemScanner]|r Sound alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     end
 end
@@ -57,7 +57,7 @@ commandHandlers.duration = function(args)
     if not addon.Config then return end
     
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current alert duration: " .. addon.Config.Get("alertDuration") .. " seconds")
+        print("|cff00ff00[GuildItemScanner]|r Current alert duration: " .. (addon.Config and addon.Config.Get("alertDuration") or "5") .. " seconds")
     else
         local duration = tonumber(args)
         if duration and duration >= 1 and duration <= 60 then
@@ -84,19 +84,23 @@ commandHandlers.test = function()
 end
 
 commandHandlers.whisper = function()
-    local enabled = Config.Toggle("whisperMode")
-    print("|cff00ff00[GuildItemScanner]|r Whisper mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("whisperMode")
+        print("|cff00ff00[GuildItemScanner]|r Whisper mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    end
 end
 
 commandHandlers.greed = function()
-    local enabled = Config.Toggle("greedMode")
-    print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("greedMode")
+        print("|cff00ff00[GuildItemScanner]|r Greed mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    end
 end
 
 -- Profession Commands
 commandHandlers.prof = function(args)
     if args == "" then
-        local professions = Config.GetProfessions()
+        local professions = addon.Config and addon.Config.GetProfessions() or {}
         if #professions == 0 then
             print("|cff00ff00[GuildItemScanner]|r No professions set. Use /gis prof add <profession>")
         else
@@ -105,22 +109,24 @@ commandHandlers.prof = function(args)
     else
         local subCmd, profession = args:match("^(%S+)%s*(.*)$")
         if subCmd == "add" and profession ~= "" then
-            local success, result = Config.AddProfession(profession)
+            local success, result = addon.Config and addon.Config.AddProfession(profession)
             if success then
                 print("|cff00ff00[GuildItemScanner]|r Added profession: " .. profession)
             else
                 print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
             end
         elseif subCmd == "remove" and profession ~= "" then
-            local success, result = Config.RemoveProfession(profession)
+            local success, result = addon.Config and addon.Config.RemoveProfession(profession)
             if success then
                 print("|cff00ff00[GuildItemScanner]|r Removed profession: " .. profession)
             else
                 print("|cff00ff00[GuildItemScanner]|r Profession not found: " .. profession)
             end
         elseif subCmd == "clear" then
-            Config.ClearProfessions()
-            print("|cff00ff00[GuildItemScanner]|r Cleared all professions")
+            if addon.Config then
+                addon.Config.ClearProfessions()
+                print("|cff00ff00[GuildItemScanner]|r Cleared all professions")
+            end
         elseif subCmd == "list" then
             commandHandlers.prof("")
         else
@@ -130,37 +136,39 @@ commandHandlers.prof = function(args)
 end
 
 commandHandlers.recipe = function()
-    local enabled = Config.Toggle("recipeAlert")
+    local enabled = addon.Config and addon.Config.Toggle("recipeAlert")
     print("|cff00ff00[GuildItemScanner]|r Recipe alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.recipebutton = function()
-    local enabled = Config.Toggle("recipeButton")
+    local enabled = addon.Config and addon.Config.Toggle("recipeButton")
     print("|cff00ff00[GuildItemScanner]|r Recipe request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 -- Material Commands
 commandHandlers.material = function()
-    local enabled = Config.Toggle("materialAlert")
+    local enabled = addon.Config and addon.Config.Toggle("materialAlert")
     print("|cff00ff00[GuildItemScanner]|r Material alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 commandHandlers.mat = commandHandlers.material
 
 commandHandlers.matbutton = function()
-    local enabled = Config.Toggle("materialButton")
+    local enabled = addon.Config and addon.Config.Toggle("materialButton")
     print("|cff00ff00[GuildItemScanner]|r Material request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.rarity = function(args)
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current rarity filter: " .. Config.Get("materialRarityFilter"))
+        print("|cff00ff00[GuildItemScanner]|r Current rarity filter: " .. (addon.Config and addon.Config.Get("materialRarityFilter") or "common"))
         print("|cff00ff00[GuildItemScanner]|r Valid rarities: common, rare, epic, legendary")
     else
         local validRarities = {common = true, rare = true, epic = true, legendary = true}
         local rarity = args:lower()
         if validRarities[rarity] then
-            Config.Set("materialRarityFilter", rarity)
-            print("|cff00ff00[GuildItemScanner]|r Material rarity filter set to: " .. rarity)
+            if addon.Config then
+                addon.Config.Set("materialRarityFilter", rarity)
+                print("|cff00ff00[GuildItemScanner]|r Material rarity filter set to: " .. rarity)
+            end
         else
             print("|cff00ff00[GuildItemScanner]|r Invalid rarity. Valid options: common, rare, epic, legendary")
         end
@@ -169,12 +177,14 @@ end
 
 commandHandlers.quantity = function(args)
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current quantity threshold: " .. Config.Get("materialQuantityThreshold"))
+        print("|cff00ff00[GuildItemScanner]|r Current quantity threshold: " .. (addon.Config and addon.Config.Get("materialQuantityThreshold") or "1"))
     else
         local qty = tonumber(args)
         if qty and qty >= 1 and qty <= 1000 then
-            Config.Set("materialQuantityThreshold", qty)
-            print("|cff00ff00[GuildItemScanner]|r Material quantity threshold set to: " .. qty)
+            if addon.Config then
+                addon.Config.Set("materialQuantityThreshold", qty)
+                print("|cff00ff00[GuildItemScanner]|r Material quantity threshold set to: " .. qty)
+            end
         else
             print("|cff00ff00[GuildItemScanner]|r Invalid quantity. Must be between 1 and 1000")
         end
@@ -184,23 +194,25 @@ commandHandlers.qty = commandHandlers.quantity
 
 -- Bag Commands
 commandHandlers.bag = function()
-    local enabled = Config.Toggle("bagAlert")
+    local enabled = addon.Config and addon.Config.Toggle("bagAlert")
     print("|cff00ff00[GuildItemScanner]|r Bag alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.bagbutton = function()
-    local enabled = Config.Toggle("bagButton")
+    local enabled = addon.Config and addon.Config.Toggle("bagButton")
     print("|cff00ff00[GuildItemScanner]|r Bag request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.bagsize = function(args)
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current bag size filter: " .. Config.Get("bagSizeFilter") .. "+ slots")
+        print("|cff00ff00[GuildItemScanner]|r Current bag size filter: " .. (addon.Config and addon.Config.Get("bagSizeFilter") or "6") .. "+ slots")
     else
         local size = tonumber(args)
         if size and size >= 6 and size <= 24 then
-            Config.Set("bagSizeFilter", size)
-            print("|cff00ff00[GuildItemScanner]|r Bag size filter set to: " .. size .. "+ slots")
+            if addon.Config then
+                addon.Config.Set("bagSizeFilter", size)
+                print("|cff00ff00[GuildItemScanner]|r Bag size filter set to: " .. size .. "+ slots")
+            end
         else
             print("|cff00ff00[GuildItemScanner]|r Invalid bag size. Must be between 6 and 24")
         end
@@ -209,25 +221,27 @@ end
 
 -- Potion Commands
 commandHandlers.potion = function()
-    local enabled = Config.Toggle("potionAlert")
+    local enabled = addon.Config and addon.Config.Toggle("potionAlert")
     print("|cff00ff00[GuildItemScanner]|r Potion alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.potionbutton = function()
-    local enabled = Config.Toggle("potionButton")
+    local enabled = addon.Config and addon.Config.Toggle("potionButton")
     print("|cff00ff00[GuildItemScanner]|r Potion request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
 commandHandlers.potiontype = function(args)
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current potion type filter: " .. Config.Get("potionTypeFilter"))
+        print("|cff00ff00[GuildItemScanner]|r Current potion type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
         print("|cff00ff00[GuildItemScanner]|r Valid types: all, combat, profession, misc")
     else
         local validTypes = {all = true, combat = true, profession = true, misc = true}
         local ptype = args:lower()
         if validTypes[ptype] then
-            Config.Set("potionTypeFilter", ptype)
-            print("|cff00ff00[GuildItemScanner]|r Potion type filter set to: " .. ptype)
+            if addon.Config then
+                addon.Config.Set("potionTypeFilter", ptype)
+                print("|cff00ff00[GuildItemScanner]|r Potion type filter set to: " .. ptype)
+            end
         else
             print("|cff00ff00[GuildItemScanner]|r Invalid type. Valid options: all, combat, profession, misc")
         end
@@ -236,40 +250,124 @@ end
 
 -- Social Commands
 commandHandlers.gz = function()
-    local enabled = Config.Toggle("autoGZ")
-    print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("autoGZ")
+        print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    end
 end
 
 commandHandlers.rip = function()
-    local enabled = Config.Toggle("autoRIP")
-    print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("autoRIP")
+        print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    end
 end
 
 -- History Commands
 commandHandlers.history = function(args)
-    History.ShowHistory(args)
+    if addon.History then
+        addon.History.ShowHistory(args)
+    end
 end
 
 commandHandlers.clearhistory = function()
-    History.ClearHistory()
-    print("|cff00ff00[GuildItemScanner]|r History cleared")
+    if addon.History then
+        addon.History.ClearHistory()
+        print("|cff00ff00[GuildItemScanner]|r History cleared")
+    end
+end
+
+commandHandlers.uncached = function()
+    if addon.History then
+        local uncachedHistory = addon.History.GetUncachedHistory()
+        if #uncachedHistory == 0 then
+            print("|cff00ff00[GuildItemScanner]|r No uncached items found.")
+            return
+        end
+        
+        print("|cff00ff00[GuildItemScanner]|r Uncached Item History:")
+        for i, entry in ipairs(uncachedHistory) do
+            if i > 10 then break end -- Show only last 10
+            print(string.format("  %s [%s] %s - %s", 
+                entry.time, entry.player, entry.item, entry.message))
+        end
+        
+        if #uncachedHistory > 10 then
+            print(string.format("  ... and %d more entries", #uncachedHistory - 10))
+        end
+    end
+end
+
+-- Cache diagnosis command
+commandHandlers.cachediag = function()
+    print("|cff00ff00[GuildItemScanner]|r Cache Diagnosis:")
+    
+    -- Test a few known items to see if cache is working
+    local testItems = {
+        {"|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r", "Recipe: Gooey Spider Cake"},
+        {"|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", "Thaumaturgist Staff"},
+        {"|cffffffff|Hitem:2770::::::::60:::::::|h[Copper Ore]|h|r", "Copper Ore"}
+    }
+    
+    for i, testData in ipairs(testItems) do
+        local itemLink, expectedName = testData[1], testData[2]
+        local actualName = GetItemInfo(itemLink)
+        
+        if actualName then
+            if actualName == expectedName then
+                print(string.format("  ✓ %s = '%s' |cff00ff00(CORRECT)|r", itemLink, actualName))
+            else
+                print(string.format("  ✗ %s = '%s' |cffff0000(WRONG, expected '%s')|r", itemLink, actualName, expectedName))
+            end
+        else
+            print(string.format("  ? %s = |cffff0000nil (NOT CACHED)|r", itemLink))
+        end
+    end
+    
+    print("|cff00ff00[GuildItemScanner]|r If cache is corrupted, try reloading UI (/reload) or restarting WoW.")
 end
 
 -- Testing Commands
 commandHandlers.testmat = function()
-    Detection.TestMaterial()
+    if addon.Detection then
+        addon.Detection.TestMaterial()
+    end
 end
 
 commandHandlers.testbag = function()
-    Detection.TestBag()
+    if addon.Detection then
+        addon.Detection.TestBag()
+    end
 end
 
 commandHandlers.testrecipe = function()
-    Detection.TestRecipe()
+    if addon.Detection then
+        addon.Detection.TestRecipe()
+    end
 end
 
 commandHandlers.testpotion = function()
-    Detection.TestPotion()
+    if addon.Detection then
+        addon.Detection.TestPotion()
+    end
+end
+
+commandHandlers.testfrontier = function()
+    if addon.Social then
+        addon.Social.TestFrontierPatterns()
+    end
+end
+
+commandHandlers.testgz = function()
+    if addon.Social then
+        addon.Social.TestAutoGZ()
+    end
+end
+
+commandHandlers.testrip = function()
+    if addon.Social then
+        addon.Social.TestAutoRIP()
+    end
 end
 
 -- Status Command
@@ -277,29 +375,29 @@ commandHandlers.status = function()
     local _, class = UnitClass("player")
     print("|cff00ff00[GuildItemScanner]|r Status:")
     print("  Version: " .. addon.version .. " " .. addon.build)
-    print("  Addon: " .. (Config.Get("enabled") and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"))
+    print("  Addon: " .. (addon.Config and addon.Config.Get("enabled") and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"))
     print("  Player: " .. class .. " (Level " .. UnitLevel("player") .. ")")
-    print("  Debug mode: " .. (Config.Get("debugMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Debug mode: " .. (addon.Config and addon.Config.Get("debugMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print(" |cffFFD700Equipment Settings:|r")
-    print("  Whisper mode: " .. (Config.Get("whisperMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Greed mode: " .. (Config.Get("greedMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Whisper mode: " .. (addon.Config and addon.Config.Get("whisperMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Greed mode: " .. (addon.Config and addon.Config.Get("greedMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print(" |cffFFD700Alert Settings:|r")
-    print("  Recipe alerts: " .. (Config.Get("recipeAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Material alerts: " .. (Config.Get("materialAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Bag alerts: " .. (Config.Get("bagAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Potion alerts: " .. (Config.Get("potionAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Sound alerts: " .. (Config.Get("soundAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Alert duration: " .. Config.Get("alertDuration") .. " seconds")
+    print("  Recipe alerts: " .. (addon.Config and addon.Config.Get("recipeAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Material alerts: " .. (addon.Config and addon.Config.Get("materialAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Bag alerts: " .. (addon.Config and addon.Config.Get("bagAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Potion alerts: " .. (addon.Config and addon.Config.Get("potionAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Sound alerts: " .. (addon.Config and addon.Config.Get("soundAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Alert duration: " .. (addon.Config and addon.Config.Get("alertDuration") or "5") .. " seconds")
     print(" |cffFFD700Filter Settings:|r")
-    print("  Material rarity filter: " .. Config.Get("materialRarityFilter"))
-    print("  Material quantity threshold: " .. Config.Get("materialQuantityThreshold"))
-    print("  Bag size filter: " .. Config.Get("bagSizeFilter") .. "+ slots")
-    print("  Potion type filter: " .. Config.Get("potionTypeFilter"))
+    print("  Material rarity filter: " .. (addon.Config and addon.Config.Get("materialRarityFilter") or "common"))
+    print("  Material quantity threshold: " .. (addon.Config and addon.Config.Get("materialQuantityThreshold") or "1"))
+    print("  Bag size filter: " .. (addon.Config and addon.Config.Get("bagSizeFilter") or "6") .. "+ slots")
+    print("  Potion type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
     print(" |cffFFD700Social Settings:|r")
-    print("  Auto-GZ mode: " .. (Config.Get("autoGZ") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-    print("  Auto-RIP mode: " .. (Config.Get("autoRIP") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Auto-GZ mode: " .. (addon.Config and addon.Config.Get("autoGZ") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Auto-RIP mode: " .. (addon.Config and addon.Config.Get("autoRIP") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print(" |cffFFD700Professions:|r")
-    local professions = Config.GetProfessions()
+    local professions = addon.Config and addon.Config.GetProfessions()
     print("  Active: " .. (#professions > 0 and table.concat(professions, ", ") or "|cff808080None|r"))
 end
 
@@ -340,8 +438,12 @@ commandHandlers.help = function()
     print(" |cffFFD700History Commands:|r")
     print(" /gis history [filter] - Show alert history")
     print(" /gis clearhistory - Clear alert history")
+    print(" /gis uncached - Show uncached item history (for debugging)")
+    print(" /gis cachediag - Diagnose item cache corruption issues")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test/testmat/testbag/testrecipe/testpotion - Test all alert types")
+    print(" /gis testfrontier - Test Frontier message pattern matching")
+    print(" /gis testgz/testrip - Test social automation features")
     print("Type |cffffff00/gis help|r to see this list again.")
 end
 

@@ -311,6 +311,94 @@ Databases.GZ_MESSAGES = {
     "GZ", "gz", "grats!", "LETSGOOO", "gratz", "DinkDonk", "grats", "nice!", "congrats!", "awesome!"
 }
 
+-- Class armor restrictions
+Databases.CLASS_ARMOR_RESTRICTIONS = {
+    WARRIOR = { Cloth = true, Leather = true, Mail = true, Plate = true },
+    PALADIN = { Cloth = true, Leather = true, Mail = true, Plate = true },
+    HUNTER = { Cloth = true, Leather = true, Mail = true },
+    ROGUE = { Cloth = true, Leather = true },
+    PRIEST = { Cloth = true },
+    SHAMAN = { Cloth = true, Leather = true, Mail = true },
+    MAGE = { Cloth = true },
+    WARLOCK = { Cloth = true },
+    DRUID = { Cloth = true, Leather = true }
+}
+
+-- Weapon restrictions by class
+Databases.CLASS_WEAPON_RESTRICTIONS = {
+    WARRIOR = { 
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true, ["Shields"] = true, ["Bows"] = true,
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+    },
+    PALADIN = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Shields"] = true
+    },
+    HUNTER = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true, ["Bows"] = true, ["Crossbows"] = true,
+        ["Guns"] = true, ["Thrown"] = true
+    },
+    ROGUE = {
+        ["One-Handed Swords"] = true, ["One-Handed Maces"] = true,
+        ["Daggers"] = true, ["Fist Weapons"] = true, ["Bows"] = true,
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+    },
+    PRIEST = {
+        ["One-Handed Maces"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    SHAMAN = {
+        ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Staves"] = true, ["Daggers"] = true, ["Fist Weapons"] = true,
+        ["Shields"] = true
+    },
+    MAGE = {
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    WARLOCK = {
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+    },
+    DRUID = {
+        ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
+        ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+        ["Fist Weapons"] = true
+    }
+}
+
+-- Slot mapping for equipment
+Databases.SLOT_MAPPING = {
+    INVTYPE_FINGER = "finger", INVTYPE_TRINKET = "trinket", INVTYPE_HEAD = "head",
+    INVTYPE_NECK = "neck", INVTYPE_SHOULDER = "shoulder", INVTYPE_BODY = "shirt",
+    INVTYPE_CHEST = "chest", INVTYPE_ROBE = "chest", INVTYPE_WAIST = "waist", 
+    INVTYPE_LEGS = "legs", INVTYPE_FEET = "feet", INVTYPE_WRIST = "wrist", 
+    INVTYPE_HAND = "hands", INVTYPE_CLOAK = "back", INVTYPE_WEAPON = "main hand", 
+    INVTYPE_SHIELD = "off hand", INVTYPE_2HWEAPON = "two-hand", 
+    INVTYPE_WEAPONMAINHAND = "main hand", INVTYPE_WEAPONOFFHAND = "off hand", 
+    INVTYPE_HOLDABLE = "off hand", INVTYPE_RANGED = "ranged", INVTYPE_THROWN = "ranged",
+    INVTYPE_RANGEDRIGHT = "ranged", INVTYPE_RELIC = "ranged", INVTYPE_TABARD = "tabard"
+}
+
+-- Slot ID mapping for equipment slots
+Databases.SLOT_ID_MAPPING = {
+    INVTYPE_FINGER = 11, INVTYPE_TRINKET = 13, INVTYPE_HEAD = 1,
+    INVTYPE_NECK = 2, INVTYPE_SHOULDER = 3, INVTYPE_BODY = 4,
+    INVTYPE_CHEST = 5, INVTYPE_ROBE = 5, INVTYPE_WAIST = 6, 
+    INVTYPE_LEGS = 7, INVTYPE_FEET = 8, INVTYPE_WRIST = 9, 
+    INVTYPE_HAND = 10, INVTYPE_CLOAK = 15, INVTYPE_WEAPON = 16, 
+    INVTYPE_SHIELD = 17, INVTYPE_2HWEAPON = 16, INVTYPE_WEAPONMAINHAND = 16, 
+    INVTYPE_WEAPONOFFHAND = 17, INVTYPE_HOLDABLE = 17, INVTYPE_RANGED = 18, 
+    INVTYPE_THROWN = 18, INVTYPE_RANGEDRIGHT = 18, INVTYPE_RELIC = 18, INVTYPE_TABARD = 19
+}
+
 -- Utility functions
 function Databases.GetPotionInfo(itemName)
     return Databases.POTIONS[itemName]
@@ -350,4 +438,26 @@ end
 
 function Databases.GetRandomGZMessage()
     return Databases.GZ_MESSAGES[math.random(#Databases.GZ_MESSAGES)]
+end
+
+function Databases.GetSlotMapping(itemEquipLoc)
+    return Databases.SLOT_MAPPING[itemEquipLoc]
+end
+
+function Databases.GetSlotID(itemEquipLoc)
+    return Databases.SLOT_ID_MAPPING[itemEquipLoc]
+end
+
+function Databases.CanClassUseArmor(class, armorType)
+    if not Databases.CLASS_ARMOR_RESTRICTIONS[class] then
+        return false
+    end
+    return Databases.CLASS_ARMOR_RESTRICTIONS[class][armorType] or false
+end
+
+function Databases.CanClassUseWeapon(class, weaponType)
+    if not Databases.CLASS_WEAPON_RESTRICTIONS[class] then
+        return false
+    end
+    return Databases.CLASS_WEAPON_RESTRICTIONS[class][weaponType] or false
 end
