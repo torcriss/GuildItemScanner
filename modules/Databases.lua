@@ -154,12 +154,52 @@ Databases.MATERIALS = {
         ["Icecap"] = {level = 290, type = "herb", rarity = "common"},
         ["Black Lotus"] = {level = 300, type = "herb", rarity = "legendary"},
         
-        -- Reagents
-        ["Empty Vial"] = {level = 1, type = "reagent", rarity = "common"},
-        ["Leaded Vial"] = {level = 150, type = "reagent", rarity = "common"},
-        ["Crystal Vial"] = {level = 200, type = "reagent", rarity = "common"},
-        ["Coal"] = {level = 1, type = "reagent", rarity = "common"},
-        ["Salt"] = {level = 1, type = "reagent", rarity = "common"},
+        -- Vials and Containers
+        ["Empty Vial"] = {level = 1, type = "vial", rarity = "common"},
+        ["Leaded Vial"] = {level = 150, type = "vial", rarity = "common"},
+        ["Crystal Vial"] = {level = 200, type = "vial", rarity = "common"},
+        ["Imbued Vial"] = {level = 275, type = "vial", rarity = "rare"},
+        
+        -- Elemental Oils (Essential for many recipes)
+        ["Blackmouth Oil"] = {level = 80, type = "oil", rarity = "common"},
+        ["Stonescale Oil"] = {level = 155, type = "oil", rarity = "common"},
+        ["Fire Oil"] = {level = 100, type = "oil", rarity = "common"},
+        ["Oil of Immolation"] = {level = 205, type = "oil", rarity = "common"},
+        ["Frost Oil"] = {level = 200, type = "oil", rarity = "common"},
+        
+        -- Fish Used in Alchemy
+        ["Oily Blackmouth"] = {level = 80, type = "fish", rarity = "rare"},
+        ["Firefin Snapper"] = {level = 150, type = "fish", rarity = "rare"},
+        ["Stonescale Eel"] = {level = 155, type = "fish", rarity = "rare"},
+        ["Deviate Fish"] = {level = 50, type = "fish", rarity = "rare"},
+        
+        -- Elemental Materials
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Water"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Air"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Water"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Air"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        ["Essence of Undeath"] = {level = 275, type = "essence", rarity = "rare"},
+        
+        -- Special Reagents
+        ["Deeprock Salt"] = {level = 150, type = "salt", rarity = "common"},
+        ["Coal"] = {level = 1, type = "fuel", rarity = "common"},
+        ["Salt"] = {level = 1, type = "salt", rarity = "common"},
+        ["Large Venom Sac"] = {level = 175, type = "venom", rarity = "common"},
+        ["Small Flame Sac"] = {level = 100, type = "sac", rarity = "common"},
+        ["Wildvine"] = {level = 15, type = "herb", rarity = "common"},
+        ["Stranglekelp"] = {level = 85, type = "herb", rarity = "common"},
+        ["Bloodvine"] = {level = 260, type = "herb", rarity = "rare"},
+        
+        -- Pearls for Flask Recipes
+        ["Small Lustrous Pearl"] = {level = 100, type = "pearl", rarity = "common"},
+        ["Iridescent Pearl"] = {level = 150, type = "pearl", rarity = "rare"},
+        ["Black Pearl"] = {level = 200, type = "pearl", rarity = "rare"},
+        ["Golden Pearl"] = {level = 275, type = "pearl", rarity = "epic"},
     },
     
     ["Blacksmithing"] = {
