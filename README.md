@@ -323,7 +323,7 @@ The `/gis smoketest` command runs all detection systems safely:
 - **7 comprehensive tests** covering all item detection types
 - **Safe testing**: No guild spam - whispers to yourself only
 - **Social simulation**: Tests GZ/RIP logic without sending messages
-- **Progress tracking**: Real-time test status with ✓/⊗ indicators
+- **Progress tracking**: Real-time test status with [OK]/[X] indicators
 - **Performance metrics**: Shows test duration and pass rate
 - **Smart skipping**: Automatically skips tests requiring missing setup
 
@@ -332,17 +332,17 @@ The `/gis smoketest` command runs all detection systems safely:
 === SMOKE TEST STARTING ===
 Safe mode: No guild spam, whispers to self only
 
-[1/7] Testing Equipment Detection... ✓ Equipment test completed
-[2/7] Testing Material Detection... ✓ Material test completed
-[3/7] Testing Bag Detection... ✓ Bag test completed
-[4/7] Testing Recipe Detection... ✓ Recipe test completed  
-[5/7] Testing Potion Detection... ✓ Potion test completed
-[6/7] Testing Whisper Mode (Safe)... ✓ Test whisper sent - check for alert popup
-[7/7] Testing Social Features (Simulation)... ✓ Social simulation completed safely
+[1/7] Testing Equipment Detection... [OK] Equipment test completed
+[2/7] Testing Material Detection... [OK] Material test completed
+[3/7] Testing Bag Detection... [OK] Bag test completed
+[4/7] Testing Recipe Detection... [OK] Recipe test completed  
+[5/7] Testing Potion Detection... [OK] Potion test completed
+[6/7] Testing Whisper Mode (Safe)... [OK] Test whisper sent - check for alert popup
+[7/7] Testing Social Features (Simulation)... [OK] Social simulation completed safely
 
 === SMOKE TEST COMPLETE ===
 Tests Run: 7/7 | Tests Passed: 7 | Time Elapsed: 3.5 seconds
-Status: All core systems operational ✓
+Status: All core systems operational [OK]
 No guild messages sent - all tests safe
 ```
 
