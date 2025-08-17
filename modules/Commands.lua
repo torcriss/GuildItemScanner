@@ -315,9 +315,9 @@ commandHandlers.cachediag = function()
         
         if actualName then
             if actualName == expectedName then
-                print(string.format("  ✓ %s = '%s' |cff00ff00(CORRECT)|r", itemLink, actualName))
+                print(string.format("  [OK] %s = '%s' |cff00ff00(CORRECT)|r", itemLink, actualName))
             else
-                print(string.format("  ✗ %s = '%s' |cffff0000(WRONG, expected '%s')|r", itemLink, actualName, expectedName))
+                print(string.format("  [X] %s = '%s' |cffff0000(WRONG, expected '%s')|r", itemLink, actualName, expectedName))
             end
         else
             print(string.format("  ? %s = |cffff0000nil (NOT CACHED)|r", itemLink))
@@ -585,12 +585,12 @@ commandHandlers.addmaterial = function(args)
     local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
     
     if rarityOrder[rarity] < rarityOrder[currentFilter] then
-        print("|cffff0000[GuildItemScanner]|r ⚠ Warning: This material won't trigger alerts!")
+        print("|cffff0000[GuildItemScanner]|r WARNING: This material won't trigger alerts!")
         print("|cffff0000[GuildItemScanner]|r Current filter: " .. currentFilter .. 
               " | Item rarity: " .. rarity)
         print("|cffff0000[GuildItemScanner]|r To detect this material, use: /gis rarity " .. rarity)
     elseif hasProfession then
-        print("|cff00ff00[GuildItemScanner]|r ✓ This material WILL trigger alerts (rarity >= filter)")
+        print("|cff00ff00[GuildItemScanner]|r This material WILL trigger alerts (rarity >= filter)")
     end
 end
 

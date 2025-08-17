@@ -154,7 +154,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ```
 /gis addmaterial [Crawler Claw] Cooking
 → "Added custom material: [Crawler Claw] to Cooking (rarity: common)"
-→ "✓ This material WILL trigger alerts (rarity >= filter)"
+→ "This material WILL trigger alerts (rarity >= filter)"
 
 /gis listcustom
 → "=== Custom Materials ==="
