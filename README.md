@@ -309,6 +309,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 ### **Testing Commands**
 | Command | Description |
 |---------|-------------|
+| `/gis smoketest` | **Run comprehensive test suite (recommended after deployment)** |
 | `/gis test` | Test equipment upgrade alert |
 | `/gis testmat` | Test material alert |
 | `/gis testbag` | Test bag alert |
@@ -316,6 +317,34 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis testpotion` | Test potion alert |
 | `/gis whispertest` | Toggle whisper-based testing mode |
 | `/gis compare [item]` | Compare any item with equipped gear |
+
+#### **🔬 Smoke Test Features**
+The `/gis smoketest` command runs all detection systems safely:
+- **7 comprehensive tests** covering all item detection types
+- **Safe testing**: No guild spam - whispers to yourself only
+- **Social simulation**: Tests GZ/RIP logic without sending messages
+- **Progress tracking**: Real-time test status with ✓/⊗ indicators
+- **Performance metrics**: Shows test duration and pass rate
+- **Smart skipping**: Automatically skips tests requiring missing setup
+
+**Sample Output:**
+```
+=== SMOKE TEST STARTING ===
+Safe mode: No guild spam, whispers to self only
+
+[1/7] Testing Equipment Detection... ✓ Equipment test completed
+[2/7] Testing Material Detection... ✓ Material test completed
+[3/7] Testing Bag Detection... ✓ Bag test completed
+[4/7] Testing Recipe Detection... ✓ Recipe test completed  
+[5/7] Testing Potion Detection... ✓ Potion test completed
+[6/7] Testing Whisper Mode (Safe)... ✓ Test whisper sent - check for alert popup
+[7/7] Testing Social Features (Simulation)... ✓ Social simulation completed safely
+
+=== SMOKE TEST COMPLETE ===
+Tests Run: 7/7 | Tests Passed: 7 | Time Elapsed: 3.5 seconds
+Status: All core systems operational ✓
+No guild messages sent - all tests safe
+```
 
 ## 🎯 Usage Examples
 

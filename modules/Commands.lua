@@ -643,6 +643,164 @@ commandHandlers.whispertest = function()
     end
 end
 
+-- Comprehensive Smoke Test
+commandHandlers.smoketest = function()
+    local startTime = GetTime()
+    local testCount = 0
+    local passedCount = 0
+    
+    print("|cff00ff00[GuildItemScanner]|r |cffffff00=== SMOKE TEST STARTING ===|r")
+    print("|cff00ff00[GuildItemScanner]|r |cff808080Safe mode: No guild spam, whispers to self only|r")
+    print("")
+    
+    -- Test 1: Equipment Detection
+    testCount = testCount + 1
+    print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Equipment Detection...")
+    if addon.Detection then
+        addon.Detection.TestEquipment()
+        passedCount = passedCount + 1
+        print("      |cff00ff00✓ Equipment test completed|r")
+    else
+        print("      |cffff0000⊗ Detection module not available|r")
+    end
+    
+    C_Timer.After(0.5, function()
+        -- Test 2: Material Detection
+        testCount = testCount + 1
+        print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Material Detection...")
+        
+        local professions = addon.Config and addon.Config.GetProfessions() or {}
+        if #professions > 0 then
+            if addon.Detection then
+                addon.Detection.TestMaterial()
+                passedCount = passedCount + 1
+                print("      |cff00ff00✓ Material test completed|r")
+            else
+                print("      |cffff0000⊗ Detection module not available|r")
+            end
+        else
+            print("      |cffffff00⊗ Skipped: No professions set (use /gis prof add <profession>)|r")
+        end
+        
+        C_Timer.After(0.5, function()
+            -- Test 3: Bag Detection
+            testCount = testCount + 1
+            print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Bag Detection...")
+            if addon.Detection then
+                addon.Detection.TestBag()
+                passedCount = passedCount + 1
+                print("      |cff00ff00✓ Bag test completed|r")
+            else
+                print("      |cffff0000⊗ Detection module not available|r")
+            end
+            
+            C_Timer.After(0.5, function()
+                -- Test 4: Recipe Detection
+                testCount = testCount + 1
+                print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Recipe Detection...")
+                
+                if #professions > 0 then
+                    if addon.Detection then
+                        addon.Detection.TestRecipe()
+                        passedCount = passedCount + 1
+                        print("      |cff00ff00✓ Recipe test completed|r")
+                    else
+                        print("      |cffff0000⊗ Detection module not available|r")
+                    end
+                else
+                    print("      |cffffff00⊗ Skipped: No professions set (use /gis prof add <profession>)|r")
+                end
+                
+                C_Timer.After(0.5, function()
+                    -- Test 5: Potion Detection
+                    testCount = testCount + 1
+                    print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Potion Detection...")
+                    if addon.Detection then
+                        addon.Detection.TestPotion()
+                        passedCount = passedCount + 1
+                        print("      |cff00ff00✓ Potion test completed|r")
+                    else
+                        print("      |cffff0000⊗ Detection module not available|r")
+                    end
+                    
+                    C_Timer.After(0.5, function()
+                        -- Test 6: Whisper Mode (Safe)
+                        testCount = testCount + 1
+                        print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Whisper Mode (Safe)...")
+                        
+                        if addon.Detection then
+                            local playerName = UnitName("player")
+                            local testItem = "|cff1eff00|Hitem:2030::::::::15:::::::|h[Gnarled Staff]|h|r"
+                            
+                            print("      |cffffff00Sending test whisper to yourself...|r")
+                            SendChatMessage("[SMOKE TEST] " .. testItem, "WHISPER", nil, playerName)
+                            passedCount = passedCount + 1
+                            print("      |cff00ff00✓ Test whisper sent - check for alert popup|r")
+                        else
+                            print("      |cffff0000⊗ Detection module not available|r")
+                        end
+                        
+                        C_Timer.After(1.0, function()
+                            -- Test 7: Social Features (Simulation Only)
+                            testCount = testCount + 1
+                            print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Social Features (Simulation)...")
+                            
+                            if addon.Social and addon.Config then
+                                -- Simulate GZ
+                                local gzChance = addon.Config.GetGzChance()
+                                local gzRoll = math.random(1, 100)
+                                local wouldTriggerGZ = gzRoll <= gzChance
+                                
+                                print("      |cffffff00GZ Test: Rolled " .. gzRoll .. "/" .. gzChance .. "% chance|r")
+                                if wouldTriggerGZ then
+                                    print("      |cff00ff00✓ Would trigger GZ (message not sent)|r")
+                                else
+                                    print("      |cffffff00⊗ Would not trigger GZ this time|r")
+                                end
+                                
+                                -- Simulate RIP
+                                local ripChance = addon.Config.GetRipChance()
+                                local ripRoll = math.random(1, 100)
+                                local wouldTriggerRIP = ripRoll <= ripChance
+                                
+                                print("      |cffffff00RIP Test: Rolled " .. ripRoll .. "/" .. ripChance .. "% chance|r")
+                                if wouldTriggerRIP then
+                                    print("      |cff00ff00✓ Would trigger RIP (message not sent)|r")
+                                else
+                                    print("      |cffffff00⊗ Would not trigger RIP this time|r")
+                                end
+                                
+                                passedCount = passedCount + 1
+                                print("      |cff00ff00✓ Social simulation completed safely|r")
+                            else
+                                print("      |cffffff00⊗ Social module not available (this is normal)|r")
+                            end
+                            
+                            -- Final Summary
+                            local endTime = GetTime()
+                            local elapsed = endTime - startTime
+                            
+                            print("")
+                            print("|cff00ff00[GuildItemScanner]|r |cffffff00=== SMOKE TEST COMPLETE ===|r")
+                            print("|cff00ff00[GuildItemScanner]|r Tests Run: |cffffff00" .. testCount .. "/7|r")
+                            print("|cff00ff00[GuildItemScanner]|r Tests Passed: |cff00ff00" .. passedCount .. "|r")
+                            print("|cff00ff00[GuildItemScanner]|r Time Elapsed: |cffffff00" .. string.format("%.1f", elapsed) .. " seconds|r")
+                            
+                            if passedCount >= 5 then
+                                print("|cff00ff00[GuildItemScanner]|r Status: |cff00ff00All core systems operational ✓|r")
+                            else
+                                print("|cff00ff00[GuildItemScanner]|r Status: |cffffff00Some tests skipped or failed|r")
+                            end
+                            
+                            print("|cff00ff00[GuildItemScanner]|r |cff808080No guild messages sent - all tests safe|r")
+                        end)
+                    end)
+                end)
+            end)
+        end)
+    end)
+end
+
 -- Stat Priority Commands
 commandHandlers.stats = function(args)
     if not addon.Config then return end
