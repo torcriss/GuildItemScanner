@@ -91,11 +91,6 @@ function History.ClearHistory()
     History.Save()
 end
 
--- Get uncached history
-function History.GetUncachedHistory()
-    return uncachedHistory
-end
-
 -- Show history with optional filtering
 function History.ShowHistory(filter)
     if #alertHistory == 0 then

@@ -1,6 +1,6 @@
 -- GuildItemScanner Addon for WoW Classic Era (Interface 11507)
 -- Modular addon with complete equipment, recipes, materials, bags, and potions detection
--- Version 2.0 - Refactored and enhanced
+-- Version 2.2 - Simplified interface and enhanced stability
 
 local addonName, addon = ...
 addon = addon or {}
@@ -9,7 +9,7 @@ addon = addon or {}
 -- No need to import here since modules will set addon.ModuleName directly
 
 -- Version info
-addon.version = "2.0"
+addon.version = "2.2"
 addon.build = "Enhanced"
 
 -- Core initialization

@@ -289,53 +289,6 @@ function Social.ShowStatus()
     end
 end
 
--- Test social features
-function Social.TestAutoGZ()
-    print("|cff00ff00[GuildItemScanner]|r Testing Auto-GZ...")
-    Social.SendAutoGZ("TestPlayer")
-end
-
-function Social.TestAutoRIP()
-    print("|cff00ff00[GuildItemScanner]|r Testing Auto-RIP...")
-    Social.SendAutoRIP(60, "TestPlayer") -- Test with level 60
-end
-
--- Test Frontier message pattern matching
-function Social.TestFrontierPatterns()
-    print("|cff00ff00[GuildItemScanner]|r Testing Frontier message patterns...")
-    
-    -- Test achievement message
-    local testAchievement = "[Frontier] Sybau earned achievement: Equip a Guild Tabard"
-    print("Testing: " .. testAchievement)
-    
-    local cleanText = string.gsub(testAchievement, "|c%x%x%x%x%x%x%x%x", "")
-    cleanText = string.gsub(cleanText, "|r", "")
-    print("Clean text: " .. cleanText)
-    
-    if string.find(cleanText, "earned achievement:") then
-        local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*earned achievement:")
-        print("Found achievement - Player: " .. (playerName or "FAILED TO EXTRACT"))
-    else
-        print("Achievement pattern NOT matched")
-    end
-    
-    -- Test death message
-    local testDeath = "[Frontier] PlayerName (Level 45) has died"
-    print("Testing: " .. testDeath)
-    
-    cleanText = string.gsub(testDeath, "|c%x%x%x%x%x%x%x%x", "")
-    cleanText = string.gsub(cleanText, "|r", "")
-    print("Clean text: " .. cleanText)
-    
-    if string.find(cleanText, "has died") then
-        local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*has died")
-        local level = string.match(cleanText, "Level (%d+)")
-        print("Found death - Player: " .. (playerName or "FAILED") .. ", Level: " .. (level or "NONE"))
-    else
-        print("Death pattern NOT matched")
-    end
-end
-
 -- Initialize social features
 function Social.Initialize()
     HookChatFrame()

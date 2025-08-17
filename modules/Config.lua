@@ -21,7 +21,6 @@ local defaultConfig = {
     soundAlert = true,
     whisperMode = false,
     greedMode = true,
-    recipeButton = true,
     alertDuration = 15,
     debugMode = false,
     autoGZ = false,
@@ -34,18 +33,15 @@ local defaultConfig = {
     
     -- Material settings
     materialAlert = true,
-    materialButton = true,
     materialRarityFilter = "common",
     materialQuantityThreshold = 1,
     
     -- Bag settings
     bagAlert = true,
-    bagButton = true,
     bagSizeFilter = 6,
     
     -- Potion settings
     potionAlert = true,
-    potionButton = true,
     potionTypeFilter = "all",
     
     -- Profession settings
@@ -71,7 +67,7 @@ local defaultConfig = {
     whisperTestMode = false,
     
     -- Version tracking
-    configVersion = "2.0"
+    configVersion = "2.2"
 }
 
 local config = {}
@@ -90,7 +86,7 @@ function Config.Load()
             profiles = {},
             currentProfile = nil,
             defaultProfile = nil,
-            version = addon.version or "2.0"
+            version = addon.version or "2.2"
         }
     end
     
@@ -126,7 +122,7 @@ end
 function Config.Save()
     if GuildItemScannerDB then
         GuildItemScannerDB.config = config
-        GuildItemScannerDB.version = addon.version or "2.0"
+        GuildItemScannerDB.version = addon.version or "2.2"
         
         -- Always auto-save to current profile
         Config.AutoSaveProfile()
