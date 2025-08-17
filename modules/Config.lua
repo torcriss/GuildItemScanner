@@ -17,8 +17,8 @@ local defaultConfig = {
     
     -- Equipment settings
     recipeAlert = true,
-    useStatPriority = false,
-    statPriority = {},
+    statComparisonMode = "ilvl",  -- "ilvl", "stats", or "both"
+    statPriorities = {},  -- ordered array of stat names
     
     -- Material settings
     materialAlert = true,
@@ -318,4 +318,110 @@ end
 
 function Config.GetRipChance()
     return config.ripChance
+end
+
+-- Stat Priority Management Functions
+function Config.AddStatPriority(stat, position)
+    stat = string.lower(stat:gsub("^%s*(.-)%s*$", "%1")) -- trim and lowercase
+    
+    -- Validate stat name
+    local validStats = {
+        strength = true, agility = true, stamina = true, intellect = true, spirit = true,
+        attackpower = true, spellpower = true, healing = true, mp5 = true,
+        crit = true, hit = true, haste = true, defense = true, armor = true,
+        dodge = true, parry = true, block = true, spellcrit = true,
+        fire = true, nature = true, shadow = true, frost = true, arcane = true, holy = true
+    }
+    
+    if not validStats[stat] then
+        return false, "Invalid stat. Valid stats: strength, agility, stamina, intellect, spirit, attackpower, spellpower, healing, mp5, crit, hit, haste, defense, armor, dodge, parry, block, spellcrit, fire, nature, shadow, frost, arcane, holy"
+    end
+    
+    -- Check if stat already exists
+    for i, existingStat in ipairs(config.statPriorities) do
+        if existingStat == stat then
+            return false, "Stat already in priorities"
+        end
+    end
+    
+    -- Add at position or end
+    if position then
+        position = tonumber(position)
+        if position and position >= 1 and position <= (#config.statPriorities + 1) then
+            table.insert(config.statPriorities, position, stat)
+        else
+            return false, "Invalid position"
+        end
+    else
+        table.insert(config.statPriorities, stat)
+    end
+    
+    Config.Save()
+    return true, "Added"
+end
+
+function Config.RemoveStatPriority(stat)
+    stat = string.lower(stat:gsub("^%s*(.-)%s*$", "%1"))
+    
+    for i, existingStat in ipairs(config.statPriorities) do
+        if existingStat == stat then
+            table.remove(config.statPriorities, i)
+            Config.Save()
+            return true, "Removed"
+        end
+    end
+    return false, "Stat not found in priorities"
+end
+
+function Config.ClearStatPriorities()
+    config.statPriorities = {}
+    Config.Save()
+end
+
+function Config.GetStatPriorities()
+    return config.statPriorities
+end
+
+function Config.MoveStatPriority(stat, newPosition)
+    stat = string.lower(stat:gsub("^%s*(.-)%s*$", "%1"))
+    newPosition = tonumber(newPosition)
+    
+    if not newPosition or newPosition < 1 or newPosition > #config.statPriorities then
+        return false, "Invalid position"
+    end
+    
+    -- Find current position
+    local currentPos = nil
+    for i, existingStat in ipairs(config.statPriorities) do
+        if existingStat == stat then
+            currentPos = i
+            break
+        end
+    end
+    
+    if not currentPos then
+        return false, "Stat not found in priorities"
+    end
+    
+    -- Remove from current position and insert at new position
+    local statName = table.remove(config.statPriorities, currentPos)
+    table.insert(config.statPriorities, newPosition, statName)
+    
+    Config.Save()
+    return true, "Moved"
+end
+
+function Config.SetStatComparisonMode(mode)
+    local validModes = {ilvl = true, stats = true, both = true}
+    if not validModes[mode] then
+        return false, "Invalid mode. Valid modes: ilvl, stats, both"
+    end
+    
+    config.statComparisonMode = mode
+    Config.Save()
+    return true, "Set"
+end
+
+function Config.GetStatComparisonMode()
+    return config.statComparisonMode
 end

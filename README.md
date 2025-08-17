@@ -7,7 +7,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ## ✨ Features
 
 ### 🎯 **Five Detection Systems**
-- **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation
+- **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 70+ bags with customizable size filtering
@@ -22,6 +22,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
 - **BoP Detection** - Excludes Bind on Pickup items
+- **Stat Comparison Modes** - Item level, stat priorities, or both combined
 - **Profession Matching** - Materials only for your learned professions
 - **Rarity Filtering** - Material alerts by rarity (common/rare/epic/legendary)
 - **Quantity Thresholds** - Minimum stack sizes to prevent spam
@@ -81,6 +82,107 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 |---------|-------------|
 | `/gis whisper` | Toggle whisper vs guild chat mode |
 | `/gis greed` | Toggle "Greed!" button for equipment |
+
+### **🎯 Custom Stat Priorities**
+
+**Overview**: Configure custom stat priorities for equipment detection. Choose from three comparison modes and define exactly which stats matter for your character.
+
+#### **Comparison Modes**
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| `ilvl` | Item level only (default) | Simple upgrades, general leveling |
+| `stats` | Stat priorities only | Specialized builds, min-maxing |
+| `both` | Both ilvl AND stats must be better | Conservative upgrades, endgame |
+
+#### **Stat Priority Commands**
+| Command | Description |
+|---------|-------------|
+| `/gis statmode <mode>` | Set comparison mode (ilvl/stats/both) |
+| `/gis stats` | Show current stat configuration |
+| `/gis stats add <stat> [position]` | Add stat at specific priority (default: end) |
+| `/gis stats remove <stat>` | Remove stat from priorities |
+| `/gis stats move <stat> <position>` | Reorder stat priority |
+| `/gis stats clear` | Clear all stat priorities |
+| `/gis stats list` | Show all available stats |
+| `/gis stats help` | Show detailed command help |
+
+#### **Available Stats**
+- **Primary Attributes**: strength, agility, stamina, intellect, spirit
+- **Combat Stats**: attackpower, spellpower, healing, mp5
+- **Rating Stats**: crit, hit, haste, spellcrit  
+- **Defense Stats**: defense, armor, dodge, parry, block
+- **Resistances**: fire, nature, frost, shadow, arcane, holy
+
+#### **Real-World Examples**
+
+**🗡️ Rogue (Agility DPS)**
+```lua
+/gis statmode stats
+/gis stats add agility 1      -- Top priority (100 weight)
+/gis stats add attackpower 2  -- Second priority (75 weight)  
+/gis stats add crit 3         -- Third priority (50 weight)
+/gis stats add hit 4          -- Fourth priority (25 weight)
+```
+
+**🛡️ Warrior Tank**
+```lua
+/gis statmode both            -- Must be ilvl AND stat upgrade
+/gis stats add defense 1      -- Essential for defense cap
+/gis stats add stamina 2      -- Health pool
+/gis stats add armor 3        -- Physical mitigation
+/gis stats add block 4        -- Block chance
+```
+
+**⚡ Priest Healer**
+```lua
+/gis statmode stats
+/gis stats add healing 1      -- Healing power priority
+/gis stats add spirit 2       -- Mana regeneration
+/gis stats add intellect 3    -- Mana pool
+/gis stats add mp5 4          -- Mana per 5 seconds
+```
+
+**🔥 Mage DPS (Conservative)**
+```lua
+/gis statmode both            -- Requires both upgrades
+/gis stats add spellpower 1   -- Damage output
+/gis stats add intellect 2    -- Mana pool
+/gis stats add stamina 3      -- Survivability
+```
+
+#### **How Weighted Scoring Works**
+- **Position 1**: 100 points per stat point
+- **Position 2**: 75 points per stat point  
+- **Position 3**: 50 points per stat point
+- **Position 4**: 25 points per stat point
+- **Position 5+**: 1 point per stat point
+
+**Example Calculation**:
+Item with 12 Intellect, 15 Spirit, 8 Stamina  
+Priority: `intellect > spirit > stamina`  
+Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
+
+#### **Mode Behaviors Explained**
+
+**📊 Item Level Mode** (`/gis statmode ilvl`)
+- Only compares item levels
+- Alerts if new item has higher ilvl than equipped
+- No stat configuration needed
+- Best for: General leveling, simple upgrades
+
+**📈 Stats Mode** (`/gis statmode stats`)  
+- Only compares weighted stat scores
+- Ignores item level completely
+- Requires stat priorities to function
+- Best for: Min-maxing, specialized builds
+
+**⚖️ Both Mode** (`/gis statmode both`)
+- New item must be BOTH higher ilvl AND better stats
+- Most restrictive mode
+- Ensures true upgrades in all aspects
+- Best for: Conservative upgrades, endgame optimization
+
+**Note**: In stats or both mode, if no stat priorities are set, you'll see a warning. Configure priorities with `/gis stats add <stat>` before switching modes.
 
 ### **Profession Management**
 | Command | Description |

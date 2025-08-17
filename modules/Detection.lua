@@ -160,6 +160,98 @@ local function getEquippedItemLevel(slot)
     return itemLevel or 0
 end
 
+-- Stat extraction and scoring functions
+local function getItemStatScore(itemLink)
+    if not itemLink then return 0 end
+    
+    local statPriorities = addon.Config and addon.Config.GetStatPriorities() or {}
+    if #statPriorities == 0 then return 0 end
+    
+    local itemStats = GetItemStats(itemLink)
+    if not itemStats then return 0 end
+    
+    local score = 0
+    for i, statName in ipairs(statPriorities) do
+        local weight = math.max(100 - (i - 1) * 25, 1) -- 100, 75, 50, 25, 1, 1, ...
+        local statValue = 0
+        
+        -- Map stat names to GetItemStats keys
+        local statKey = nil
+        if statName == "strength" then
+            statKey = "ITEM_MOD_STRENGTH_SHORT"
+        elseif statName == "agility" then
+            statKey = "ITEM_MOD_AGILITY_SHORT"
+        elseif statName == "stamina" then
+            statKey = "ITEM_MOD_STAMINA_SHORT"
+        elseif statName == "intellect" then
+            statKey = "ITEM_MOD_INTELLECT_SHORT"
+        elseif statName == "spirit" then
+            statKey = "ITEM_MOD_SPIRIT_SHORT"
+        elseif statName == "attackpower" then
+            statKey = "ITEM_MOD_ATTACK_POWER_SHORT"
+        elseif statName == "spellpower" then
+            statKey = "ITEM_MOD_SPELL_POWER_SHORT"
+        elseif statName == "healing" then
+            statKey = "ITEM_MOD_SPELL_HEALING_DONE_SHORT"
+        elseif statName == "mp5" then
+            statKey = "ITEM_MOD_MANA_REGENERATION_SHORT"
+        elseif statName == "crit" then
+            statKey = "ITEM_MOD_CRIT_RATING_SHORT"
+        elseif statName == "hit" then
+            statKey = "ITEM_MOD_HIT_RATING_SHORT"
+        elseif statName == "haste" then
+            statKey = "ITEM_MOD_HASTE_RATING_SHORT"
+        elseif statName == "defense" then
+            statKey = "ITEM_MOD_DEFENSE_SKILL_RATING_SHORT"
+        elseif statName == "armor" then
+            statKey = "RESISTANCE0_NAME"
+        elseif statName == "dodge" then
+            statKey = "ITEM_MOD_DODGE_RATING_SHORT"
+        elseif statName == "parry" then
+            statKey = "ITEM_MOD_PARRY_RATING_SHORT"
+        elseif statName == "block" then
+            statKey = "ITEM_MOD_BLOCK_RATING_SHORT"
+        elseif statName == "spellcrit" then
+            statKey = "ITEM_MOD_SPELL_CRIT_RATING_SHORT"
+        elseif statName == "fire" then
+            statKey = "RESISTANCE2_NAME"
+        elseif statName == "nature" then
+            statKey = "RESISTANCE3_NAME"
+        elseif statName == "frost" then
+            statKey = "RESISTANCE4_NAME"
+        elseif statName == "shadow" then
+            statKey = "RESISTANCE5_NAME"
+        elseif statName == "arcane" then
+            statKey = "RESISTANCE6_NAME"
+        elseif statName == "holy" then
+            statKey = "RESISTANCE1_NAME"
+        end
+        
+        if statKey and itemStats[statKey] then
+            statValue = itemStats[statKey]
+        end
+        
+        score = score + (statValue * weight)
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Stat %s (pos %d): %d value × %d weight = %d points", 
+                statName, i, statValue, weight, statValue * weight))
+        end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Total stat score: %d", score))
+    end
+    
+    return score
+end
+
+local function getEquippedItemStatScore(slot)
+    local itemLink = GetInventoryItemLink("player", slot)
+    if not itemLink then return 0 end
+    return getItemStatScore(itemLink)
+end
+
 -- Equipment Detection
 local function isItemUpgrade(itemLink)
     if addon.Config and addon.Config.Get("debugMode") then
@@ -200,22 +292,87 @@ local function isItemUpgrade(itemLink)
         return false
     end
 
+    -- Get comparison mode
+    local comparisonMode = addon.Config and addon.Config.GetStatComparisonMode() or "ilvl"
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Using comparison mode: %s", comparisonMode))
+    end
+    
+    -- Find lowest equipped values
     local lowestEquippedLevel = 999
+    local lowestEquippedStatScore = 999999
     for _, slot in ipairs(slotsToCheck) do
         local equippedLevel = getEquippedItemLevel(slot)
         if equippedLevel < lowestEquippedLevel then
             lowestEquippedLevel = equippedLevel
         end
-    end
-    
-    if addon.Config and addon.Config.Get("debugMode") then
-        if itemLevel > lowestEquippedLevel then
-            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
-        else
-            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffff0000NOT AN UPGRADE|r for %s", itemLevel, lowestEquippedLevel, itemLink))
+        
+        if comparisonMode == "stats" or comparisonMode == "both" then
+            local equippedStatScore = getEquippedItemStatScore(slot)
+            if equippedStatScore < lowestEquippedStatScore then
+                lowestEquippedStatScore = equippedStatScore
+            end
         end
     end
-    return itemLevel > lowestEquippedLevel, itemLevel - lowestEquippedLevel
+    
+    -- Calculate scores for new item
+    local itemStatScore = 0
+    if comparisonMode == "stats" or comparisonMode == "both" then
+        itemStatScore = getItemStatScore(itemLink)
+    end
+    
+    -- Determine if upgrade based on mode
+    local isUpgrade = false
+    local improvement = 0
+    
+    if comparisonMode == "ilvl" then
+        -- Item level only
+        isUpgrade = itemLevel > lowestEquippedLevel
+        improvement = itemLevel - lowestEquippedLevel
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            if isUpgrade then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffa335eeUPGRADE!|r", itemLevel, lowestEquippedLevel))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl %d vs %d |cffff0000NOT AN UPGRADE|r", itemLevel, lowestEquippedLevel))
+            end
+        end
+        
+    elseif comparisonMode == "stats" then
+        -- Stats only
+        isUpgrade = itemStatScore > lowestEquippedStatScore
+        improvement = itemStatScore - lowestEquippedStatScore
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            if isUpgrade then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r stat score %d vs %d |cffa335eeUPGRADE!|r", itemStatScore, lowestEquippedStatScore))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r stat score %d vs %d |cffff0000NOT AN UPGRADE|r", itemStatScore, lowestEquippedStatScore))
+            end
+        end
+        
+    elseif comparisonMode == "both" then
+        -- Both item level AND stats must be better
+        local ilvlUpgrade = itemLevel > lowestEquippedLevel
+        local statUpgrade = itemStatScore > lowestEquippedStatScore
+        isUpgrade = ilvlUpgrade and statUpgrade
+        improvement = itemLevel - lowestEquippedLevel -- Use ilvl for improvement display
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r ilvl: %d vs %d (%s), stats: %d vs %d (%s)", 
+                itemLevel, lowestEquippedLevel, ilvlUpgrade and "better" or "worse",
+                itemStatScore, lowestEquippedStatScore, statUpgrade and "better" or "worse"))
+            
+            if isUpgrade then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBOTH UPGRADES - ITEM IS UPGRADE!|r"))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffff0000NOT UPGRADE IN BOTH - NOT AN UPGRADE|r"))
+            end
+        end
+    end
+    
+    return isUpgrade, improvement
 end
 
 -- Recipe Detection

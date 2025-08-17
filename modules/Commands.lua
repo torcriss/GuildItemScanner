@@ -643,6 +643,142 @@ commandHandlers.whispertest = function()
     end
 end
 
+-- Stat Priority Commands
+commandHandlers.stats = function(args)
+    if not addon.Config then return end
+    
+    local subcommand = args and args:match("^(%S+)")
+    if not subcommand then
+        -- Show current stat priorities
+        local priorities = addon.Config.GetStatPriorities()
+        local mode = addon.Config.GetStatComparisonMode()
+        
+        print("|cff00ff00[GuildItemScanner]|r === Current Stat Configuration ===")
+        print("  Comparison mode: |cffffcc00" .. string.upper(mode) .. "|r")
+        
+        if #priorities == 0 then
+            print("  Stat priorities: |cff808080None set|r")
+            if mode == "stats" or mode == "both" then
+                print("  |cffff8000WARNING:|r Stats mode active but no priorities set!")
+            end
+        else
+            print("  Stat priorities:")
+            for i, stat in ipairs(priorities) do
+                local weight = math.max(100 - (i - 1) * 25, 1)
+                print(string.format("    |cffffcc00%d.|r %s (weight: %d)", i, stat, weight))
+            end
+        end
+        
+        print("|cff00ff00[GuildItemScanner]|r Use '/gis stats help' for commands")
+        return
+    end
+    
+    subcommand = string.lower(subcommand)
+    local remaining = args:match("^%S+%s*(.*)")
+    
+    if subcommand == "help" then
+        print("|cff00ff00[GuildItemScanner]|r === Stat Priority Commands ===")
+        print("  |cffffcc00/gis stats|r - Show current configuration")
+        print("  |cffffcc00/gis stats add <stat> [position]|r - Add stat at position")
+        print("  |cffffcc00/gis stats remove <stat>|r - Remove stat from priorities")
+        print("  |cffffcc00/gis stats move <stat> <position>|r - Reorder stat priority")
+        print("  |cffffcc00/gis stats clear|r - Clear all stat priorities")
+        print("  |cffffcc00/gis stats list|r - Show available stats")
+        print("  |cffffcc00/gis statmode <mode>|r - Set comparison mode")
+        print("|cff00ff00[GuildItemScanner]|r Modes: ilvl, stats, both")
+        
+    elseif subcommand == "add" then
+        local stat, position = remaining:match("^(%S+)%s*(%S*)")
+        if not stat or stat == "" then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis stats add <stat> [position]")
+            print("|cff00ff00[GuildItemScanner]|r Use '/gis stats list' to see available stats")
+            return
+        end
+        
+        local pos = position and position ~= "" and tonumber(position) or nil
+        local success, msg = addon.Config.AddStatPriority(stat, pos)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Added stat priority: " .. stat .. (pos and " at position " .. pos or ""))
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "remove" then
+        local stat = remaining and remaining:match("^(%S+)")
+        if not stat or stat == "" then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis stats remove <stat>")
+            return
+        end
+        
+        local success, msg = addon.Config.RemoveStatPriority(stat)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Removed stat priority: " .. stat)
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "move" then
+        local stat, position = remaining:match("^(%S+)%s+(%S+)")
+        if not stat or not position then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis stats move <stat> <position>")
+            return
+        end
+        
+        local success, msg = addon.Config.MoveStatPriority(stat, position)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Moved " .. stat .. " to position " .. position)
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "clear" then
+        addon.Config.ClearStatPriorities()
+        print("|cff00ff00[GuildItemScanner]|r Cleared all stat priorities")
+        
+    elseif subcommand == "list" then
+        print("|cff00ff00[GuildItemScanner]|r === Available Stats ===")
+        print("|cffffcc00Primary Attributes:|r strength, agility, stamina, intellect, spirit")
+        print("|cffffcc00Combat Stats:|r attackpower, spellpower, healing, mp5")
+        print("|cffffcc00Rating Stats:|r crit, hit, haste, spellcrit")
+        print("|cffffcc00Defense Stats:|r defense, armor, dodge, parry, block")
+        print("|cffffcc00Resistances:|r fire, nature, frost, shadow, arcane, holy")
+        print("|cff00ff00[GuildItemScanner]|r Use: /gis stats add <statname> [position]")
+        
+    else
+        print("|cffff0000[GuildItemScanner]|r Unknown stats command: " .. subcommand)
+        print("|cff00ff00[GuildItemScanner]|r Use '/gis stats help' for available commands")
+    end
+end
+
+commandHandlers.statmode = function(args)
+    if not addon.Config then return end
+    
+    if not args or args == "" then
+        local currentMode = addon.Config.GetStatComparisonMode()
+        print("|cff00ff00[GuildItemScanner]|r Current comparison mode: |cffffcc00" .. string.upper(currentMode) .. "|r")
+        print("|cff00ff00[GuildItemScanner]|r Available modes:")
+        print("  |cffffcc00ilvl|r - Item level only (default)")
+        print("  |cffffcc00stats|r - Stat priorities only")
+        print("  |cffffcc00both|r - Requires both ilvl AND stat upgrades")
+        return
+    end
+    
+    local mode = string.lower(args:match("^(%S+)"))
+    local success, msg = addon.Config.SetStatComparisonMode(mode)
+    if success then
+        print("|cff00ff00[GuildItemScanner]|r Comparison mode set to: |cffffcc00" .. string.upper(mode) .. "|r")
+        
+        if mode == "stats" or mode == "both" then
+            local priorities = addon.Config.GetStatPriorities()
+            if #priorities == 0 then
+                print("|cffff8000[GuildItemScanner]|r WARNING: No stat priorities set! Use '/gis stats add <stat>' to configure.")
+            end
+        end
+    else
+        print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+    end
+end
+
 -- Status Command
 commandHandlers.status = function()
     local _, class = UnitClass("player")
@@ -654,6 +790,9 @@ commandHandlers.status = function()
     print(" |cffFFD700Equipment Settings:|r")
     print("  Whisper mode: " .. (addon.Config and addon.Config.Get("whisperMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Greed mode: " .. (addon.Config and addon.Config.Get("greedMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Comparison mode: " .. (addon.Config and addon.Config.GetStatComparisonMode() and string.upper(addon.Config.GetStatComparisonMode()) or "ILVL"))
+    local priorities = addon.Config and addon.Config.GetStatPriorities() or {}
+    print("  Stat priorities: " .. (#priorities > 0 and table.concat(priorities, ", ") or "|cff808080None|r"))
     print(" |cffFFD700Alert Settings:|r")
     print("  Recipe alerts: " .. (addon.Config and addon.Config.Get("recipeAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Material alerts: " .. (addon.Config and addon.Config.Get("materialAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
