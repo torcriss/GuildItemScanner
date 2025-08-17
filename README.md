@@ -18,8 +18,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
-- **👜 Storage Bags** - 70+ bags with customizable size filtering
-- **🧪 Potions & Consumables** - 120+ potions with type filtering
+- **👜 Storage Bags** - 50+ bags with customizable size filtering
+- **🧪 Potions & Consumables** - 90+ potions with type filtering
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
