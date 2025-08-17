@@ -471,6 +471,31 @@ Databases.MATERIALS = {
         ["Stonescale Eel"] = {level = 1, type = "fish", rarity = "rare"},
         ["Lucky Fish"] = {level = 1, type = "fish", rarity = "rare"},
         ["Squid Tentacle"] = {level = 1, type = "fish", rarity = "rare"}
+    },
+    
+    ["First Aid"] = {
+        -- Cloth Materials (Primary ingredients for bandages)
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 80, type = "cloth", rarity = "common"},
+        ["Silk Cloth"] = {level = 150, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 210, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 260, type = "cloth", rarity = "common"},
+        ["Felcloth"] = {level = 275, type = "cloth", rarity = "rare"},
+        
+        -- Venom Sacs (For anti-venom recipes)
+        ["Small Venom Sac"] = {level = 80, type = "venom", rarity = "common"},
+        ["Large Venom Sac"] = {level = 175, type = "venom", rarity = "common"},
+        ["Huge Venom Sac"] = {level = 275, type = "venom", rarity = "rare"},
+        
+        -- Special Materials
+        ["Thick Spider's Silk"] = {level = 125, type = "silk", rarity = "common"},
+        ["Ironweb Spider Silk"] = {level = 250, type = "silk", rarity = "rare"},
+        ["Spider's Silk"] = {level = 50, type = "silk", rarity = "common"},
+        
+        -- Additional Materials for Special Recipes
+        ["Crystal Vial"] = {level = 150, type = "vial", rarity = "common"},
+        ["Empty Vial"] = {level = 50, type = "vial", rarity = "common"},
+        ["Leaded Vial"] = {level = 200, type = "vial", rarity = "common"},
     }
 }
 
