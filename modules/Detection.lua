@@ -719,8 +719,29 @@ function Detection.ProcessGuildMessage(message, sender, ...)
     
     -- Check if WTB filtering is enabled and if this is a WTB message
     if addon.Config.Get("ignoreWTB") and isWTBMessage(message) then
+        -- Extract item names from the message to show what was filtered
+        local filteredItems = extractItemLinks(message)
+        if #filteredItems > 0 then
+            local itemNames = {}
+            for _, itemLink in ipairs(filteredItems) do
+                local itemName = string.match(itemLink, "|h%[(.-)%]|h")
+                if itemName then
+                    table.insert(itemNames, itemName)
+                end
+            end
+            
+            if #itemNames > 0 then
+                local itemsText = table.concat(itemNames, ", ")
+                print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. itemsText .. " from " .. (sender or "unknown"))
+            else
+                print("|cff00ff00[GuildItemScanner]|r Filtered WTB message from " .. (sender or "unknown"))
+            end
+        else
+            print("|cff00ff00[GuildItemScanner]|r Filtered WTB message from " .. (sender or "unknown"))
+        end
+        
         if addon.Config.Get("debugMode") then
-            print("|cff00ff00[GuildItemScanner Debug]|r Filtered WTB message from " .. (sender or "unknown") .. ": " .. (message or "nil"))
+            print("|cff00ff00[GuildItemScanner Debug]|r Full WTB message: " .. (message or "nil"))
         end
         return
     end
