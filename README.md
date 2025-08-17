@@ -142,6 +142,30 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 /gis stats add mp5 4          -- Mana per 5 seconds
 ```
 
+**🌙 Shadow Priest (Leveling)**
+```lua
+/gis statmode ilvl            -- Use ilvl mode while leveling
+/gis stats add spirit 1       -- Top priority for reduced downtime
+/gis stats add stamina 2      -- Survivability for pulling multiple mobs
+/gis stats add intellect 3    -- Larger mana pool
+/gis stats add spellpower 4   -- Damage increase (rare while leveling)
+```
+
+**Why This Leveling Priority:**
+- **Spirit (Top Priority)**: Dramatically reduces downtime between pulls. Spirit Tap talent makes this even more valuable for mana regen
+- **Stamina (Second)**: Shadow Priests face-tank damage while leveling. More health = pull more mobs safely = fewer deaths
+- **Intellect (Third)**: Larger mana pool for longer pull sessions. More mana = more DoTs = more Spirit Tap procs
+- **Spell Power (Fourth)**: Nice when available but rare while leveling. Kill speed matters less than sustainability
+
+**Alternative for Level 40+ (With Shadowform):**
+```lua
+/gis stats clear
+/gis stats add spellpower 1   -- More valuable with Shadowform
+/gis stats add stamina 2      -- Still need survivability  
+/gis stats add spirit 3       -- Still important but less critical
+/gis stats add intellect 4    -- Mana pool support
+```
+
 **🔥 Mage DPS (Conservative)**
 ```lua
 /gis statmode both            -- Requires both upgrades
