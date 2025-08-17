@@ -113,7 +113,11 @@ commandHandlers.prof = function(args)
             if success then
                 print("|cff00ff00[GuildItemScanner]|r Added profession: " .. profession)
             else
-                print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
+                if result == "Already exists" then
+                    print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
+                else
+                    print("|cff00ff00[GuildItemScanner]|r " .. result)
+                end
             end
         elseif subCmd == "remove" and profession ~= "" then
             local success, result = addon.Config and addon.Config.RemoveProfession(profession)
