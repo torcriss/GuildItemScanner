@@ -78,45 +78,90 @@ Databases.POTIONS = {
     ["Elixir of Greater Defense"] = {level = 29, type = "buff", category = "combat", effect = "+250 Armor for 1 hour"},
 }
 
--- Comprehensive bag database (50+ bags)
+-- Comprehensive bag database (70+ bags)
 Databases.BAGS = {
-    -- Common Bags
+    -- Basic Common Bags (6-8 slots)
     ["Small Brown Pouch"] = {slots = 6, level = 5, rarity = "common"},
+    ["Linen Bag"] = {slots = 6, level = 5, rarity = "common"},
+    ["Knotted Handkerchief"] = {slots = 6, level = 1, rarity = "common"},
+    ["Old Moneybag"] = {slots = 6, level = 3, rarity = "common"},
+    ["Small Red Pouch"] = {slots = 6, level = 5, rarity = "common"},
+    ["Small Green Pouch"] = {slots = 6, level = 5, rarity = "common"},
+    ["Small Black Pouch"] = {slots = 6, level = 5, rarity = "common"},
+    ["Brown Linen Pants"] = {slots = 6, level = 1, rarity = "common"},
+    
+    -- Small Common Bags (8 slots)
     ["Small Silk Pack"] = {slots = 8, level = 15, rarity = "common"},
-    ["Silk Bag"] = {slots = 10, level = 25, rarity = "common"},
     ["Small Leather Bag"] = {slots = 8, level = 10, rarity = "common"},
-    ["Leather Bag"] = {slots = 10, level = 20, rarity = "common"},
     ["Red Linen Bag"] = {slots = 8, level = 12, rarity = "common"},
     ["Blue Linen Bag"] = {slots = 8, level = 12, rarity = "common"},
     ["Green Linen Bag"] = {slots = 8, level = 12, rarity = "common"},
-    ["Linen Bag"] = {slots = 6, level = 5, rarity = "common"},
     ["Woolen Bag"] = {slots = 8, level = 15, rarity = "common"},
-    ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
-    ["Runecloth Bag"] = {slots = 14, level = 50, rarity = "common"},
+    ["White Leather Bag"] = {slots = 8, level = 8, rarity = "common"},
+    ["Gnome Bag"] = {slots = 8, level = 10, rarity = "common"},
+    ["Handmade Leather Bag"] = {slots = 8, level = 12, rarity = "common"},
+    ["Bandolier"] = {slots = 8, level = 15, rarity = "common"},
+    
+    -- Medium Common Bags (10-12 slots)
+    ["Silk Bag"] = {slots = 10, level = 25, rarity = "common"},
+    ["Leather Bag"] = {slots = 10, level = 20, rarity = "common"},
     ["Large Knapsack"] = {slots = 10, level = 15, rarity = "common"},
+    ["Journeyman's Backpack"] = {slots = 10, level = 18, rarity = "common"},
+    ["Explorer's Knapsack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Thick Leather Bag"] = {slots = 10, level = 22, rarity = "common"},
+    ["Green Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
+    ["Black Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
+    ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
     
-    -- Rare Bags
+    -- Large Common Bags (14-16 slots)
+    ["Runecloth Bag"] = {slots = 14, level = 50, rarity = "common"},
+    ["Heavy Leather Bag"] = {slots = 14, level = 40, rarity = "common"},
+    
+    -- Rare General Purpose Bags
     ["Mooncloth Bag"] = {slots = 16, level = 60, rarity = "rare"},
-    ["Big Bag of Enchantment"] = {slots = 12, level = 35, rarity = "rare"},
     ["Traveler's Backpack"] = {slots = 12, level = 30, rarity = "rare"},
-    ["Core Felcloth Bag"] = {slots = 20, level = 60, rarity = "rare"},
+    ["Felcloth Bag"] = {slots = 18, level = 55, rarity = "rare"},
     
-    -- Epic Bags
+    -- Epic General Purpose Bags
     ["Onyxia Hide Backpack"] = {slots = 18, level = 60, rarity = "epic"},
     ["Bottomless Bag"] = {slots = 12, level = 35, rarity = "epic"},
     
-    -- Special Bags
+    -- Soul Shard Bags (Warlock Specific)
+    ["Small Soul Pouch"] = {slots = 10, level = 25, rarity = "common", special = "soul shard"},
+    ["Box of Souls"] = {slots = 12, level = 35, rarity = "rare", special = "soul shard"},
     ["Soul Bag"] = {slots = 24, level = 48, rarity = "rare", special = "soul shard"},
+    ["Core Felcloth Bag"] = {slots = 20, level = 60, rarity = "rare", special = "soul shard"},
+    
+    -- Enchanting Bags
+    ["Big Bag of Enchantment"] = {slots = 12, level = 35, rarity = "rare", special = "enchanting"},
     ["Enchanted Mageweave Pouch"] = {slots = 16, level = 45, rarity = "rare", special = "enchanting"},
     ["Enchanted Runecloth Bag"] = {slots = 18, level = 55, rarity = "rare", special = "enchanting"},
-    ["Felcloth Bag"] = {slots = 18, level = 55, rarity = "rare"},
+    ["Spellfire Bag"] = {slots = 28, level = 60, rarity = "epic", special = "enchanting"},
+    
+    -- Herb Bags
     ["Herb Pouch"] = {slots = 20, level = 45, rarity = "rare", special = "herbalism"},
+    ["Cenarion Herb Bag"] = {slots = 20, level = 50, rarity = "rare", special = "herbalism"},
+    ["Satchel of Cenarius"] = {slots = 20, level = 55, rarity = "rare", special = "herbalism"},
+    
+    -- Mining Bags
     ["Mining Bag"] = {slots = 20, level = 45, rarity = "rare", special = "mining"},
     ["Gem Bag"] = {slots = 24, level = 50, rarity = "rare", special = "gems"},
+    
+    -- Quivers (Hunter Arrows)
+    ["Small Quiver"] = {slots = 6, level = 5, rarity = "common", special = "arrows"},
     ["Quiver"] = {slots = 18, level = 25, rarity = "common", special = "arrows"},
+    ["Medium Quiver"] = {slots = 8, level = 15, rarity = "common", special = "arrows"},
+    ["Light Quiver"] = {slots = 8, level = 12, rarity = "common", special = "arrows"},
+    ["Quickdraw Quiver"] = {slots = 12, level = 20, rarity = "rare", special = "arrows"},
     ["Heavy Quiver"] = {slots = 20, level = 35, rarity = "rare", special = "arrows"},
+    ["Ancient Sinew Wrapped Lamina"] = {slots = 18, level = 40, rarity = "rare", special = "arrows"},
     ["Laminated Recurve Bow"] = {slots = 22, level = 45, rarity = "rare", special = "arrows"},
+    
+    -- Ammo Pouches (Hunter Bullets)
+    ["Small Ammo Pouch"] = {slots = 6, level = 5, rarity = "common", special = "bullets"},
     ["Ammo Pouch"] = {slots = 16, level = 25, rarity = "common", special = "bullets"},
+    ["Medium Ammo Pouch"] = {slots = 8, level = 15, rarity = "common", special = "bullets"},
+    ["Gnoll Skin Bandolier"] = {slots = 8, level = 18, rarity = "common", special = "bullets"},
     ["Heavy Ammo Pouch"] = {slots = 18, level = 35, rarity = "rare", special = "bullets"},
     ["Thorium Ammo Pouch"] = {slots = 20, level = 45, rarity = "rare", special = "bullets"},
 }
