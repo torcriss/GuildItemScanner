@@ -535,25 +535,25 @@ commandHandlers.addmaterial = function(args)
     end
     
     if not hasProfession then
-        print("|cffff00[GuildItemScanner]|r Note: You don't have " .. profession .. 
+        print("|cffff0000[GuildItemScanner]|r Note: You don't have " .. profession .. 
               " in your professions list.")
-        print("|cffff00[GuildItemScanner]|r Add it with: /gis prof add " .. profession)
+        print("|cffff0000[GuildItemScanner]|r Add it with: /gis prof add " .. profession)
     end
     
     -- Check if already exists in built-in database
     if addon.Databases.HasBuiltInMaterial(itemName, profession) then
-        print("|cffff00[GuildItemScanner]|r Warning: '" .. itemName .. 
+        print("|cffff0000[GuildItemScanner]|r Warning: '" .. itemName .. 
               "' already exists in " .. profession .. " built-in database!")
-        print("|cffff00[GuildItemScanner]|r Your custom entry will OVERRIDE the built-in version.")
-        print("|cffff00[GuildItemScanner]|r Use '/gis removematerial' to revert to built-in.")
+        print("|cffff0000[GuildItemScanner]|r Your custom entry will OVERRIDE the built-in version.")
+        print("|cffff0000[GuildItemScanner]|r Use '/gis removematerial' to revert to built-in.")
     end
     
     -- Check if already in custom materials
     local custom = addon.Config.Get("customMaterials") or {}
     if custom[profession] and custom[profession][itemName] then
-        print("|cffff00[GuildItemScanner]|r '" .. itemName .. 
+        print("|cffff0000[GuildItemScanner]|r '" .. itemName .. 
               "' is already in your custom " .. profession .. " materials.")
-        print("|cffff00[GuildItemScanner]|r Updating entry...")
+        print("|cffff0000[GuildItemScanner]|r Updating entry...")
     end
     
     -- Auto-detect item quality/rarity
@@ -585,10 +585,10 @@ commandHandlers.addmaterial = function(args)
     local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
     
     if rarityOrder[rarity] < rarityOrder[currentFilter] then
-        print("|cffff00[GuildItemScanner]|r ⚠ Warning: This material won't trigger alerts!")
-        print("|cffff00[GuildItemScanner]|r Current filter: " .. currentFilter .. 
+        print("|cffff0000[GuildItemScanner]|r ⚠ Warning: This material won't trigger alerts!")
+        print("|cffff0000[GuildItemScanner]|r Current filter: " .. currentFilter .. 
               " | Item rarity: " .. rarity)
-        print("|cffff00[GuildItemScanner]|r To detect this material, use: /gis rarity " .. rarity)
+        print("|cffff0000[GuildItemScanner]|r To detect this material, use: /gis rarity " .. rarity)
     elseif hasProfession then
         print("|cff00ff00[GuildItemScanner]|r ✓ This material WILL trigger alerts (rarity >= filter)")
     end
@@ -626,7 +626,7 @@ commandHandlers.removematerial = function(args)
                 local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
                 
                 if rarityOrder[builtInMat.rarity] < rarityOrder[currentFilter] then
-                    print("|cffff00[GuildItemScanner]|r Note: Built-in version (rarity: " .. 
+                    print("|cffff0000[GuildItemScanner]|r Note: Built-in version (rarity: " .. 
                           builtInMat.rarity .. ") won't trigger with current filter: " .. currentFilter)
                 end
             end
