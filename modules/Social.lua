@@ -165,9 +165,9 @@ function Social.SendAutoGZ(playerName)
                     playerName or "unknown", delay))
             end
         end)
-    elseif addon.Config and addon.Config.Get("debugMode") then
+    else
         local chance = addon.Config and addon.Config.GetGzChance() or 50
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipped GZ (%d%% chance)", chance))
+        print(string.format("|cff00ff00[GuildItemScanner]|r Skipped GZ for %s (%d%% chance roll failed)", playerName or "unknown", chance))
     end
 end
 
@@ -206,9 +206,9 @@ function Social.SendAutoRIP(level, playerName)
                     playerName or "unknown", deathMessage, delay))
             end
         end)
-    elseif addon.Config and addon.Config.Get("debugMode") then
+    else
         local chance = addon.Config and addon.Config.GetRipChance() or 60
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipped RIP for %s (%d%% chance)", playerName or "unknown", 100 - chance))
+        print(string.format("|cff00ff00[GuildItemScanner]|r Skipped RIP for %s (%d%% chance roll failed)", playerName or "unknown", chance))
     end
 end
 
