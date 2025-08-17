@@ -1299,11 +1299,15 @@ commandHandlers.profile = function(args)
         end
         
     elseif subCmd == "clear" then
-        local success, result = addon.Config and addon.Config.ResetToDefaults()
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r " .. result)
+        if addon.Config then
+            local success, result = addon.Config.ResetToDefaults()
+            if success then
+                print("|cff00ff00[GuildItemScanner]|r " .. result)
+            else
+                print("|cffff0000[GuildItemScanner]|r " .. result)
+            end
         else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
+            print("|cffff0000[GuildItemScanner]|r Config module not loaded")
         end
         
     elseif subCmd == "default" then
