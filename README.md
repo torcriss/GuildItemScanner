@@ -280,49 +280,51 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 
 **Overview**: Save and load different configurations for various activities like raiding, leveling, or farming. Profiles store all your settings including professions, materials, stat priorities, and social configurations.
 
+**DEFAULT Profile**: A special permanent profile that always exists and contains factory default settings. It cannot be deleted but can be customized and saved. When you delete all other profiles, the DEFAULT profile is automatically loaded.
+
 | Command | Description |
 |---------|-------------|
-| `/gis profile` | Show current profile status and default profile |
+| `/gis profile` | Show current profile status and auto-load profile |
 | `/gis profile save` | Update current profile with current settings |
 | `/gis profile save <name> [description]` | Save current settings as a named profile |
 | `/gis profile load <name>` | Load a saved profile |
-| `/gis profile list` | List all saved profiles with creation info |
-| `/gis profile delete <name>` | Delete a specific profile |
-| `/gis profile clear` | **Delete ALL profiles and reset to defaults** |
+| `/gis profile list` | List all saved profiles (DEFAULT always included) |
+| `/gis profile delete <name>` | Delete a profile (cannot delete DEFAULT) |
+| `/gis profile clear` | **Reset DEFAULT to factory settings, delete all other profiles** |
+| `/gis profile default` | Load the DEFAULT profile |
 | `/gis profile default <name>` | Set a profile to auto-load on login |
-| `/gis profile default` | Clear the default profile (no auto-load) |
 
 **Example Usage**:
 ```lua
--- Save your current raiding setup
-/gis profile save "Raiding" "MC/BWL optimized settings"
+-- Start with DEFAULT profile (automatically loaded)
+/gis profile default              -- Load DEFAULT profile
 
--- Make some changes to settings
-/gis prof add Alchemy
+-- Customize DEFAULT and save it
+/gis prof add Engineering
 /gis rarity epic
+/gis profile save DEFAULT         -- Update DEFAULT profile
 
--- Quick save to update current "Raiding" profile
-/gis profile save
-
--- Create a leveling profile
-/gis prof clear
-/gis rarity common
-/gis bagsize 8
+-- Create other profiles
+/gis profile save "Raiding" "MC/BWL optimized settings"
 /gis profile save "Leveling" "Basic settings for 1-60"
 
--- Set default profile to auto-load on login
-/gis profile default "Raiding"
-
--- Clear default profile (no auto-load)
-/gis profile default
-
 -- Switch between profiles
-/gis profile load "Leveling"
-/gis profile load "Raiding"
+/gis profile load "Raiding"       -- Load Raiding profile
+/gis profile load "Leveling"      -- Load Leveling profile
+/gis profile default              -- Load DEFAULT profile
 
--- If no profile is loaded and you try quick save:
-/gis profile clear      -- Clears all profiles and settings
-/gis profile save       -- Shows: "No active profile to update. Use: /gis profile save <name> [description]"
+-- Quick save to current profile
+/gis profile save                 -- Update whichever profile is loaded
+
+-- Set auto-load profile for startup
+/gis profile default "Raiding"    -- Auto-load Raiding on login
+
+-- Delete profiles (DEFAULT cannot be deleted)
+/gis profile delete "Leveling"    -- Delete Leveling profile
+/gis profile delete DEFAULT       -- Error: Cannot delete DEFAULT profile
+
+-- Reset everything to factory defaults
+/gis profile clear                -- Reset DEFAULT to factory, delete all others
 ```
 
 **What's Saved in Profiles**:

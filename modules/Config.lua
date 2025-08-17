@@ -87,23 +87,24 @@ function Config.Load()
         GuildItemScannerDB.profiles = {}
     end
     
-    -- Load saved config, using defaults for missing values
-    for k, v in pairs(defaultConfig) do
-        if GuildItemScannerDB.config[k] == nil then
-            GuildItemScannerDB.config[k] = v
-        end
+    -- Ensure DEFAULT profile exists
+    Config.EnsureDefaultProfile()
+    
+    -- If no current profile, load DEFAULT
+    if not GuildItemScannerDB.currentProfile then
+        GuildItemScannerDB.currentProfile = "DEFAULT"
     end
     
-    -- Copy to working config
-    config = {}
-    for k, v in pairs(GuildItemScannerDB.config) do
-        config[k] = v
+    -- Load the current profile (DEFAULT or another)
+    local currentProfile = GuildItemScannerDB.currentProfile
+    if currentProfile and GuildItemScannerDB.profiles[currentProfile] then
+        Config.LoadProfile(currentProfile)
+    else
+        -- Fallback to DEFAULT if current profile doesn't exist
+        Config.LoadProfile("DEFAULT")
     end
     
-    -- Ensure professions table exists
-    config.myProfessions = config.myProfessions or {}
-    
-    -- Auto-load default profile if set
+    -- Auto-load default profile if set (for startup auto-load)
     local defaultProfile = GuildItemScannerDB.defaultProfile
     if defaultProfile and GuildItemScannerDB.profiles[defaultProfile] then
         Config.LoadProfile(defaultProfile)
@@ -539,13 +540,18 @@ function Config.DeleteProfile(name)
         return false, "Profile name cannot be empty"
     end
     
+    -- Cannot delete DEFAULT profile
+    if name == "DEFAULT" then
+        return false, "Cannot delete DEFAULT profile"
+    end
+    
     if not GuildItemScannerDB.profiles[name] then
         return false, "Profile not found: " .. name
     end
     
-    -- Don't delete if it's the current profile
+    -- If deleting the current profile, load DEFAULT
     if GuildItemScannerDB.currentProfile == name then
-        return false, "Cannot delete currently active profile"
+        Config.LoadProfile("DEFAULT")
     end
     
     -- Clear default if this was the default
@@ -554,8 +560,20 @@ function Config.DeleteProfile(name)
     end
     
     GuildItemScannerDB.profiles[name] = nil
+    
+    -- Check if only DEFAULT profile remains
+    local profileCount = 0
+    for _ in pairs(GuildItemScannerDB.profiles) do
+        profileCount = profileCount + 1
+    end
+    
+    local message = "Profile deleted"
+    if profileCount == 1 then -- Only DEFAULT remains
+        message = message .. " (DEFAULT profile loaded)"
+    end
+    
     Config.Save()
-    return true, "Profile deleted"
+    return true, message
 end
 
 function Config.ListProfiles()
@@ -601,18 +619,90 @@ function Config.GetDefaultProfile()
     return GuildItemScannerDB.defaultProfile
 end
 
+function Config.EnsureDefaultProfile()
+    -- Create DEFAULT profile if it doesn't exist
+    if not GuildItemScannerDB.profiles["DEFAULT"] then
+        local defaultProfileData = {
+            config = {},
+            description = "Factory default settings",
+            created = time(),
+            lastUpdated = time(),
+            character = "System",
+            realm = "Default",
+            configVersion = defaultConfig.configVersion
+        }
+        
+        -- Copy default config
+        for k, v in pairs(defaultConfig) do
+            if type(v) == "table" then
+                defaultProfileData.config[k] = {}
+                for k2, v2 in pairs(v) do
+                    if type(v2) == "table" then
+                        defaultProfileData.config[k][k2] = {}
+                        for k3, v3 in pairs(v2) do
+                            defaultProfileData.config[k][k2][k3] = v3
+                        end
+                    else
+                        defaultProfileData.config[k][k2] = v2
+                    end
+                end
+            else
+                defaultProfileData.config[k] = v
+            end
+        end
+        
+        GuildItemScannerDB.profiles["DEFAULT"] = defaultProfileData
+    end
+end
+
 function Config.ResetToDefaults()
-    -- Clear all profiles
-    GuildItemScannerDB.profiles = {}
-    GuildItemScannerDB.currentProfile = nil
+    -- Reset DEFAULT profile to factory settings
+    Config.EnsureDefaultProfile()
+    local defaultProfileData = GuildItemScannerDB.profiles["DEFAULT"]
+    defaultProfileData.config = {}
+    defaultProfileData.lastUpdated = time()
+    
+    -- Copy factory defaults to DEFAULT profile
+    for k, v in pairs(defaultConfig) do
+        if type(v) == "table" then
+            defaultProfileData.config[k] = {}
+            for k2, v2 in pairs(v) do
+                if type(v2) == "table" then
+                    defaultProfileData.config[k][k2] = {}
+                    for k3, v3 in pairs(v2) do
+                        defaultProfileData.config[k][k2][k3] = v3
+                    end
+                else
+                    defaultProfileData.config[k][k2] = v2
+                end
+            end
+        else
+            defaultProfileData.config[k] = v
+        end
+    end
+    
+    -- Delete all other profiles (keep only DEFAULT)
+    local profilesToDelete = {}
+    for name, _ in pairs(GuildItemScannerDB.profiles) do
+        if name ~= "DEFAULT" then
+            table.insert(profilesToDelete, name)
+        end
+    end
+    
+    for _, name in ipairs(profilesToDelete) do
+        GuildItemScannerDB.profiles[name] = nil
+    end
+    
+    -- Load DEFAULT profile
+    GuildItemScannerDB.currentProfile = "DEFAULT"
     GuildItemScannerDB.defaultProfile = nil
     
-    -- Reset config to defaults
+    -- Set current config to DEFAULT
     config = {}
-    for k, v in pairs(defaultConfig) do
+    for k, v in pairs(defaultProfileData.config) do
         config[k] = v
     end
     
     Config.Save()
-    return true, "All profiles deleted and settings reset to defaults"
+    return true, "DEFAULT profile reset to factory settings, all other profiles deleted"
 end

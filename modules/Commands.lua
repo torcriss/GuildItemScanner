@@ -1338,17 +1338,18 @@ commandHandlers.profile = function(args)
     elseif subCmd == "default" then
         if addon.Config then
             if rest == "" then
-                -- Clear default
-                local success, result = addon.Config.SetDefaultProfile(nil)
+                -- Load DEFAULT profile
+                local success, result = addon.Config.LoadProfile("DEFAULT")
                 if success then
-                    print("|cff00ff00[GuildItemScanner]|r Default profile cleared")
+                    print("|cff00ff00[GuildItemScanner]|r DEFAULT profile loaded")
                 else
                     print("|cffff0000[GuildItemScanner]|r " .. result)
                 end
             else
+                -- Set auto-load profile for startup
                 local success, result = addon.Config.SetDefaultProfile(rest)
                 if success then
-                    print("|cff00ff00[GuildItemScanner]|r Default profile set: " .. rest)
+                    print("|cff00ff00[GuildItemScanner]|r Auto-load profile set: " .. rest)
                 else
                     print("|cffff0000[GuildItemScanner]|r " .. result)
                 end
