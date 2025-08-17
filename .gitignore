@@ -1,0 +1,15 @@
+# Development files (local use only)
+deploy.sh
+CLAUDE.md
+WARP.md
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
