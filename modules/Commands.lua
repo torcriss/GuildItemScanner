@@ -304,8 +304,16 @@ commandHandlers.gz = function(args)
             end
         end
         
-        -- Show default messages info
-        print("|cff808080[GuildItemScanner]|r Default messages are always available")
+        -- Show default messages
+        print("|cff00ff00[GuildItemScanner]|r === Default GZ Messages (always available) ===")
+        if addon.Databases and addon.Databases.GZ_MESSAGES then
+            local defaults = addon.Databases.GZ_MESSAGES
+            for i, message in ipairs(defaults) do
+                print("|cff808080  " .. message .. "|r")
+            end
+        else
+            print("|cff808080  GZ, grats, nice! (fallback defaults)|r")
+        end
         
     elseif subcommand == "clear" then
         addon.Config.ClearGzMessages()
@@ -382,10 +390,13 @@ commandHandlers.rip = function(args)
         print("|cff00ff00[GuildItemScanner]|r === Custom RIP Messages ===")
         
         local totalCustom = 0
-        for level, messages in pairs(allMessages) do
+        local levelOrder = {"low", "mid", "high"}
+        for _, level in ipairs(levelOrder) do
+            local messages = allMessages[level]
             totalCustom = totalCustom + #messages
             
-            print("|cffffcc00" .. string.upper(level) .. " Level (" .. level .. " deaths):|r " .. #messages .. " custom")
+            local levelDesc = level == "low" and "1-39" or level == "mid" and "40-59" or "60"
+            print("|cffffcc00" .. string.upper(level) .. " Level (" .. levelDesc .. "):|r " .. #messages .. " custom")
             if #messages == 0 then
                 print("|cff808080  No custom messages|r")
             else
@@ -399,8 +410,14 @@ commandHandlers.rip = function(args)
             print("|cff808080[GuildItemScanner]|r No custom messages. Using defaults only.")
         end
         
-        -- Show level ranges
-        print("|cff808080[GuildItemScanner]|r Level ranges: LOW=1-39, MID=40-59, HIGH=60")
+        -- Show default messages by level
+        print("|cff00ff00[GuildItemScanner]|r === Default RIP Messages (always available) ===")
+        print("|cffffcc00LOW Level (1-39):|r")
+        print("|cff808080  F, RIP, oof|r")
+        print("|cffffcc00MID Level (40-59):|r")
+        print("|cff808080  F, OMG F, BIG RIP|r")
+        print("|cffffcc00HIGH Level (60):|r")
+        print("|cff808080  F, OMG F, GIGA F, MEGA RIP, NOOOO|r")
         
     elseif subcommand == "clear" then
         local level = remaining and remaining ~= "" and remaining or nil
