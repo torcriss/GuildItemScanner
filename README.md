@@ -4,6 +4,14 @@
 
 GuildItemScanner automatically scans guild chat for equipment upgrades, profession recipes, crafting materials, storage bags, and useful potions. Features visual alerts, smart filtering, and automated social responses for a seamless guild experience.
 
+## ⚠️ Important Notice
+
+**This addon is currently in BETA and actively being developed.** While we strive for stability, you may encounter bugs or unexpected behavior.
+
+- **USE AT YOUR OWN RISK** - We take no responsibility for any issues, lost loot opportunities, or guild drama that may occur
+- **REPORT ISSUES** - Please report bugs at https://github.com/torcriss/GuildItemScanner/issues
+- **COMMUNITY PROJECT** - Contributions and feedback are welcome!
+
 ## ✨ Features
 
 ### 🎯 **Five Detection Systems**
@@ -334,6 +342,40 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 - Custom stat priorities and comparison mode
 - Social automation settings and custom messages
 - Custom materials for professions
+
+### **📋 Default Settings Reference**
+
+The DEFAULT profile contains these factory settings:
+
+**Core Settings:**
+- Addon: `enabled`
+- Sound alerts: `enabled`
+- Alert duration: `15 seconds`
+- Debug mode: `disabled`
+- Whisper mode: `disabled`
+- Greed button: `enabled`
+
+**Detection Settings:**
+- Recipe alerts: `enabled`
+- Material alerts: `enabled`
+- Bag alerts: `enabled`
+- Potion alerts: `enabled`
+- All request buttons: `enabled`
+
+**Filter Settings:**
+- Material rarity: `common` (all rarities)
+- Material quantity: `1` (any stack size)
+- Bag size minimum: `6 slots`
+- Potion type: `all`
+- Stat comparison: `ilvl` mode
+- No professions configured
+
+**Social Automation:**
+- Auto-GZ: `disabled` (30% chance when enabled)
+- Auto-RIP: `disabled` (30% chance when enabled)
+- No custom messages
+
+To reset to these defaults: `/gis profile clear`
 
 ### **🎣 Fishing Items**
 
