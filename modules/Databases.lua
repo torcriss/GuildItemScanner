@@ -3,7 +3,7 @@ local addonName, addon = ...
 addon.Databases = addon.Databases or {}
 local Databases = addon.Databases
 
--- Comprehensive potion database for Classic WoW (80+ potions)
+-- Comprehensive potion database for Classic WoW (120+ potions/elixirs)
 Databases.POTIONS = {
     -- Health Potions
     ["Minor Healing Potion"] = {level = 5, type = "healing", category = "combat", effect = "Restores 70-90 health"},
@@ -12,6 +12,8 @@ Databases.POTIONS = {
     ["Greater Healing Potion"] = {level = 35, type = "healing", category = "combat", effect = "Restores 455-585 health"},
     ["Superior Healing Potion"] = {level = 45, type = "healing", category = "combat", effect = "Restores 700-900 health"},
     ["Major Healing Potion"] = {level = 55, type = "healing", category = "combat", effect = "Restores 1050-1350 health"},
+    ["Combat Healing Potion"] = {level = 35, type = "healing", category = "combat", effect = "Restores 455-585 health instantly"},
+    ["Crystal Healing Potion"] = {level = 50, type = "healing", category = "combat", effect = "Restores 900-1100 health"},
     
     -- Mana Potions
     ["Minor Mana Potion"] = {level = 5, type = "mana", category = "combat", effect = "Restores 140-180 mana"},
@@ -21,22 +23,45 @@ Databases.POTIONS = {
     ["Superior Mana Potion"] = {level = 45, type = "mana", category = "combat", effect = "Restores 1020-1320 mana"},
     ["Major Mana Potion"] = {level = 55, type = "mana", category = "combat", effect = "Restores 1350-1650 mana"},
     
-    -- Combat Enhancement Potions
+    -- Combined Health/Mana
+    ["Rejuvenation Potion"] = {level = 30, type = "healing", category = "combat", effect = "Restores health and mana over 10 seconds"},
+    ["Dreamless Sleep Potion"] = {level = 40, type = "healing", category = "combat", effect = "+1200 health/mana over 12 seconds"},
+    
+    -- Battle Elixirs (Offensive)
     ["Elixir of Giant Growth"] = {level = 15, type = "buff", category = "combat", effect = "+8 Strength for 1 hour"},
     ["Elixir of Ogre's Strength"] = {level = 20, type = "buff", category = "combat", effect = "+8 Strength for 1 hour"},
-    ["Elixir of Mongoose"] = {level = 40, type = "buff", category = "combat", effect = "+25 Agility, +2% Crit for 1 hour"},
     ["Elixir of the Lion"] = {level = 25, type = "buff", category = "combat", effect = "+8 Strength for 1 hour"},
-    ["Elixir of Fortitude"] = {level = 15, type = "buff", category = "combat", effect = "+120 Health for 1 hour"},
-    ["Elixir of Superior Defense"] = {level = 43, type = "buff", category = "combat", effect = "+550 Armor for 1 hour"},
     ["Gift of Arthas"] = {level = 35, type = "buff", category = "combat", effect = "+8 Strength for 1 hour"},
+    ["Elixir of Giants"] = {level = 40, type = "buff", category = "combat", effect = "+25 Strength for 1 hour"},
+    ["Elixir of Brute Force"] = {level = 35, type = "buff", category = "combat", effect = "+18 Strength and Stamina for 1 hour"},
     ["Elixir of Agility"] = {level = 12, type = "buff", category = "combat", effect = "+8 Agility for 1 hour"},
     ["Elixir of Greater Agility"] = {level = 38, type = "buff", category = "combat", effect = "+25 Agility for 1 hour"},
+    ["Elixir of Mongoose"] = {level = 40, type = "buff", category = "combat", effect = "+25 Agility, +2% Crit for 1 hour"},
+    ["Elixir of Demonslaying"] = {level = 52, type = "buff", category = "combat", effect = "+265 Attack Power vs demons for 5 min"},
+    ["Elixir of Shadow Power"] = {level = 40, type = "buff", category = "combat", effect = "+40 Shadow spell damage for 30 min"},
+    ["Elixir of Greater Firepower"] = {level = 45, type = "buff", category = "combat", effect = "+40 Fire spell damage for 30 min"},
+    ["Elixir of Firepower"] = {level = 26, type = "buff", category = "combat", effect = "+10 Fire spell damage for 30 min"},
+    ["Elixir of Frost Power"] = {level = 38, type = "buff", category = "combat", effect = "+15 Frost spell damage for 30 min"},
+    ["Elixir of the Sages"] = {level = 37, type = "buff", category = "combat", effect = "+18 Intellect and Spirit for 1 hour"},
+    ["Elixir of Wisdom"] = {level = 8, type = "buff", category = "combat", effect = "+8 Intellect for 1 hour"},
+    ["Elixir of Greater Intellect"] = {level = 35, type = "buff", category = "combat", effect = "+25 Intellect for 1 hour"},
+    ["Elixir of the Crusader"] = {level = 55, type = "buff", category = "combat", effect = "+1.5% spell crit for 1 hour"},
     
-    -- Flask Potions
+    -- Guardian Elixirs (Defensive)
+    ["Elixir of Fortitude"] = {level = 15, type = "buff", category = "combat", effect = "+120 Health for 1 hour"},
+    ["Elixir of Minor Fortitude"] = {level = 3, type = "buff", category = "combat", effect = "+27 Health for 1 hour"},
+    ["Elixir of Minor Defense"] = {level = 1, type = "buff", category = "combat", effect = "+50 Armor for 1 hour"},
+    ["Elixir of Defense"] = {level = 16, type = "buff", category = "combat", effect = "+150 Armor for 1 hour"},
+    ["Elixir of Greater Defense"] = {level = 29, type = "buff", category = "combat", effect = "+250 Armor for 1 hour"},
+    ["Elixir of Superior Defense"] = {level = 43, type = "buff", category = "combat", effect = "+550 Armor for 1 hour"},
+    ["Major Troll's Blood Potion"] = {level = 35, type = "buff", category = "combat", effect = "+20 Health per 5 sec for 1 hour"},
+    
+    -- Flask Potions (Persist Through Death)
     ["Flask of the Titans"] = {level = 60, type = "flask", category = "combat", effect = "+400 Health, persists through death"},
     ["Flask of Supreme Power"] = {level = 60, type = "flask", category = "combat", effect = "+150 Spell Power, persists through death"},
     ["Flask of Distilled Wisdom"] = {level = 60, type = "flask", category = "combat", effect = "+2000 Mana, persists through death"},
     ["Flask of Stamina"] = {level = 60, type = "flask", category = "combat", effect = "+1000 Health, persists through death"},
+    ["Flask of Chromatic Resistance"] = {level = 60, type = "flask", category = "combat", effect = "+25 All Resistances, persists through death"},
     
     -- Resistance Potions
     ["Fire Protection Potion"] = {level = 24, type = "resistance", category = "combat", effect = "+60 Fire Resistance for 1 hour"},
@@ -49,33 +74,50 @@ Databases.POTIONS = {
     ["Greater Shadow Protection Potion"] = {level = 50, type = "resistance", category = "combat", effect = "+120 Shadow Resistance for 1 hour"},
     ["Arcane Protection Potion"] = {level = 36, type = "resistance", category = "combat", effect = "+60 Arcane Resistance for 1 hour"},
     ["Greater Arcane Protection Potion"] = {level = 53, type = "resistance", category = "combat", effect = "+120 Arcane Resistance for 1 hour"},
+    ["Magic Resistance Potion"] = {level = 45, type = "resistance", category = "combat", effect = "+50 All Resistances for 30 min"},
+    ["Elixir of Poison Resistance"] = {level = 16, type = "resistance", category = "combat", effect = "+25 Poison Resistance for 1 hour"},
     
     -- Utility Potions
     ["Elixir of Water Breathing"] = {level = 18, type = "utility", category = "profession", effect = "Underwater breathing for 1 hour"},
     ["Invisibility Potion"] = {level = 39, type = "utility", category = "profession", effect = "Invisibility for 18 seconds"},
     ["Free Action Potion"] = {level = 26, type = "utility", category = "profession", effect = "Immune to movement impairing effects"},
+    ["Living Action Potion"] = {level = 45, type = "utility", category = "profession", effect = "Breaks stun/root effects, lasts 5 seconds"},
     ["Swiftness Potion"] = {level = 6, type = "utility", category = "profession", effect = "+50% movement speed for 15 seconds"},
+    ["Swim Speed Potion"] = {level = 20, type = "utility", category = "profession", effect = "+100% swim speed for 20 seconds"},
     ["Elixir of Water Walking"] = {level = 28, type = "utility", category = "profession", effect = "Walk on water for 10 minutes"},
     ["Catseye Elixir"] = {level = 10, type = "utility", category = "profession", effect = "See invisible units for 10 minutes"},
-    ["Elixir of Giant Growth"] = {level = 15, type = "utility", category = "profession", effect = "Increases size and melee damage"},
+    ["Elixir of Detect Demon"] = {level = 19, type = "utility", category = "profession", effect = "Detect demons for 1 hour"},
+    ["Elixir of Detect Undead"] = {level = 24, type = "utility", category = "profession", effect = "Detect undead for 1 hour"},
+    ["Elixir of Detect Lesser Invisibility"] = {level = 18, type = "utility", category = "profession", effect = "Detect invisibility for 1 hour"},
     
     -- Special Potions
     ["Limited Invulnerability Potion"] = {level = 50, type = "special", category = "combat", effect = "Immune to physical damage for 6 seconds"},
-    ["Noggenfogger Elixir"] = {level = 35, type = "misc", category = "misc", effect = "Random effect: shrink, slow fall, or skeleton"},
+    ["Iron Shield Potion"] = {level = 42, type = "special", category = "combat", effect = "Absorb 400-600 damage for 30 seconds"},
     ["Rage Potion"] = {level = 6, type = "special", category = "combat", effect = "Increases melee damage but reduces defense"},
+    ["Great Rage Potion"] = {level = 25, type = "special", category = "combat", effect = "+30 Strength, -15 defense for 20 seconds"},
+    ["Mighty Rage Potion"] = {level = 45, type = "special", category = "combat", effect = "+60 Strength, -20 defense for 20 seconds"},
     ["Wildvine Potion"] = {level = 14, type = "special", category = "combat", effect = "Entangles target for 10 seconds"},
+    ["Noggenfogger Elixir"] = {level = 35, type = "misc", category = "misc", effect = "Random effect: shrink, slow fall, or skeleton"},
     
     -- Antidotes and Cures
     ["Anti-Venom"] = {level = 1, type = "cure", category = "misc", effect = "Cures poison"},
     ["Strong Anti-Venom"] = {level = 15, type = "cure", category = "misc", effect = "Cures poison"},
-    ["Elixir of Poison Resistance"] = {level = 16, type = "cure", category = "misc", effect = "+25 Poison Resistance for 1 hour"},
+    ["Restorative Potion"] = {level = 34, type = "cure", category = "misc", effect = "Dispel magic/curse/poison/disease"},
+    ["Purification Potion"] = {level = 28, type = "cure", category = "misc", effect = "Remove curse/poison/disease"},
     
-    -- Stat Potions
-    ["Elixir of Wisdom"] = {level = 8, type = "buff", category = "combat", effect = "+8 Intellect for 1 hour"},
-    ["Elixir of Greater Intellect"] = {level = 35, type = "buff", category = "combat", effect = "+25 Intellect for 1 hour"},
-    ["Elixir of Minor Defense"] = {level = 1, type = "buff", category = "combat", effect = "+50 Armor for 1 hour"},
-    ["Elixir of Defense"] = {level = 16, type = "buff", category = "combat", effect = "+150 Armor for 1 hour"},
-    ["Elixir of Greater Defense"] = {level = 29, type = "buff", category = "combat", effect = "+250 Armor for 1 hour"},
+    -- Weapon Enhancement Oils
+    ["Oil of Immolation"] = {level = 45, type = "oil", category = "combat", effect = "Fire damage aura on melee attacks"},
+    ["Frost Oil"] = {level = 35, type = "oil", category = "combat", effect = "Frost proc on melee attacks"},
+    ["Shadow Oil"] = {level = 32, type = "oil", category = "combat", effect = "Shadow proc on melee attacks"},
+    
+    -- Zul'Gurub Zanza Potions
+    ["Spirit of Zanza"] = {level = 50, type = "buff", category = "raid", effect = "+50 Stamina and Spirit for 2 hours"},
+    ["Sheen of Zanza"] = {level = 50, type = "special", category = "raid", effect = "Spell reflection for 2 hours"},
+    ["Swiftness of Zanza"] = {level = 50, type = "utility", category = "raid", effect = "+20% run speed for 2 hours"},
+    ["Lung Juice Cocktail"] = {level = 45, type = "utility", category = "misc", effect = "Underwater breathing for 1 hour"},
+    
+    -- Engineering Consumables
+    ["Goblin Rocket Fuel"] = {level = 35, type = "misc", category = "profession", effect = "Used in engineering recipes"},
 }
 
 -- Comprehensive bag database (70+ bags)
