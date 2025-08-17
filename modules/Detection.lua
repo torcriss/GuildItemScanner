@@ -78,10 +78,16 @@ end
 local function isWTBMessage(message)
     if not message then return false end
     
+    -- First check if message contains item links - WTB without items doesn't make sense
+    local itemLinks = extractItemLinks(message)
+    if #itemLinks == 0 then
+        return false  -- No items = not a WTB request
+    end
+    
     -- Convert to lowercase for case-insensitive matching
     local lowerMessage = string.lower(message)
     
-    -- Check for common WTB patterns
+    -- Check for common WTB patterns - be more specific to avoid false positives
     local wtbPatterns = {
         "^wtb ",           -- "WTB [item]"
         " wtb ",           -- "... WTB [item]"
@@ -89,17 +95,25 @@ local function isWTBMessage(message)
         " w t b ",         -- "... W T B [item]"
         "^lf ",            -- "LF [item]"
         " lf ",            -- "... LF [item]"
-        "looking for",     -- "looking for [item]"
-        "^need ",          -- "need [item]"
-        " need ",          -- "... need [item]"
+        "looking for ",    -- "looking for [item]" (added space to be more specific)
+        "^need ",          -- "need [item]" at start only
+        " need an? ",      -- "need a/an [item]" (more specific)
         "buying ",         -- "buying [item]"
         "want to buy",     -- "want to buy [item]"
         "^iso ",           -- "ISO [item]" (In Search Of)
-        " iso "            -- "... ISO [item]"
+        " iso ",           -- "... ISO [item]"
+        "anyone have",     -- "anyone have [item]"
+        "anyone got",      -- "anyone got [item]"
+        "does anyone have" -- "does anyone have [item]"
     }
     
     for _, pattern in ipairs(wtbPatterns) do
         if string.find(lowerMessage, pattern) then
+            -- Debug output to identify which pattern matched
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r WTB pattern matched: '" .. pattern .. "' in message: " .. lowerMessage)
+            end
+            
             -- Check if message also contains WTS/selling patterns
             local wtsPatterns = {"wts ", "selling ", "sell ", "^fs ", " fs "}
             local hasWTS = false
