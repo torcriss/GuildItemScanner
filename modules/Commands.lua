@@ -153,10 +153,6 @@ commandHandlers.recipe = function()
     print("|cff00ff00[GuildItemScanner]|r Recipe alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
-commandHandlers.recipebutton = function()
-    local enabled = addon.Config and addon.Config.Toggle("recipeButton")
-    print("|cff00ff00[GuildItemScanner]|r Recipe request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-end
 
 -- Material Commands
 commandHandlers.material = function()
@@ -165,10 +161,6 @@ commandHandlers.material = function()
 end
 commandHandlers.mat = commandHandlers.material
 
-commandHandlers.matbutton = function()
-    local enabled = addon.Config and addon.Config.Toggle("materialButton")
-    print("|cff00ff00[GuildItemScanner]|r Material request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-end
 
 commandHandlers.rarity = function(args)
     if args == "" then
@@ -211,10 +203,6 @@ commandHandlers.bag = function()
     print("|cff00ff00[GuildItemScanner]|r Bag alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
-commandHandlers.bagbutton = function()
-    local enabled = addon.Config and addon.Config.Toggle("bagButton")
-    print("|cff00ff00[GuildItemScanner]|r Bag request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-end
 
 commandHandlers.bagsize = function(args)
     if args == "" then
@@ -238,10 +226,6 @@ commandHandlers.potion = function()
     print("|cff00ff00[GuildItemScanner]|r Potion alerts " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
 end
 
-commandHandlers.potionbutton = function()
-    local enabled = addon.Config and addon.Config.Toggle("potionButton")
-    print("|cff00ff00[GuildItemScanner]|r Potion request button " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
-end
 
 commandHandlers.potiontype = function(args)
     if args == "" then
@@ -480,55 +464,7 @@ commandHandlers.clearhistory = function()
     end
 end
 
-commandHandlers.uncached = function()
-    if addon.History then
-        local uncachedHistory = addon.History.GetUncachedHistory()
-        if #uncachedHistory == 0 then
-            print("|cff00ff00[GuildItemScanner]|r No uncached items found.")
-            return
-        end
-        
-        print("|cff00ff00[GuildItemScanner]|r Uncached Item History:")
-        for i, entry in ipairs(uncachedHistory) do
-            if i > 10 then break end -- Show only last 10
-            print(string.format("  %s [%s] %s - %s", 
-                entry.time, entry.player, entry.item, entry.message))
-        end
-        
-        if #uncachedHistory > 10 then
-            print(string.format("  ... and %d more entries", #uncachedHistory - 10))
-        end
-    end
-end
 
--- Cache diagnosis command
-commandHandlers.cachediag = function()
-    print("|cff00ff00[GuildItemScanner]|r Cache Diagnosis:")
-    
-    -- Test a few known items to see if cache is working
-    local testItems = {
-        {"|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r", "Recipe: Gooey Spider Cake"},
-        {"|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", "Thaumaturgist Staff"},
-        {"|cffffffff|Hitem:2770::::::::60:::::::|h[Copper Ore]|h|r", "Copper Ore"}
-    }
-    
-    for i, testData in ipairs(testItems) do
-        local itemLink, expectedName = testData[1], testData[2]
-        local actualName = GetItemInfo(itemLink)
-        
-        if actualName then
-            if actualName == expectedName then
-                print(string.format("  [OK] %s = '%s' |cff00ff00(CORRECT)|r", itemLink, actualName))
-            else
-                print(string.format("  [X] %s = '%s' |cffff0000(WRONG, expected '%s')|r", itemLink, actualName, expectedName))
-            end
-        else
-            print(string.format("  ? %s = |cffff0000nil (NOT CACHED)|r", itemLink))
-        end
-    end
-    
-    print("|cff00ff00[GuildItemScanner]|r If cache is corrupted, try reloading UI (/reload) or restarting WoW.")
-end
 
 commandHandlers.compare = function(args)
     if args == "" then
@@ -599,47 +535,12 @@ commandHandlers.compare = function(args)
 end
 
 -- Testing Commands
-commandHandlers.testmat = function()
-    if addon.Detection then
-        addon.Detection.TestMaterial()
-    end
-end
 
-commandHandlers.testbag = function()
-    if addon.Detection then
-        addon.Detection.TestBag()
-    end
-end
 
-commandHandlers.testrecipe = function()
-    if addon.Detection then
-        addon.Detection.TestRecipe()
-    end
-end
 
-commandHandlers.testpotion = function()
-    if addon.Detection then
-        addon.Detection.TestPotion()
-    end
-end
 
-commandHandlers.testfrontier = function()
-    if addon.Social then
-        addon.Social.TestFrontierPatterns()
-    end
-end
 
-commandHandlers.testgz = function()
-    if addon.Social then
-        addon.Social.TestAutoGZ()
-    end
-end
 
-commandHandlers.testrip = function()
-    if addon.Social then
-        addon.Social.TestAutoRIP()
-    end
-end
 
 commandHandlers.whispertest = function()
     if addon.Config then
@@ -1413,10 +1314,8 @@ commandHandlers.help = function()
     print(" |cffFFD700Profession Commands:|r")
     print(" /gis prof add/remove/clear/list <profession> - Manage professions")
     print(" /gis recipe - Toggle recipe alerts")
-    print(" /gis recipebutton - Toggle recipe request button")
     print(" |cffFFD700Material Commands:|r")
     print(" /gis material/mat - Toggle material alerts")
-    print(" /gis matbutton - Toggle material request button")
     print(" /gis rarity <level> - Set material rarity filter")
     print(" /gis quantity/qty <num> - Set minimum stack size")
     print(" /gis addmaterial [item] <prof> - Add custom material for profession")
@@ -1425,11 +1324,9 @@ commandHandlers.help = function()
     print(" /gis clearcustom [prof] - Clear custom materials (all or by profession)")
     print(" |cffFFD700Bag Commands:|r")
     print(" /gis bag - Toggle bag alerts")
-    print(" /gis bagbutton - Toggle bag request button")
     print(" /gis bagsize <num> - Set minimum bag size filter")
     print(" |cffFFD700Potion Commands:|r")
     print(" /gis potion - Toggle potion alerts")
-    print(" /gis potionbutton - Toggle potion request button")
     print(" /gis potiontype <type> - Set potion filter (all/combat/profession/misc)")
     print(" |cffFFD700Social Commands:|r")
     print(" /gis gz - Toggle auto-congratulations")
@@ -1437,13 +1334,10 @@ commandHandlers.help = function()
     print(" |cffFFD700History Commands:|r")
     print(" /gis history [filter] - Show alert history")
     print(" /gis clearhistory - Clear alert history")
-    print(" /gis uncached - Show uncached item history (for debugging)")
-    print(" /gis cachediag - Diagnose item cache corruption issues")
     print(" /gis compare [item] - Compare any item with your equipped gear")
     print(" |cffFFD700Testing Commands:|r")
-    print(" /gis test/testmat/testbag/testrecipe/testpotion - Test all alert types")
-    print(" /gis testfrontier - Test Frontier message pattern matching")
-    print(" /gis testgz/testrip - Test social automation features")
+    print(" /gis test - Test equipment alert")
+    print(" /gis smoketest - Run comprehensive test suite")
     print(" /gis whispertest - Toggle whisper-based testing mode")
     print("Type |cffffff00/gis help|r to see this list again.")
 end

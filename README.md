@@ -260,13 +260,11 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis prof remove <name>` | Remove a profession |
 | `/gis prof clear` | Remove all professions |
 | `/gis recipe` | Toggle recipe alerts |
-| `/gis recipebutton` | Toggle recipe request button |
 
 ### **Material Filtering**
 | Command | Description |
 |---------|-------------|
 | `/gis material` | Toggle material alerts |
-| `/gis matbutton` | Toggle material request button |
 | `/gis rarity <level>` | Set rarity filter (common/rare/epic/legendary) |
 | `/gis quantity <num>` | Set minimum stack size (1-1000, default: 1) |
 | `/gis addmaterial [item] <prof>` | Add custom material for profession |
@@ -278,14 +276,12 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | Command | Description |
 |---------|-------------|
 | `/gis bag` | Toggle bag alerts |
-| `/gis bagbutton` | Toggle bag request button |
 | `/gis bagsize <num>` | Set minimum bag size (6-24 slots) |
 
 ### **Potion Settings**
 | Command | Description |
 |---------|-------------|
 | `/gis potion` | Toggle potion alerts |
-| `/gis potionbutton` | Toggle potion request button |
 | `/gis potiontype <type>` | Filter potion alerts by category: |
 |  | • `all` - All potions (default) |
 |  | • `combat` - Healing/mana/buffs/resistance/flasks |
@@ -448,10 +444,6 @@ To reset to these defaults: `/gis profile clear`
 |---------|-------------|
 | `/gis smoketest` | **Run comprehensive test suite (recommended after deployment)** |
 | `/gis test` | Test equipment upgrade alert |
-| `/gis testmat` | Test material alert |
-| `/gis testbag` | Test bag alert |
-| `/gis testrecipe` | Test recipe alert |
-| `/gis testpotion` | Test potion alert |
 | `/gis whispertest` | Toggle whisper-based testing mode |
 | `/gis compare [item]` | Compare any item with equipped gear |
 
