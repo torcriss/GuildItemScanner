@@ -55,12 +55,14 @@ end
 
 commandHandlers.autosave = function()
     if addon.Config then
-        local enabled = addon.Config and addon.Config.Toggle("autoSaveProfile")
+        local enabled = addon.Config.Toggle("autoSaveProfile")
         print("|cff00ff00[GuildItemScanner]|r Auto-save profile " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
         if enabled then
             local currentProfile = addon.Config.GetCurrentProfile() or "DEFAULT"
             print("|cff00ff00[GuildItemScanner]|r Settings will auto-save to profile: " .. currentProfile)
         end
+    else
+        print("|cff00ff00[GuildItemScanner]|r Configuration module not loaded")
     end
 end
 
