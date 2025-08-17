@@ -26,6 +26,7 @@ local defaultConfig = {
     debugMode = false,
     autoGZ = false,
     autoRIP = false,
+    autoSaveProfile = true,
     
     -- Equipment settings
     recipeAlert = true,
@@ -127,6 +128,11 @@ function Config.Save()
     if GuildItemScannerDB then
         GuildItemScannerDB.config = config
         GuildItemScannerDB.version = addon.version or "2.0"
+        
+        -- Auto-save to current profile if enabled
+        if config.autoSaveProfile then
+            Config.AutoSaveProfile()
+        end
     end
 end
 
@@ -625,6 +631,30 @@ end
 
 function Config.GetCurrentProfile()
     return GuildItemScannerDB.currentProfile
+end
+
+function Config.AutoSaveProfile()
+    if not config.autoSaveProfile then
+        return false, "Auto-save disabled"
+    end
+    
+    local currentProfile = GuildItemScannerDB.currentProfile or "DEFAULT"
+    
+    -- Ensure the current profile exists
+    if not GuildItemScannerDB.profiles[currentProfile] then
+        -- If current profile doesn't exist, use DEFAULT
+        currentProfile = "DEFAULT"
+        GuildItemScannerDB.currentProfile = currentProfile
+        Config.EnsureDefaultProfile()
+    end
+    
+    -- Auto-save to the current profile (preserving metadata)
+    local success, result = Config.SaveProfile(currentProfile)
+    if success then
+        return true, "Auto-saved to " .. currentProfile
+    else
+        return false, "Auto-save failed: " .. result
+    end
 end
 
 function Config.SetDefaultProfile(name)

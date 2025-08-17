@@ -53,6 +53,17 @@ commandHandlers.sound = function()
     end
 end
 
+commandHandlers.autosave = function()
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("autoSaveProfile")
+        print("|cff00ff00[GuildItemScanner]|r Auto-save profile " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+        if enabled then
+            local currentProfile = addon.Config.GetCurrentProfile() or "DEFAULT"
+            print("|cff00ff00[GuildItemScanner]|r Settings will auto-save to profile: " .. currentProfile)
+        end
+    end
+end
+
 commandHandlers.duration = function(args)
     if not addon.Config then return end
     
@@ -1000,6 +1011,14 @@ commandHandlers.status = function()
     print(" |cffFFD700Professions:|r")
     local professions = addon.Config and addon.Config.GetProfessions()
     print("  Active: " .. (#professions > 0 and table.concat(professions, ", ") or "|cff808080None|r"))
+    print(" |cffFFD700Profile Settings:|r")
+    local currentProfile = addon.Config and addon.Config.GetCurrentProfile()
+    local autoSaveEnabled = addon.Config and addon.Config.Get("autoSaveProfile")
+    print("  Current profile: " .. (currentProfile or "|cff808080None|r"))
+    print("  Auto-save: " .. (autoSaveEnabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    if autoSaveEnabled then
+        print("  Auto-saving to: " .. (currentProfile or "DEFAULT"))
+    end
 end
 
 -- Custom Material Commands
@@ -1232,6 +1251,7 @@ commandHandlers.profile = function(args)
         -- Show current profile status
         local currentProfile = addon.Config and addon.Config.GetCurrentProfile()
         local defaultProfile = addon.Config and addon.Config.GetDefaultProfile()
+        local autoSaveEnabled = addon.Config and addon.Config.Get("autoSaveProfile")
         
         if currentProfile then
             print("|cff00ff00[GuildItemScanner]|r Current profile: " .. currentProfile)
@@ -1243,6 +1263,11 @@ commandHandlers.profile = function(args)
             print("|cff00ff00[GuildItemScanner]|r Default profile: " .. defaultProfile)
         else
             print("|cff00ff00[GuildItemScanner]|r No default profile set")
+        end
+        
+        print("|cff00ff00[GuildItemScanner]|r Auto-save: " .. (autoSaveEnabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+        if autoSaveEnabled then
+            print("|cff00ff00[GuildItemScanner]|r Settings auto-save to: " .. (currentProfile or "DEFAULT"))
         end
         
         print("|cff00ff00[GuildItemScanner]|r Use '/gis profile list' to see all profiles")
