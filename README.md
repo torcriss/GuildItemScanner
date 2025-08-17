@@ -9,9 +9,9 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🎯 **Five Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
-- **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering
-- **👜 Storage Bags** - 50+ bags with customizable size filtering
-- **🧪 Potions & Consumables** - 80+ potions with type filtering
+- **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
+- **👜 Storage Bags** - 70+ bags with customizable size filtering
+- **🧪 Potions & Consumables** - 120+ potions with type filtering
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (50% chance, 2-6s delay)
@@ -99,6 +99,10 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis matbutton` | Toggle material request button |
 | `/gis rarity <level>` | Set rarity filter (common/rare/epic/legendary) |
 | `/gis quantity <num>` | Set minimum stack size (1-1000) |
+| `/gis addmaterial [item] <prof>` | Add custom material for profession |
+| `/gis removematerial [item] <prof>` | Remove custom material |
+| `/gis listcustom [prof]` | List custom materials (all or by profession) |
+| `/gis clearcustom [prof]` | Clear custom materials (all or by profession) |
 
 ### **Bag Settings**
 | Command | Description |
@@ -144,6 +148,18 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 [Guild] [Miner]: WTS [Copper Ore] x50 cheap!
 → GIS Alert: "Engineering material detected: [Copper Ore]"
 → Button: "Request Material"
+```
+
+### **Custom Materials**
+```
+/gis addmaterial [Crawler Claw] Cooking
+→ "Added custom material: [Crawler Claw] to Cooking (rarity: common)"
+→ "✓ This material WILL trigger alerts (rarity >= filter)"
+
+/gis listcustom
+→ "=== Custom Materials ==="
+→ "Cooking: (1 custom)"
+→ "  - Crawler Claw (common) [ACTIVE]"
 ```
 
 ### **Bag Detection**  

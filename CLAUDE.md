@@ -147,3 +147,45 @@ This approach avoided creating multiple tooltip frames and didn't use SetHyperli
 - Solution: Specific workaround in processItemLink to detect and correct this corruption
 
 **Debug Output**: Always add comprehensive debug output at event level and processing level to diagnose flow issues quickly.
+
+## Development Workflow Rules
+
+**ALWAYS follow this workflow when making changes:**
+
+### For Each Code Change:
+1. Make code changes
+2. Commit changes with descriptive message
+3. **Automatically run `./deploy.sh`** to deploy to WoW directory for testing
+4. This ensures immediate testing capability
+
+### Before Pushing to GitHub:
+1. **Review if README.md needs updating** for any:
+   - New commands added
+   - Features implemented or changed
+   - Configuration options modified
+   - Database entries significantly expanded
+2. If README needs updating:
+   - Update README.md to accurately reflect current implementation
+   - Include in the same commit or a separate "Update README" commit
+3. Deploy final version for testing
+4. Push all changes to GitHub
+
+### README Update Triggers:
+Update README.md when:
+- New slash commands are added
+- New features are implemented (e.g., custom materials)
+- Command syntax or behavior changes
+- New configuration options are added
+- Major database expansions (e.g., "70+ bags" → "80+ bags")
+- Installation or usage instructions change
+
+### Deployment Command:
+```bash
+./deploy.sh
+```
+This copies all addon files to: `/home/chris/.var/app/com.usebottles.bottles/data/bottles/bottles/Games/drive_c/Program Files (x86)/World of Warcraft/_classic_era_/Interface/AddOns/GuildItemScanner`
+
+### Why This Workflow:
+- **Auto-deploy after commits**: Enables immediate testing without manual deployment requests
+- **README updates before push**: Ensures GitHub documentation matches public code
+- **No README updates on every deploy**: Avoids documentation churn during development iterations
