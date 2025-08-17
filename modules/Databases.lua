@@ -330,15 +330,39 @@ Databases.MATERIALS = {
         -- Basic Meats (Level 1-50)
         ["Crawler Meat"] = {level = 1, type = "meat", rarity = "common"},
         ["Chunk of Boar Meat"] = {level = 1, type = "meat", rarity = "common"},
+        ["Boar Meat"] = {level = 1, type = "meat", rarity = "common"},
         ["Stringy Wolf Meat"] = {level = 1, type = "meat", rarity = "common"},
+        ["Red Wolf Meat"] = {level = 10, type = "meat", rarity = "common"},
+        ["Lean Wolf Flank"] = {level = 25, type = "meat", rarity = "common"},
         ["Small Egg"] = {level = 1, type = "ingredient", rarity = "common"},
         ["Goretusk Liver"] = {level = 1, type = "meat", rarity = "common"},
-        ["Clam Meat"] = {level = 50, type = "meat", rarity = "common"},
-        ["Crab Claw"] = {level = 1, type = "meat", rarity = "common"},
-        ["Murloc Eye"] = {level = 15, type = "ingredient", rarity = "common"},
-        ["Lean Wolf Flank"] = {level = 25, type = "meat", rarity = "common"},
-        ["Bear Meat"] = {level = 35, type = "meat", rarity = "common"},
+        ["Goretusk Snout"] = {level = 15, type = "meat", rarity = "common"},
+        ["Boar Intestines"] = {level = 5, type = "meat", rarity = "common"},
         ["Boar Ribs"] = {level = 40, type = "meat", rarity = "common"},
+        ["Stringy Vulture Meat"] = {level = 1, type = "meat", rarity = "common"},
+        ["Small Spider Leg"] = {level = 1, type = "meat", rarity = "common"},
+        ["Bear Meat"] = {level = 35, type = "meat", rarity = "common"},
+        ["Strider Meat"] = {level = 25, type = "meat", rarity = "common"},
+        ["Crocolisk Meat"] = {level = 35, type = "meat", rarity = "common"},
+        ["Tender Crocolisk Meat"] = {level = 40, type = "meat", rarity = "common"},
+        ["Condor Meat"] = {level = 40, type = "meat", rarity = "common"},
+        ["Dig Rat"] = {level = 1, type = "meat", rarity = "common"},
+        ["Murloc Eye"] = {level = 15, type = "ingredient", rarity = "common"},
+        ["Murloc Fin"] = {level = 15, type = "meat", rarity = "common"},
+        ["Scorpid Stinger"] = {level = 20, type = "meat", rarity = "common"},
+        ["Soft Frenzy Flesh"] = {level = 30, type = "meat", rarity = "common"},
+        
+        -- Shellfish and Seafood
+        ["Clam Meat"] = {level = 50, type = "seafood", rarity = "common"},
+        ["Zesty Clam Meat"] = {level = 85, type = "seafood", rarity = "rare"},
+        ["Tangy Clam Meat"] = {level = 75, type = "seafood", rarity = "common"},
+        ["Giant Clam Meat"] = {level = 100, type = "seafood", rarity = "rare"},
+        ["Small Barnacled Clam"] = {level = 25, type = "seafood", rarity = "common"},
+        ["Crab Claw"] = {level = 1, type = "seafood", rarity = "common"},
+        ["Tender Crab Meat"] = {level = 75, type = "seafood", rarity = "common"},
+        ["Darkclaw Lobster"] = {level = 200, type = "seafood", rarity = "common"},
+        ["Lobster Tail"] = {level = 225, type = "seafood", rarity = "common"},
+        ["Winter Squid"] = {level = 150, type = "seafood", rarity = "rare"},
         
         -- Fish (Level 1-50)
         ["Raw Brilliant Smallfish"] = {level = 1, type = "fish", rarity = "common"},
@@ -346,20 +370,31 @@ Databases.MATERIALS = {
         ["Raw Longjaw Mud Snapper"] = {level = 35, type = "fish", rarity = "common"},
         ["Raw Loch Frenzy"] = {level = 50, type = "fish", rarity = "common"},
         ["Raw Rainbow Fin Albacore"] = {level = 50, type = "fish", rarity = "common"},
-        ["Raw Glossy Mightfish"] = {level = 200, type = "fish", rarity = "common"},
-        ["Lobster Tail"] = {level = 225, type = "fish", rarity = "common"},
+        ["Raw Glossy Mightfish"] = {level = 35, type = "fish", rarity = "common"},
+        ["Large Raw Mightfish"] = {level = 100, type = "fish", rarity = "common"},
+        ["Raw Summer Bass"] = {level = 50, type = "fish", rarity = "common"},
+        ["Raw Sagefish"] = {level = 75, type = "fish", rarity = "common"},
+        ["Lightning Eel"] = {level = 100, type = "fish", rarity = "rare"},
+        ["Raw Savage Piranha"] = {level = 125, type = "fish", rarity = "common"},
+        ["Plated Armorfish"] = {level = 150, type = "fish", rarity = "common"},
         
         -- Mid-Level Meats (Level 75-125)
         ["Big Bear Meat"] = {level = 75, type = "meat", rarity = "common"},
-        ["Tender Crab Meat"] = {level = 75, type = "meat", rarity = "common"},
         ["Coyote Meat"] = {level = 75, type = "meat", rarity = "common"},
         ["Lean Venison"] = {level = 110, type = "meat", rarity = "common"},
         ["Lion Meat"] = {level = 100, type = "meat", rarity = "common"},
         ["Raptor Flesh"] = {level = 125, type = "meat", rarity = "common"},
         ["Tiger Meat"] = {level = 125, type = "meat", rarity = "common"},
-        ["Raptor Egg"] = {level = 125, type = "ingredient", rarity = "common"},
+        ["Kodo Meat"] = {level = 75, type = "meat", rarity = "common"},
+        ["Heavy Kodo Meat"] = {level = 100, type = "meat", rarity = "common"},
         ["Buzzard Wing"] = {level = 35, type = "meat", rarity = "common"},
         ["Carrion Bird Lung"] = {level = 175, type = "meat", rarity = "common"},
+        
+        -- Eggs
+        ["Small Egg"] = {level = 1, type = "ingredient", rarity = "common"},
+        ["Raptor Egg"] = {level = 125, type = "ingredient", rarity = "common"},
+        ["Giant Egg"] = {level = 175, type = "ingredient", rarity = "common"},
+        ["Owl Egg"] = {level = 100, type = "ingredient", rarity = "common"},
         
         -- Fish (Level 75-125)
         ["Raw Bristle Whisker Catfish"] = {level = 100, type = "fish", rarity = "common"},
@@ -385,33 +420,51 @@ Databases.MATERIALS = {
         ["Hot Spices"] = {level = 100, type = "spice", rarity = "common"},
         ["Soothing Spices"] = {level = 175, type = "spice", rarity = "common"},
         ["Holiday Spices"] = {level = 1, type = "spice", rarity = "rare"},
+        ["Black Pepper"] = {level = 1, type = "spice", rarity = "common"},
+        ["Salt"] = {level = 1, type = "spice", rarity = "common"},
+        ["Deeprock Salt"] = {level = 150, type = "spice", rarity = "common"},
+        ["Stormwind Seasoning Herbs"] = {level = 50, type = "spice", rarity = "common"},
+        
+        -- Dairy Products
         ["Alterac Swiss"] = {level = 50, type = "dairy", rarity = "common"},
         ["Dalaran Sharp"] = {level = 150, type = "dairy", rarity = "common"},
         ["Dwarven Mild"] = {level = 85, type = "dairy", rarity = "common"},
+        ["Ice Cold Milk"] = {level = 35, type = "dairy", rarity = "common"},
+        
+        -- Vendor Beverages
+        ["Flask of Port"] = {level = 100, type = "beverage", rarity = "common"},
+        ["Flagon of Mead"] = {level = 75, type = "beverage", rarity = "common"},
+        ["Rhapsody Malt"] = {level = 125, type = "beverage", rarity = "common"},
+        ["Thunder Ale"] = {level = 150, type = "beverage", rarity = "common"},
+        ["Moonberry Juice"] = {level = 50, type = "beverage", rarity = "common"},
+        ["Morning Glory Dew"] = {level = 25, type = "beverage", rarity = "common"},
+        ["Skin of Dwarven Stout"] = {level = 85, type = "beverage", rarity = "common"},
+        ["Rumsey Rum Black Label"] = {level = 100, type = "beverage", rarity = "rare"},
+        
+        -- Bread & Baking Ingredients
+        ["Simple Flour"] = {level = 1, type = "ingredient", rarity = "common"},
+        ["Refreshing Spring Water"] = {level = 1, type = "ingredient", rarity = "common"},
+        ["Sweet Nectar"] = {level = 75, type = "ingredient", rarity = "common"},
+        
+        -- Fruits and Vegetables
+        ["Shiny Red Apple"] = {level = 50, type = "fruit", rarity = "common"},
+        
+        -- Herbs Used in Cooking
+        ["Goldthorn"] = {level = 50, type = "herb", rarity = "common"},
+        ["Stranglekelp"] = {level = 25, type = "herb", rarity = "common"},
+        ["Earthroot"] = {level = 15, type = "herb", rarity = "common"},
         
         -- Special/Rare Ingredients
         ["Mystery Meat"] = {level = 175, type = "meat", rarity = "rare"},
         ["Turtle Meat"] = {level = 200, type = "meat", rarity = "common"},
         ["White Spider Meat"] = {level = 200, type = "meat", rarity = "common"},
-        ["Rumsey Rum Black Label"] = {level = 100, type = "ingredient", rarity = "rare"},
-        ["Deeprock Salt"] = {level = 150, type = "spice", rarity = "common"},
-        
-        -- Bread & Baking
-        ["Simple Flour"] = {level = 1, type = "ingredient", rarity = "common"},
-        ["Refreshing Spring Water"] = {level = 1, type = "ingredient", rarity = "common"},
-        ["Ice Cold Milk"] = {level = 35, type = "dairy", rarity = "common"},
-        ["Sweet Nectar"] = {level = 75, type = "ingredient", rarity = "common"},
-        ["Shiny Red Apple"] = {level = 50, type = "fruit", rarity = "common"},
-        ["Skin of Dwarven Stout"] = {level = 85, type = "ingredient", rarity = "common"},
+        ["Thunder Lizard Tail"] = {level = 125, type = "meat", rarity = "common"},
         ["Chunk of Flesh"] = {level = 1, type = "meat", rarity = "common"},
         ["Bat Wing"] = {level = 1, type = "meat", rarity = "common"},
+        ["Meaty Bat Wing"] = {level = 75, type = "meat", rarity = "common"},
         ["Spider Leg"] = {level = 1, type = "meat", rarity = "common"},
         
-        -- Rare/Special Cooking Materials
-        ["Zesty Clam Meat"] = {level = 85, type = "meat", rarity = "rare"},
-        ["Meaty Bat Wing"] = {level = 75, type = "meat", rarity = "common"},
-        ["Heavy Kodo Meat"] = {level = 35, type = "meat", rarity = "common"},
-        ["Thunder Lizard Tail"] = {level = 125, type = "meat", rarity = "common"},
+        -- Special Fish
         ["Deviate Fish"] = {level = 1, type = "fish", rarity = "rare"},
         ["Oily Blackmouth"] = {level = 1, type = "fish", rarity = "rare"},
         ["Firefin Snapper"] = {level = 1, type = "fish", rarity = "rare"},
