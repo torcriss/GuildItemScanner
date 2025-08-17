@@ -62,6 +62,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
 
 ### 🔧 **Smart Filtering**
+- **WTB Detection** - Automatically filters out WTB (Want To Buy) messages to prevent false alerts
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
 - **BoP Detection** - Excludes Bind on Pickup items
@@ -118,6 +119,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis debug` | Toggle debug logging |
 | `/gis sound` | Toggle sound alerts |
 | `/gis duration <seconds>` | Set alert duration (1-60 seconds, default: 15) |
+| `/gis ignorewtb` | Toggle WTB (Want To Buy) message filtering (default: enabled) |
 | `/gis reset` | Reset all settings to defaults |
 
 ### **Equipment Settings**
@@ -482,6 +484,16 @@ No guild messages sent - all tests safe
 ```
 
 ## 🎯 Usage Examples
+
+### **Smart WTB Filtering**
+```
+[Guild] [Player1]: WTB [Red Mageweave Bag] paying 5g!
+→ No alert (filtered as WTB request)
+
+[Guild] [Player2]: WTS [Red Mageweave Bag] cheap!
+→ GIS Alert: "Bag detected: [Red Mageweave Bag]"
+→ Button: "Request Bag"
+```
 
 ### **Material Detection**
 ```
