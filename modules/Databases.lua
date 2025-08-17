@@ -985,7 +985,19 @@ Databases.RECIPE_PROFESSIONS = {
     ["Pattern: "] = {"Tailoring", "Leatherworking"},
     ["Plans: "] = "Blacksmithing",
     ["Schematic: "] = "Engineering",
-    ["Recipe: "] = {"Alchemy", "Cooking"}
+    
+    -- Alchemy recipes (transmutes, potions, elixirs)
+    ["Recipe: Transmute "] = "Alchemy",
+    ["Recipe: Elixir "] = "Alchemy",
+    ["Recipe: Flask "] = "Alchemy",
+    ["Recipe: Potion "] = "Alchemy",
+    ["Recipe: Oil "] = "Alchemy",
+    ["Recipe: Protection Potion"] = "Alchemy",
+    ["Recipe: Philosopher's Stone"] = "Alchemy",
+    ["Recipe: Alchemist's Stone"] = "Alchemy",
+    
+    -- Cooking recipes (default for remaining Recipe: items)
+    ["Recipe: "] = "Cooking"
 }
 
 -- Material rarity overrides
