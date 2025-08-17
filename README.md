@@ -162,6 +162,11 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 → "  - Crawler Claw (common) [ACTIVE]"
 ```
 
+**Status Indicators:**
+- `[OVERRIDE]` - Custom material replaces a built-in database entry
+- `[ACTIVE]` - Material will trigger alerts (meets rarity filter)
+- `[FILTERED]` - Material won't trigger alerts (below rarity filter)
+
 ### **Bag Detection**  
 ```
 [Guild] [Tailor]: [Mooncloth Bag] 16 slots, 50g
