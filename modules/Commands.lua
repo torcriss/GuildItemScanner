@@ -1248,11 +1248,15 @@ commandHandlers.profile = function(args)
             return
         end
         
-        local success, result = addon.Config and addon.Config.SaveProfile(name, description)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r Profile saved: " .. name)
+        if addon.Config then
+            local success, result = addon.Config.SaveProfile(name, description)
+            if success then
+                print("|cff00ff00[GuildItemScanner]|r Profile saved: " .. name)
+            else
+                print("|cffff0000[GuildItemScanner]|r " .. result)
+            end
         else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
+            print("|cffff0000[GuildItemScanner]|r Config module not loaded")
         end
         
     elseif subCmd == "load" then
@@ -1261,11 +1265,15 @@ commandHandlers.profile = function(args)
             return
         end
         
-        local success, result = addon.Config and addon.Config.LoadProfile(rest)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r Profile loaded: " .. rest)
+        if addon.Config then
+            local success, result = addon.Config.LoadProfile(rest)
+            if success then
+                print("|cff00ff00[GuildItemScanner]|r Profile loaded: " .. rest)
+            else
+                print("|cffff0000[GuildItemScanner]|r " .. result)
+            end
         else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
+            print("|cffff0000[GuildItemScanner]|r Config module not loaded")
         end
         
     elseif subCmd == "list" then
@@ -1291,11 +1299,15 @@ commandHandlers.profile = function(args)
             return
         end
         
-        local success, result = addon.Config and addon.Config.DeleteProfile(rest)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r Profile deleted: " .. rest)
+        if addon.Config then
+            local success, result = addon.Config.DeleteProfile(rest)
+            if success then
+                print("|cff00ff00[GuildItemScanner]|r Profile deleted: " .. rest)
+            else
+                print("|cffff0000[GuildItemScanner]|r " .. result)
+            end
         else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
+            print("|cffff0000[GuildItemScanner]|r Config module not loaded")
         end
         
     elseif subCmd == "clear" then
@@ -1311,19 +1323,25 @@ commandHandlers.profile = function(args)
         end
         
     elseif subCmd == "default" then
-        if rest == "" then
-            -- Clear default
-            local success, result = addon.Config and addon.Config.SetDefaultProfile(nil)
-            if success then
-                print("|cff00ff00[GuildItemScanner]|r Default profile cleared")
+        if addon.Config then
+            if rest == "" then
+                -- Clear default
+                local success, result = addon.Config.SetDefaultProfile(nil)
+                if success then
+                    print("|cff00ff00[GuildItemScanner]|r Default profile cleared")
+                else
+                    print("|cffff0000[GuildItemScanner]|r " .. result)
+                end
+            else
+                local success, result = addon.Config.SetDefaultProfile(rest)
+                if success then
+                    print("|cff00ff00[GuildItemScanner]|r Default profile set: " .. rest)
+                else
+                    print("|cffff0000[GuildItemScanner]|r " .. result)
+                end
             end
         else
-            local success, result = addon.Config and addon.Config.SetDefaultProfile(rest)
-            if success then
-                print("|cff00ff00[GuildItemScanner]|r Default profile set: " .. rest)
-            else
-                print("|cffff0000[GuildItemScanner]|r " .. result)
-            end
+            print("|cffff0000[GuildItemScanner]|r Config module not loaded")
         end
         
     else
