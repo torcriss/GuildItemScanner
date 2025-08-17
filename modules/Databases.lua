@@ -154,6 +154,10 @@ Databases.BAGS = {
     ["Green Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
     ["Black Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
     ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
+    ["Red Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
+    ["Green Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
+    ["Blue Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
+    ["Black Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
     
     -- Large Common Bags (14-16 slots)
     ["Runecloth Bag"] = {slots = 14, level = 50, rarity = "common"},
