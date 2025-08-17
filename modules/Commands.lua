@@ -1243,17 +1243,30 @@ commandHandlers.profile = function(args)
     
     if subCmd == "save" then
         local name, description = rest:match("^(%S+)%s*(.*)$")
-        if not name or name == "" then
-            print("|cff00ff00[GuildItemScanner]|r Usage: /gis profile save <name> [description]")
-            return
-        end
         
         if addon.Config then
-            local success, result = addon.Config.SaveProfile(name, description)
-            if success then
-                print("|cff00ff00[GuildItemScanner]|r Profile saved: " .. name)
+            -- If no name provided, try to save to current profile
+            if not name or name == "" then
+                local currentProfile = addon.Config.GetCurrentProfile()
+                if currentProfile then
+                    -- Update current profile
+                    local success, result = addon.Config.SaveProfile(currentProfile)
+                    if success then
+                        print("|cff00ff00[GuildItemScanner]|r Profile updated: " .. currentProfile)
+                    else
+                        print("|cffff0000[GuildItemScanner]|r " .. result)
+                    end
+                else
+                    print("|cff00ff00[GuildItemScanner]|r No active profile to update. Use: /gis profile save <name> [description]")
+                end
             else
-                print("|cffff0000[GuildItemScanner]|r " .. result)
+                -- Save to specified name
+                local success, result = addon.Config.SaveProfile(name, description)
+                if success then
+                    print("|cff00ff00[GuildItemScanner]|r Profile saved: " .. name)
+                else
+                    print("|cffff0000[GuildItemScanner]|r " .. result)
+                end
             end
         else
             print("|cffff0000[GuildItemScanner]|r Config module not loaded")

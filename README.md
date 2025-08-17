@@ -283,6 +283,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | Command | Description |
 |---------|-------------|
 | `/gis profile` | Show current profile status and default profile |
+| `/gis profile save` | Update current profile with current settings |
 | `/gis profile save <name> [description]` | Save current settings as a named profile |
 | `/gis profile load <name>` | Load a saved profile |
 | `/gis profile list` | List all saved profiles with creation info |
@@ -295,6 +296,13 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 ```lua
 -- Save your current raiding setup
 /gis profile save "Raiding" "MC/BWL optimized settings"
+
+-- Make some changes to settings
+/gis prof add Alchemy
+/gis rarity epic
+
+-- Quick save to update current "Raiding" profile
+/gis profile save
 
 -- Create a leveling profile
 /gis prof clear
@@ -311,6 +319,10 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 -- Switch between profiles
 /gis profile load "Leveling"
 /gis profile load "Raiding"
+
+-- If no profile is loaded and you try quick save:
+/gis profile clear      -- Clears all profiles and settings
+/gis profile save       -- Shows: "No active profile to update. Use: /gis profile save <name> [description]"
 ```
 
 **What's Saved in Profiles**:

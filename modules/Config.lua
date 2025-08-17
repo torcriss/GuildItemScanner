@@ -458,11 +458,12 @@ function Config.SaveProfile(name, description)
         return false, "Profile name too long (max 30 characters)"
     end
     
-    -- Create profile data
+    -- Check if profile already exists to preserve metadata
+    local existingProfile = GuildItemScannerDB.profiles[name]
     local profileData = {
         config = {},
-        description = description or "",
-        created = time(),
+        description = description or (existingProfile and existingProfile.description) or "",
+        created = (existingProfile and existingProfile.created) or time(),
         lastUpdated = time(),
         character = UnitName("player"),
         realm = GetRealmName(),
