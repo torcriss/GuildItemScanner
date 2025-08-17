@@ -109,22 +109,30 @@ commandHandlers.prof = function(args)
     else
         local subCmd, profession = args:match("^(%S+)%s*(.*)$")
         if subCmd == "add" and profession ~= "" then
-            local success, result = addon.Config and addon.Config.AddProfession(profession)
-            if success then
-                print("|cff00ff00[GuildItemScanner]|r Added profession: " .. profession)
-            else
-                if result == "Already exists" then
-                    print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
+            if addon.Config then
+                local success, result = addon.Config.AddProfession(profession)
+                if success then
+                    print("|cff00ff00[GuildItemScanner]|r Added profession: " .. profession)
                 else
-                    print("|cff00ff00[GuildItemScanner]|r " .. result)
+                    if result == "Already exists" then
+                        print("|cff00ff00[GuildItemScanner]|r You already have " .. profession)
+                    else
+                        print("|cff00ff00[GuildItemScanner]|r " .. result)
+                    end
                 end
+            else
+                print("|cff00ff00[GuildItemScanner]|r Configuration module not loaded")
             end
         elseif subCmd == "remove" and profession ~= "" then
-            local success, result = addon.Config and addon.Config.RemoveProfession(profession)
-            if success then
-                print("|cff00ff00[GuildItemScanner]|r Removed profession: " .. profession)
+            if addon.Config then
+                local success, result = addon.Config.RemoveProfession(profession)
+                if success then
+                    print("|cff00ff00[GuildItemScanner]|r Removed profession: " .. profession)
+                else
+                    print("|cff00ff00[GuildItemScanner]|r Profession not found: " .. profession)
+                end
             else
-                print("|cff00ff00[GuildItemScanner]|r Profession not found: " .. profession)
+                print("|cff00ff00[GuildItemScanner]|r Configuration module not loaded")
             end
         elseif subCmd == "clear" then
             if addon.Config then
