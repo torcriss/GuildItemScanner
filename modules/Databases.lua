@@ -664,6 +664,85 @@ Databases.MATERIALS = {
         ["Refined Deeprock Salt"] = {level = 200, type = "salt", rarity = "common"},
         ["Primal Bat Leather"] = {level = 300, type = "leather", rarity = "epic"},
         ["Devilsaur Leather"] = {level = 300, type = "leather", rarity = "epic"},
+    },
+    
+    ["Leatherworking"] = {
+        -- Primary Leather Materials
+        ["Light Leather"] = {level = 1, type = "leather", rarity = "common"},
+        ["Medium Leather"] = {level = 75, type = "leather", rarity = "common"},
+        ["Heavy Leather"] = {level = 125, type = "leather", rarity = "common"},
+        ["Thick Leather"] = {level = 175, type = "leather", rarity = "common"},
+        ["Rugged Leather"] = {level = 250, type = "leather", rarity = "common"},
+        
+        -- Hide Materials
+        ["Light Hide"] = {level = 1, type = "hide", rarity = "common"},
+        ["Medium Hide"] = {level = 75, type = "hide", rarity = "common"},
+        ["Heavy Hide"] = {level = 125, type = "hide", rarity = "common"},
+        ["Thick Hide"] = {level = 175, type = "hide", rarity = "common"},
+        ["Rugged Hide"] = {level = 250, type = "hide", rarity = "common"},
+        
+        -- Cured Materials
+        ["Cured Light Hide"] = {level = 35, type = "leather", rarity = "common"},
+        ["Cured Medium Hide"] = {level = 100, type = "leather", rarity = "common"},
+        ["Cured Heavy Hide"] = {level = 150, type = "leather", rarity = "common"},
+        ["Cured Thick Hide"] = {level = 200, type = "leather", rarity = "common"},
+        ["Cured Rugged Hide"] = {level = 275, type = "leather", rarity = "common"},
+        
+        -- Dragon Scales and Special Hides
+        ["Green Dragonscale"] = {level = 200, type = "scale", rarity = "rare"},
+        ["Blue Dragonscale"] = {level = 225, type = "scale", rarity = "rare"},
+        ["Red Dragonscale"] = {level = 250, type = "scale", rarity = "rare"},
+        ["Black Dragonscale"] = {level = 275, type = "scale", rarity = "rare"},
+        ["Pristine Hide of the Beast"] = {level = 300, type = "hide", rarity = "epic"},
+        ["Devilsaur Leather"] = {level = 300, type = "leather", rarity = "epic"},
+        ["Core Leather"] = {level = 300, type = "leather", rarity = "epic"},
+        ["Primal Bat Leather"] = {level = 300, type = "leather", rarity = "epic"},
+        
+        -- Salts and Curing Materials
+        ["Salt"] = {level = 1, type = "salt", rarity = "common"},
+        ["Deeprock Salt"] = {level = 150, type = "salt", rarity = "common"},
+        ["Refined Deeprock Salt"] = {level = 200, type = "salt", rarity = "common"},
+        ["Curing Salt"] = {level = 100, type = "salt", rarity = "common"},
+        
+        -- Thread Materials
+        ["Coarse Thread"] = {level = 1, type = "thread", rarity = "common"},
+        ["Fine Thread"] = {level = 75, type = "thread", rarity = "common"},
+        ["Silken Thread"] = {level = 125, type = "thread", rarity = "common"},
+        ["Heavy Silken Thread"] = {level = 175, type = "thread", rarity = "common"},
+        ["Rune Thread"] = {level = 230, type = "thread", rarity = "common"},
+        
+        -- Elemental Materials
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Water"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Air"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Water"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Air"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        
+        -- Chitin and Scale Materials
+        ["Silithid Chitin"] = {level = 275, type = "chitin", rarity = "common"},
+        ["Heavy Scorpid Scale"] = {level = 250, type = "scale", rarity = "common"},
+        ["Worn Dragonscale"] = {level = 150, type = "scale", rarity = "common"},
+        ["Perfect Deviate Scale"] = {level = 100, type = "scale", rarity = "rare"},
+        
+        -- Cloth Materials (Used in some leatherworking)
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        ["Silk Cloth"] = {level = 125, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
+        
+        -- Special Materials
+        ["Enchanted Leather"] = {level = 200, type = "leather", rarity = "rare"},
+        ["Turtle Scale"] = {level = 150, type = "scale", rarity = "common"},
+        ["Turtle Scale Bracers"] = {level = 160, type = "scale", rarity = "common"},
+        ["Shadowcat Hide"] = {level = 275, type = "hide", rarity = "rare"},
+        ["Frostsaber Leather"] = {level = 275, type = "leather", rarity = "rare"},
+        ["Chimera Leather"] = {level = 275, type = "leather", rarity = "rare"},
+        ["Warbear Leather"] = {level = 275, type = "leather", rarity = "rare"},
     }
 }
 
