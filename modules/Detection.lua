@@ -390,16 +390,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     
     local itemName, _, _, _, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
     
-    -- Workaround for cache corruption with Recipe: Gooey Spider Cake (item ID 13931)
-    if itemID == "13931" and itemName == "Nightfin Soup" then
-        itemName = "Recipe: Gooey Spider Cake"
-        itemEquipLoc = "INVTYPE_NON_EQUIP_IGNORE"
-        bindType = 0
-        if addon.Config and addon.Config.Get("debugMode") then
-            print("|cff00ff00[GuildItemScanner Debug]|r Applied cache corruption fix for Recipe: Gooey Spider Cake")
-        end
-    end
-    
     if not itemName then
         if not skipRetry then
             table.insert(retryQueue, { itemLink = itemLink, playerName = playerName, retryCount = 0 })
