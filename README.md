@@ -4,6 +4,38 @@
 
 GuildItemScanner automatically scans guild chat for equipment upgrades, profession recipes, crafting materials, storage bags, and useful potions. Features visual alerts, smart filtering, and automated social responses for a seamless guild experience.
 
+## 📚 Table of Contents
+
+- [⚠️ Important Notice](#️-important-notice)
+- [✨ Features](#-features)
+- [🚀 Installation](#-installation)
+- [⚙️ Quick Setup](#️-quick-setup)
+- [📋 Command Reference](#-command-reference)
+  - [Core Commands](#core-commands)
+  - [Equipment Settings](#equipment-settings)
+  - [🎯 Custom Stat Priorities](#-custom-stat-priorities)
+  - [Profession Management](#profession-management)
+  - [Material Filtering](#material-filtering)
+  - [Bag Settings](#bag-settings)
+  - [Potion Settings](#potion-settings)
+  - [Social Features](#social-features)
+  - [History Commands](#history-commands)
+  - [⚙️ Profile Management](#️-profile-management)
+  - [📋 Default Settings Reference](#-default-settings-reference)
+  - [🎣 Fishing Items](#-fishing-items)
+  - [Testing Commands](#testing-commands)
+- [🎯 Usage Examples](#-usage-examples)
+- [🏭 Supported Professions](#-supported-professions)
+- [🧪 Potion Categories](#-potion-categories)
+- [🎨 Alert Priority System](#-alert-priority-system)
+- [🏗️ Architecture](#️-architecture)
+- [🔧 Debug & Testing](#-debug--testing)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [📊 Performance](#-performance)
+- [🤝 Contributing](#-contributing)
+- [📜 Version History](#-version-history)
+- [📄 License](#-license)
+
 ## ⚠️ Important Notice
 
 **This addon is currently in BETA and actively being developed.** While we strive for stability, you may encounter bugs or unexpected behavior.
@@ -92,6 +124,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 |---------|-------------|
 | `/gis whisper` | Toggle whisper vs guild chat mode |
 | `/gis greed` | Toggle "Greed!" button for equipment |
+
+**Whisper Mode**: When enabled, all item requests ("Greed!", "Request Material", etc.) are sent as whispers to the item poster instead of guild chat messages.
 
 ### **🎯 Custom Stat Priorities**
 
@@ -622,10 +656,7 @@ Each database is easily expandable with new items:
 - **100+ Materials** - Covering all 8 professions
 - **Complete Equipment** - All slot mappings and class restrictions
 
-## 🔧 Advanced Configuration
-
-### **Stat Priority System** (Future Feature)
-Configure custom stat weightings for more accurate upgrade detection than simple item level comparison.
+## 🔧 Debug & Testing
 
 ### **Debug Mode**
 Enable detailed logging to troubleshoot detection issues:
@@ -638,28 +669,7 @@ Enable detailed logging to troubleshoot detection issues:
 - Detection type results: `Not a needed material`, `|MATERIAL MATCH|`
 - Final processing outcome: `|FINAL RESULT: Equipment not an upgrade|`
 
-### **Whisper Testing Mode**
-Test GIS functionality privately without spamming guild chat:
-```lua
-/gis whispertest                    -- Enable testing
-/w YourCharacter [item link]        -- Test any item
-/gis whispertest                    -- Disable when done
-```
 
-### **Manual Item Comparison**
-Compare any item with your equipped gear:
-```lua
-/gis compare [item link]
-→ Shows detailed comparison with equipped items
-→ Displays upgrade/downgrade information
-→ Includes level requirements and class restrictions
-```
-
-### **Whisper Mode**
-Send all requests as whispers instead of guild chat:
-```lua
-/gis whisper
-```
 
 ## 🐛 Troubleshooting
 
