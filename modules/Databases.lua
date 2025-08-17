@@ -588,6 +588,82 @@ Databases.MATERIALS = {
         ["Crystal Vial"] = {level = 150, type = "vial", rarity = "common"},
         ["Empty Vial"] = {level = 50, type = "vial", rarity = "common"},
         ["Leaded Vial"] = {level = 200, type = "vial", rarity = "common"},
+    },
+    
+    ["Tailoring"] = {
+        -- Primary Cloth Materials
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        ["Silk Cloth"] = {level = 125, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 230, type = "cloth", rarity = "common"},
+        ["Felcloth"] = {level = 275, type = "cloth", rarity = "rare"},
+        ["Mooncloth"] = {level = 250, type = "cloth", rarity = "rare"},
+        ["Shadoweave Cloth"] = {level = 300, type = "cloth", rarity = "epic"},
+        
+        -- Processed Cloth (Bolts)
+        ["Bolt of Linen Cloth"] = {level = 1, type = "bolt", rarity = "common"},
+        ["Bolt of Woolen Cloth"] = {level = 75, type = "bolt", rarity = "common"},
+        ["Bolt of Silk Cloth"] = {level = 125, type = "bolt", rarity = "common"},
+        ["Bolt of Mageweave"] = {level = 175, type = "bolt", rarity = "common"},
+        ["Bolt of Runecloth"] = {level = 230, type = "bolt", rarity = "common"},
+        
+        -- Thread Materials
+        ["Coarse Thread"] = {level = 1, type = "thread", rarity = "common"},
+        ["Fine Thread"] = {level = 75, type = "thread", rarity = "common"},
+        ["Silken Thread"] = {level = 125, type = "thread", rarity = "common"},
+        ["Heavy Silken Thread"] = {level = 175, type = "thread", rarity = "common"},
+        ["Rune Thread"] = {level = 230, type = "thread", rarity = "common"},
+        
+        -- Dyes
+        ["Blue Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Red Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Orange Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Green Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Yellow Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Purple Dye"] = {level = 1, type = "dye", rarity = "common"},
+        ["Black Dye"] = {level = 100, type = "dye", rarity = "common"},
+        ["Ghost Dye"] = {level = 200, type = "dye", rarity = "rare"},
+        ["Bleach"] = {level = 50, type = "dye", rarity = "common"},
+        
+        -- Spider Silk Materials
+        ["Spider Silk"] = {level = 50, type = "silk", rarity = "common"},
+        ["Thick Spider Silk"] = {level = 125, type = "silk", rarity = "common"},
+        ["Shadow Silk"] = {level = 175, type = "silk", rarity = "common"},
+        ["Ironweb Spider Silk"] = {level = 250, type = "silk", rarity = "rare"},
+        
+        -- Leather Materials (Used in some tailoring)
+        ["Light Leather"] = {level = 1, type = "leather", rarity = "common"},
+        ["Medium Leather"] = {level = 75, type = "leather", rarity = "common"},
+        ["Heavy Leather"] = {level = 125, type = "leather", rarity = "common"},
+        ["Thick Leather"] = {level = 175, type = "leather", rarity = "common"},
+        ["Rugged Leather"] = {level = 250, type = "leather", rarity = "common"},
+        
+        -- Elemental Materials (For high-end tailoring)
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Water"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Air"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Water"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Air"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        
+        -- Gems (For specialized tailoring items)
+        ["Star Ruby"] = {level = 200, type = "gem", rarity = "rare"},
+        ["Blue Sapphire"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Aquamarine"] = {level = 225, type = "gem", rarity = "rare"},
+        ["Large Opal"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Azerothian Diamond"] = {level = 275, type = "gem", rarity = "epic"},
+        
+        -- Special Materials
+        ["Cured Rugged Hide"] = {level = 275, type = "leather", rarity = "common"},
+        ["Enchanted Leather"] = {level = 200, type = "leather", rarity = "rare"},
+        ["Deeprock Salt"] = {level = 150, type = "salt", rarity = "common"},
+        ["Refined Deeprock Salt"] = {level = 200, type = "salt", rarity = "common"},
+        ["Primal Bat Leather"] = {level = 300, type = "leather", rarity = "epic"},
+        ["Devilsaur Leather"] = {level = 300, type = "leather", rarity = "epic"},
     }
 }
 
