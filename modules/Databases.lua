@@ -200,25 +200,130 @@ Databases.MATERIALS = {
     },
     
     ["Engineering"] = {
-        -- Same ores as Blacksmithing
+        -- Basic Mining Materials
         ["Copper Ore"] = {level = 1, type = "ore", rarity = "common"},
         ["Tin Ore"] = {level = 50, type = "ore", rarity = "common"},
-        ["Bronze Bar"] = {level = 65, type = "bar", rarity = "common"},
         ["Iron Ore"] = {level = 100, type = "ore", rarity = "common"},
-        ["Heavy Stone"] = {level = 125, type = "stone", rarity = "common"},
-        ["Steel Bar"] = {level = 150, type = "bar", rarity = "common"},
+        ["Silver Ore"] = {level = 75, type = "ore", rarity = "common"},
+        ["Gold Ore"] = {level = 155, type = "ore", rarity = "common"},
         ["Mithril Ore"] = {level = 150, type = "ore", rarity = "common"},
-        ["Solid Stone"] = {level = 175, type = "stone", rarity = "common"},
+        ["Truesilver Ore"] = {level = 205, type = "ore", rarity = "rare"},
         ["Thorium Ore"] = {level = 230, type = "ore", rarity = "common"},
+        ["Dark Iron Ore"] = {level = 250, type = "ore", rarity = "epic"},
+        
+        -- Metal Bars
+        ["Copper Bar"] = {level = 1, type = "bar", rarity = "common"},
+        ["Tin Bar"] = {level = 50, type = "bar", rarity = "common"},
+        ["Bronze Bar"] = {level = 65, type = "bar", rarity = "common"},
+        ["Iron Bar"] = {level = 125, type = "bar", rarity = "common"},
+        ["Steel Bar"] = {level = 150, type = "bar", rarity = "common"},
+        ["Silver Bar"] = {level = 75, type = "bar", rarity = "common"},
+        ["Gold Bar"] = {level = 155, type = "bar", rarity = "common"},
+        ["Mithril Bar"] = {level = 175, type = "bar", rarity = "common"},
+        ["Truesilver Bar"] = {level = 205, type = "bar", rarity = "rare"},
+        ["Thorium Bar"] = {level = 245, type = "bar", rarity = "common"},
+        ["Dark Iron Bar"] = {level = 250, type = "bar", rarity = "epic"},
+        ["Arcanite Bar"] = {level = 275, type = "bar", rarity = "epic"},
+        
+        -- Stone Materials
+        ["Rough Stone"] = {level = 1, type = "stone", rarity = "common"},
+        ["Coarse Stone"] = {level = 65, type = "stone", rarity = "common"},
+        ["Heavy Stone"] = {level = 125, type = "stone", rarity = "common"},
+        ["Solid Stone"] = {level = 175, type = "stone", rarity = "common"},
         ["Dense Stone"] = {level = 245, type = "stone", rarity = "common"},
         
-        -- Engineering specific
+        -- Blasting Powders (Essential for Engineering)
+        ["Rough Blasting Powder"] = {level = 1, type = "powder", rarity = "common"},
+        ["Coarse Blasting Powder"] = {level = 65, type = "powder", rarity = "common"},
+        ["Heavy Blasting Powder"] = {level = 125, type = "powder", rarity = "common"},
+        ["Solid Blasting Powder"] = {level = 175, type = "powder", rarity = "common"},
+        ["Dense Blasting Powder"] = {level = 245, type = "powder", rarity = "common"},
+        
+        -- Mechanical Components
         ["Handful of Copper Bolts"] = {level = 30, type = "part", rarity = "common"},
         ["Copper Tube"] = {level = 50, type = "part", rarity = "common"},
-        ["Whirring Bronze Gizmo"] = {level = 50, type = "part", rarity = "common"},
+        ["Bronze Tube"] = {level = 105, type = "part", rarity = "common"},
+        ["Bronze Framework"] = {level = 100, type = "part", rarity = "common"},
+        ["Iron Strut"] = {level = 140, type = "part", rarity = "common"},
+        ["Whirring Bronze Gizmo"] = {level = 125, type = "part", rarity = "common"},
+        ["Mithril Tube"] = {level = 195, type = "part", rarity = "common"},
+        ["Mithril Casing"] = {level = 215, type = "part", rarity = "common"},
+        ["Unstable Trigger"] = {level = 200, type = "part", rarity = "common"},
+        ["Thorium Tube"] = {level = 260, type = "part", rarity = "common"},
         ["Gyrochronatom"] = {level = 125, type = "part", rarity = "common"},
         ["Fused Wiring"] = {level = 175, type = "part", rarity = "common"},
         ["Thorium Widget"] = {level = 200, type = "part", rarity = "common"},
+        ["Silver Contact"] = {level = 75, type = "part", rarity = "common"},
+        ["Gold Power Core"] = {level = 150, type = "part", rarity = "common"},
+        ["Truesilver Transformer"] = {level = 260, type = "part", rarity = "rare"},
+        
+        -- Cloth Materials
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        ["Silk Cloth"] = {level = 125, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
+        
+        -- Leather Materials
+        ["Light Leather"] = {level = 1, type = "leather", rarity = "common"},
+        ["Medium Leather"] = {level = 75, type = "leather", rarity = "common"},
+        ["Heavy Leather"] = {level = 125, type = "leather", rarity = "common"},
+        ["Thick Leather"] = {level = 175, type = "leather", rarity = "common"},
+        ["Rugged Leather"] = {level = 250, type = "leather", rarity = "common"},
+        
+        -- Gems and Jewels
+        ["Malachite"] = {level = 50, type = "gem", rarity = "common"},
+        ["Tigerseye"] = {level = 100, type = "gem", rarity = "common"},
+        ["Shadowgem"] = {level = 100, type = "gem", rarity = "rare"},
+        ["Moss Agate"] = {level = 125, type = "gem", rarity = "common"},
+        ["Lesser Moonstone"] = {level = 150, type = "gem", rarity = "rare"},
+        ["Citrine"] = {level = 175, type = "gem", rarity = "common"},
+        ["Jade"] = {level = 175, type = "gem", rarity = "rare"},
+        ["Star Ruby"] = {level = 200, type = "gem", rarity = "rare"},
+        ["Aquamarine"] = {level = 225, type = "gem", rarity = "rare"},
+        ["Blue Sapphire"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Large Opal"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Huge Emerald"] = {level = 275, type = "gem", rarity = "rare"},
+        ["Azerothian Diamond"] = {level = 275, type = "gem", rarity = "epic"},
+        
+        -- Elemental Essences
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Water"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Air"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Heart of Fire"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Core of Earth"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Globe of Water"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Breath of Wind"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Ichor of Undeath"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Water"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Air"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Undeath"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        
+        -- Pearls
+        ["Small Lustrous Pearl"] = {level = 100, type = "pearl", rarity = "common"},
+        ["Iridescent Pearl"] = {level = 150, type = "pearl", rarity = "rare"},
+        ["Black Pearl"] = {level = 200, type = "pearl", rarity = "rare"},
+        ["Golden Pearl"] = {level = 250, type = "pearl", rarity = "epic"},
+        
+        -- Special Materials and Vendor Items
+        ["Weak Flux"] = {level = 1, type = "flux", rarity = "common"},
+        ["Strong Flux"] = {level = 125, type = "flux", rarity = "common"},
+        ["Powerful Flux"] = {level = 200, type = "flux", rarity = "common"},
+        ["Wooden Stock"] = {level = 50, type = "part", rarity = "common"},
+        ["Heavy Stock"] = {level = 150, type = "part", rarity = "common"},
+        ["Engineer's Ink"] = {level = 100, type = "ink", rarity = "common"},
+        ["Blank Parchment"] = {level = 1, type = "parchment", rarity = "common"},
+        ["Coal"] = {level = 1, type = "fuel", rarity = "common"},
+        ["Charcoal"] = {level = 50, type = "fuel", rarity = "common"},
+        
+        -- Special High-End Materials
+        ["Arcanite Ripper"] = {level = 275, type = "part", rarity = "epic"},
+        ["Sulfuron Ingot"] = {level = 300, type = "bar", rarity = "legendary"},
+        ["Elementium Ore"] = {level = 300, type = "ore", rarity = "legendary"},
     },
     
     ["Cooking"] = {
