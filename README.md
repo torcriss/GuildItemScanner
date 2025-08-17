@@ -276,6 +276,36 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis history [filter]` | Show alert history with optional filtering |
 | `/gis clearhistory` | Clear all alert history |
 
+### **🎣 Fishing Items**
+
+**Why Fishing is NOT a Profession**: Fish are already tracked through existing professions - Cooking (most fish) and Alchemy (special fish like Oily Blackmouth, Firefin Snapper, Stonescale Eel). Adding "Fishing" as a separate profession would create redundancy.
+
+**What Fishing Items ARE Tracked**:
+
+#### **High-Value BoE Fishing Equipment**
+- **Big Iron Fishing Pole** - Rare BoE drop from Shellfish Traps in Desolace (~1.5% chance, 10-50g value)
+- **Darkwood Fishing Pole** - Rare BoE world drop while fishing (10-50g value)
+
+#### **Valuable Fishing Containers** 
+- **Iron Bound Trunk** - Contains BoE materials worth ~50s average
+- **Mithril Bound Trunk** - Contains BoE materials worth ~1g average  
+- **Heavy Crate** - Locked container with materials (requires lockpicking)
+- **Waterlogged Crate** - Contains crafting materials
+
+#### **Engineering Fishing Consumables**
+- **Aquadynamic Fish Attractor** - +100 fishing skill lure (Engineering-made, limited vendor supply)
+- **Nightcrawlers** - Basic fishing lure (tradeable consumable)
+
+#### **Valuable Fishing Recipes**
+- **Recipe: Savory Deviate Delight** - Extremely valuable (350-3500g depending on server)
+
+#### **Fish Already Tracked**
+- **Alchemy Fish**: Oily Blackmouth, Firefin Snapper, Stonescale Eel, Deviate Fish
+- **Cooking Fish**: All fish species tracked as cooking materials
+- **Seasonal Fish**: Winter Squid (marked as rare, seasonal arbitrage opportunity)
+
+**Value Proposition**: These fishing-related items can generate significant gold through trading, with some fishing poles worth 10-50g and the Savory Deviate Delight recipe worth hundreds to thousands of gold.
+
 ### **Testing Commands**
 | Command | Description |
 |---------|-------------|

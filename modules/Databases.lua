@@ -206,6 +206,12 @@ Databases.BAGS = {
     ["Gnoll Skin Bandolier"] = {slots = 8, level = 18, rarity = "common", special = "bullets"},
     ["Heavy Ammo Pouch"] = {slots = 18, level = 35, rarity = "rare", special = "bullets"},
     ["Thorium Ammo Pouch"] = {slots = 20, level = 45, rarity = "rare", special = "bullets"},
+    
+    -- Fishing Containers (contain valuable BoE items)
+    ["Iron Bound Trunk"] = {slots = 0, level = 30, rarity = "rare", special = "fishing_container", value = "50s avg"},
+    ["Mithril Bound Trunk"] = {slots = 0, level = 45, rarity = "rare", special = "fishing_container", value = "1g avg"},
+    ["Heavy Crate"] = {slots = 0, level = 35, rarity = "uncommon", special = "fishing_container", value = "locked"},
+    ["Waterlogged Crate"] = {slots = 0, level = 25, rarity = "uncommon", special = "fishing_container", value = "materials"},
 }
 
 -- Expanded profession materials database
@@ -435,6 +441,10 @@ Databases.MATERIALS = {
         ["Silver Contact"] = {level = 75, type = "part", rarity = "common"},
         ["Gold Power Core"] = {level = 150, type = "part", rarity = "common"},
         ["Truesilver Transformer"] = {level = 260, type = "part", rarity = "rare"},
+        
+        -- Fishing Consumables (Engineering)
+        ["Aquadynamic Fish Attractor"] = {level = 150, type = "consumable", rarity = "common"},
+        ["Nightcrawlers"] = {level = 1, type = "consumable", rarity = "common"},
         
         -- Cloth Materials
         ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
@@ -996,6 +1006,9 @@ Databases.RECIPE_PROFESSIONS = {
     ["Recipe: Philosopher's Stone"] = "Alchemy",
     ["Recipe: Alchemist's Stone"] = "Alchemy",
     
+    -- Cooking recipes (specific valuable ones)
+    ["Recipe: Savory Deviate Delight"] = "Cooking",
+    
     -- Cooking recipes (default for remaining Recipe: items)
     ["Recipe: "] = "Cooking"
 }
@@ -1037,45 +1050,50 @@ Databases.CLASS_WEAPON_RESTRICTIONS = {
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
         ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
         ["Fist Weapons"] = true, ["Shields"] = true, ["Bows"] = true,
-        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true,
+        ["Fishing Poles"] = true
     },
     PALADIN = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
         ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
-        ["Polearms"] = true, ["Shields"] = true
+        ["Polearms"] = true, ["Shields"] = true, ["Fishing Poles"] = true
     },
     HUNTER = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
         ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
         ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
         ["Fist Weapons"] = true, ["Bows"] = true, ["Crossbows"] = true,
-        ["Guns"] = true, ["Thrown"] = true
+        ["Guns"] = true, ["Thrown"] = true, ["Fishing Poles"] = true
     },
     ROGUE = {
         ["One-Handed Swords"] = true, ["One-Handed Maces"] = true,
         ["Daggers"] = true, ["Fist Weapons"] = true, ["Bows"] = true,
-        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true
+        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true,
+        ["Fishing Poles"] = true
     },
     PRIEST = {
-        ["One-Handed Maces"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+        ["One-Handed Maces"] = true, ["Daggers"] = true, ["Staves"] = true, 
+        ["Wands"] = true, ["Fishing Poles"] = true
     },
     SHAMAN = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
         ["Staves"] = true, ["Daggers"] = true, ["Fist Weapons"] = true,
-        ["Shields"] = true
+        ["Shields"] = true, ["Fishing Poles"] = true
     },
     MAGE = {
-        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, 
+        ["Wands"] = true, ["Fishing Poles"] = true
     },
     WARLOCK = {
-        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, ["Wands"] = true
+        ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, 
+        ["Wands"] = true, ["Fishing Poles"] = true
     },
     DRUID = {
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
         ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
-        ["Fist Weapons"] = true
+        ["Fist Weapons"] = true, ["Fishing Poles"] = true
     }
 }
 
