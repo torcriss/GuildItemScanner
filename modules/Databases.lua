@@ -237,6 +237,58 @@ Databases.MATERIALS = {
         ["Weak Flux"] = {level = 1, type = "flux", rarity = "common"},
         ["Strong Flux"] = {level = 125, type = "flux", rarity = "common"},
         ["Powerful Flux"] = {level = 200, type = "flux", rarity = "common"},
+        
+        -- Leather Materials (Used in many blacksmithing recipes)
+        ["Light Leather"] = {level = 1, type = "leather", rarity = "common"},
+        ["Medium Leather"] = {level = 75, type = "leather", rarity = "common"},
+        ["Heavy Leather"] = {level = 125, type = "leather", rarity = "common"},
+        ["Thick Leather"] = {level = 175, type = "leather", rarity = "common"},
+        ["Rugged Leather"] = {level = 250, type = "leather", rarity = "common"},
+        ["Cured Light Hide"] = {level = 35, type = "leather", rarity = "common"},
+        ["Cured Medium Hide"] = {level = 100, type = "leather", rarity = "common"},
+        ["Cured Heavy Hide"] = {level = 150, type = "leather", rarity = "common"},
+        ["Cured Thick Hide"] = {level = 200, type = "leather", rarity = "common"},
+        ["Cured Rugged Hide"] = {level = 275, type = "leather", rarity = "common"},
+        
+        -- Cloth Materials (Used in some blacksmithing items)
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
+        
+        -- Gems (Used in high-end blacksmithing)
+        ["Malachite"] = {level = 50, type = "gem", rarity = "common"},
+        ["Tigerseye"] = {level = 100, type = "gem", rarity = "common"},
+        ["Shadowgem"] = {level = 100, type = "gem", rarity = "rare"},
+        ["Moss Agate"] = {level = 125, type = "gem", rarity = "common"},
+        ["Lesser Moonstone"] = {level = 150, type = "gem", rarity = "rare"},
+        ["Citrine"] = {level = 175, type = "gem", rarity = "common"},
+        ["Jade"] = {level = 175, type = "gem", rarity = "rare"},
+        ["Star Ruby"] = {level = 200, type = "gem", rarity = "rare"},
+        ["Aquamarine"] = {level = 225, type = "gem", rarity = "rare"},
+        ["Blue Sapphire"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Large Opal"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Huge Emerald"] = {level = 275, type = "gem", rarity = "rare"},
+        ["Azerothian Diamond"] = {level = 275, type = "gem", rarity = "epic"},
+        
+        -- Elemental Materials (For high-end recipes)
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Heart of Fire"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Core of Earth"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        
+        -- Special High-End Materials
+        ["Arcanite Bar"] = {level = 275, type = "bar", rarity = "epic"},
+        ["Enchanted Thorium Bar"] = {level = 250, type = "bar", rarity = "rare"},
+        ["Sulfuron Ingot"] = {level = 300, type = "bar", rarity = "legendary"},
+        ["Fiery Core"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Lava Core"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Blood of the Mountain"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Elementium Ore"] = {level = 300, type = "ore", rarity = "legendary"},
+        ["Elementium Bar"] = {level = 300, type = "bar", rarity = "legendary"},
     },
     
     ["Engineering"] = {
