@@ -74,6 +74,54 @@ local function extractItemLinks(message)
     return items
 end
 
+-- Function to check if message is a WTB (Want To Buy) request
+local function isWTBMessage(message)
+    if not message then return false end
+    
+    -- Convert to lowercase for case-insensitive matching
+    local lowerMessage = string.lower(message)
+    
+    -- Check for common WTB patterns
+    local wtbPatterns = {
+        "^wtb ",           -- "WTB [item]"
+        " wtb ",           -- "... WTB [item]"
+        "^w t b ",         -- "W T B [item]"
+        " w t b ",         -- "... W T B [item]"
+        "^lf ",            -- "LF [item]"
+        " lf ",            -- "... LF [item]"
+        "looking for",     -- "looking for [item]"
+        "^need ",          -- "need [item]"
+        " need ",          -- "... need [item]"
+        "buying ",         -- "buying [item]"
+        "want to buy",     -- "want to buy [item]"
+        "^iso ",           -- "ISO [item]" (In Search Of)
+        " iso "            -- "... ISO [item]"
+    }
+    
+    for _, pattern in ipairs(wtbPatterns) do
+        if string.find(lowerMessage, pattern) then
+            -- Check if message also contains WTS/selling patterns
+            local wtsPatterns = {"wts ", "selling ", "sell ", "^fs ", " fs "}
+            local hasWTS = false
+            for _, wtsPattern in ipairs(wtsPatterns) do
+                if string.find(lowerMessage, wtsPattern) then
+                    hasWTS = true
+                    break
+                end
+            end
+            
+            -- If it has both WTB and WTS patterns, don't filter (mixed message)
+            if hasWTS then
+                return false
+            else
+                return true -- Pure WTB message, should be filtered
+            end
+        end
+    end
+    
+    return false
+end
+
 -- Function to check if player meets item level requirements
 local function canPlayerUseItemLevel(itemLink)
     local playerLevel = UnitLevel("player")
@@ -667,6 +715,14 @@ end
 function Detection.ProcessGuildMessage(message, sender, ...)
     if not addon.Config or not addon.Config.Get("enabled") then 
         return 
+    end
+    
+    -- Check if WTB filtering is enabled and if this is a WTB message
+    if addon.Config.Get("ignoreWTB") and isWTBMessage(message) then
+        if addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Filtered WTB message from " .. (sender or "unknown") .. ": " .. (message or "nil"))
+        end
+        return
     end
     
     local itemLinks = extractItemLinks(message)

@@ -25,6 +25,7 @@ local defaultConfig = {
     debugMode = false,
     autoGZ = false,
     autoRIP = false,
+    ignoreWTB = true,  -- Filter out WTB (Want To Buy) messages
     
     -- Equipment settings
     recipeAlert = true,

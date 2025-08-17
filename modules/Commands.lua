@@ -98,6 +98,14 @@ commandHandlers.greed = function()
     end
 end
 
+commandHandlers.ignorewtb = function()
+    if addon.Config then
+        local enabled = addon.Config and addon.Config.Toggle("ignoreWTB")
+        print("|cff00ff00[GuildItemScanner]|r WTB filtering " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+        print("|cff00ff00[GuildItemScanner]|r " .. (enabled and "Ignoring" or "Processing") .. " WTB (Want To Buy) messages")
+    end
+end
+
 -- Profession Commands
 commandHandlers.prof = function(args)
     if args == "" then
@@ -879,6 +887,7 @@ commandHandlers.status = function()
     print(" |cffFFD700Equipment Settings:|r")
     print("  Whisper mode: " .. (addon.Config and addon.Config.Get("whisperMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Greed mode: " .. (addon.Config and addon.Config.Get("greedMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  WTB filtering: " .. (addon.Config and addon.Config.Get("ignoreWTB") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Comparison mode: " .. (addon.Config and addon.Config.GetStatComparisonMode() and string.upper(addon.Config.GetStatComparisonMode()) or "ILVL"))
     local priorities = addon.Config and addon.Config.GetStatPriorities() or {}
     print("  Stat priorities: " .. (#priorities > 0 and table.concat(priorities, ", ") or "|cff808080None|r"))
@@ -1311,6 +1320,7 @@ commandHandlers.help = function()
     print(" /gis test - Test equipment alert")
     print(" /gis whisper - Toggle whisper mode for requests")
     print(" /gis greed - Toggle greed button display")
+    print(" /gis ignorewtb - Toggle WTB (Want To Buy) message filtering")
     print(" |cffFFD700Profession Commands:|r")
     print(" /gis prof add/remove/clear/list <profession> - Manage professions")
     print(" /gis recipe - Toggle recipe alerts")
