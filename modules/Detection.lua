@@ -291,6 +291,10 @@ local function isMaterialForMyProfession(itemLink)
         return false 
     end
     
+    local matchingProfessions = {}
+    local foundMaterial = nil
+    local foundRarity = nil
+    
     for _, profession in ipairs(addon.Config.GetProfessions()) do
         local material = addon.Databases and addon.Databases.GetMaterialInfo(itemName, profession)
         if material then
@@ -300,9 +304,15 @@ local function isMaterialForMyProfession(itemLink)
             local rarityFilter = addon.Config.Get("materialRarityFilter")
             local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
             if rarityOrder[rarity] >= rarityOrder[rarityFilter] then
-                return true, profession, material, 1, rarity
+                table.insert(matchingProfessions, profession)
+                foundMaterial = material
+                foundRarity = rarity
             end
         end
+    end
+    
+    if #matchingProfessions > 0 then
+        return true, matchingProfessions, foundMaterial, 1, foundRarity
     end
     
     return false
@@ -443,12 +453,13 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     end
     
     -- Check for materials
-    local isMaterial, matProfession, material, quantity, rarity = isMaterialForMyProfession(itemLink)
+    local isMaterial, matProfessions, material, quantity, rarity = isMaterialForMyProfession(itemLink)
     if isMaterial and addon.Alerts then
         if addon.Config and addon.Config.Get("debugMode") then
-            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s", itemName))
+            local profString = type(matProfessions) == "table" and table.concat(matProfessions, "/") or tostring(matProfessions)
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s (professions: %s)", itemName, profString))
         end
-        addon.Alerts.ShowMaterialAlert(itemLink, playerName, matProfession, material, quantity, rarity)
+        addon.Alerts.ShowMaterialAlert(itemLink, playerName, matProfessions, material, quantity, rarity)
         return
     elseif addon.Config and addon.Config.Get("debugMode") then
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a needed material: %s", itemName))

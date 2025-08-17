@@ -172,7 +172,7 @@ function Alerts.ShowRecipeAlert(itemLink, playerName, profession)
 end
 
 -- Material alert
-function Alerts.ShowMaterialAlert(itemLink, playerName, profession, material, quantity, rarity)
+function Alerts.ShowMaterialAlert(itemLink, playerName, professions, material, quantity, rarity)
     if not alertFrame then return end
     
     if addon.History then
@@ -187,12 +187,20 @@ function Alerts.ShowMaterialAlert(itemLink, playerName, profession, material, qu
     }
     local color = rarityColors[rarity] or "|cffffff00"
     
-    print("|cff00ff00[GuildItemScanner]|r " .. color .. profession .. " material detected: " .. itemLink .. "|r")
+    -- Handle both single profession (backward compatibility) and multiple professions
+    local professionText = ""
+    if type(professions) == "table" then
+        professionText = table.concat(professions, "/")
+    else
+        professionText = tostring(professions)
+    end
+    
+    print("|cff00ff00[GuildItemScanner]|r " .. color .. professionText .. " material detected: " .. itemLink .. "|r")
     
     currentAlert = { 
         itemLink = itemLink, 
         playerName = playerName, 
-        profession = profession,
+        profession = professionText,  -- Store as string for compatibility
         material = material,
         quantity = quantity,
         rarity = rarity,
@@ -200,7 +208,7 @@ function Alerts.ShowMaterialAlert(itemLink, playerName, profession, material, qu
     }
     
     local detailText = string.format("From: %s", playerName)
-    alertText:SetText(string.format("%s Material from %s:\n%s%s|r\n|cff00ff00%s|r", profession, playerName, color, itemLink, detailText))
+    alertText:SetText(string.format("%s Material from %s:\n%s%s|r\n|cff00ff00%s|r", professionText, playerName, color, itemLink, detailText))
     
     greedButton:Hide()
     requestButton:SetShown(addon.Config and addon.Config.Get("materialButton"))
