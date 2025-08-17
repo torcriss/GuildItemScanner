@@ -227,14 +227,24 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 → "=== Custom GZ Messages (2 total) ==="
 → "1. Awesome job! [CUSTOM]"
 → "2. LETSGOOO [CUSTOM]"
-→ "Default messages are always available"
+→ "=== Default GZ Messages (always available) ==="
+→ "  GZ, gz, grats!, LETSGOOO, gratz, DinkDonk, grats, nice!, congrats!, awesome!"
 
 /gis rip list
 → "=== Custom RIP Messages ==="
-→ "LOW Level (low deaths): 0 custom"
-→ "MID Level (mid deaths): 0 custom"  
-→ "HIGH Level (high deaths): 1 custom"
+→ "LOW Level (1-39): 0 custom"
+→ "  No custom messages"
+→ "MID Level (40-59): 0 custom"  
+→ "  No custom messages"
+→ "HIGH Level (60): 1 custom"
 → "  1. MEGA F LEGENDARY PLAYER [CUSTOM]"
+→ "=== Default RIP Messages (always available) ==="
+→ "LOW Level (1-39):"
+→ "  F, RIP, oof"
+→ "MID Level (40-59):"
+→ "  F, OMG F, BIG RIP"
+→ "HIGH Level (60):"
+→ "  F, OMG F, GIGA F, MEGA RIP, NOOOO"
 ```
 
 ### **Whisper Testing**
