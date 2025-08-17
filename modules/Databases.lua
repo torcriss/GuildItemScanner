@@ -743,6 +743,87 @@ Databases.MATERIALS = {
         ["Frostsaber Leather"] = {level = 275, type = "leather", rarity = "rare"},
         ["Chimera Leather"] = {level = 275, type = "leather", rarity = "rare"},
         ["Warbear Leather"] = {level = 275, type = "leather", rarity = "rare"},
+    },
+    
+    ["Enchanting"] = {
+        -- Dusts (Most common enchanting materials)
+        ["Strange Dust"] = {level = 1, type = "dust", rarity = "common"},
+        ["Soul Dust"] = {level = 25, type = "dust", rarity = "common"},
+        ["Vision Dust"] = {level = 100, type = "dust", rarity = "common"},
+        ["Dream Dust"] = {level = 150, type = "dust", rarity = "common"},
+        ["Illusion Dust"] = {level = 200, type = "dust", rarity = "common"},
+        
+        -- Lesser Essences
+        ["Lesser Magic Essence"] = {level = 10, type = "essence", rarity = "common"},
+        ["Lesser Astral Essence"] = {level = 50, type = "essence", rarity = "common"},
+        ["Lesser Mystic Essence"] = {level = 100, type = "essence", rarity = "common"},
+        ["Lesser Nether Essence"] = {level = 150, type = "essence", rarity = "common"},
+        ["Lesser Eternal Essence"] = {level = 200, type = "essence", rarity = "common"},
+        
+        -- Greater Essences
+        ["Greater Magic Essence"] = {level = 25, type = "essence", rarity = "common"},
+        ["Greater Astral Essence"] = {level = 75, type = "essence", rarity = "common"},
+        ["Greater Mystic Essence"] = {level = 125, type = "essence", rarity = "common"},
+        ["Greater Nether Essence"] = {level = 175, type = "essence", rarity = "common"},
+        ["Greater Eternal Essence"] = {level = 225, type = "essence", rarity = "common"},
+        
+        -- Shards (Rare enchanting materials)
+        ["Small Glimmering Shard"] = {level = 20, type = "shard", rarity = "rare"},
+        ["Large Glimmering Shard"] = {level = 30, type = "shard", rarity = "rare"},
+        ["Small Glowing Shard"] = {level = 75, type = "shard", rarity = "rare"},
+        ["Large Glowing Shard"] = {level = 100, type = "shard", rarity = "rare"},
+        ["Small Radiant Shard"] = {level = 150, type = "shard", rarity = "rare"},
+        ["Large Radiant Shard"] = {level = 175, type = "shard", rarity = "rare"},
+        ["Small Brilliant Shard"] = {level = 225, type = "shard", rarity = "rare"},
+        ["Large Brilliant Shard"] = {level = 250, type = "shard", rarity = "rare"},
+        
+        -- Crystals (High-end enchanting materials)
+        ["Nexus Crystal"] = {level = 275, type = "crystal", rarity = "epic"},
+        
+        -- Rods (Enchanting tools/reagents)
+        ["Runed Copper Rod"] = {level = 1, type = "rod", rarity = "common"},
+        ["Runed Silver Rod"] = {level = 100, type = "rod", rarity = "common"},
+        ["Runed Golden Rod"] = {level = 150, type = "rod", rarity = "common"},
+        ["Runed Truesilver Rod"] = {level = 200, type = "rod", rarity = "rare"},
+        ["Runed Arcanite Rod"] = {level = 250, type = "rod", rarity = "rare"},
+        
+        -- Pearls (Used in some enchanting recipes)
+        ["Small Lustrous Pearl"] = {level = 100, type = "pearl", rarity = "common"},
+        ["Iridescent Pearl"] = {level = 150, type = "pearl", rarity = "rare"},
+        ["Black Pearl"] = {level = 200, type = "pearl", rarity = "rare"},
+        ["Golden Pearl"] = {level = 275, type = "pearl", rarity = "epic"},
+        
+        -- Elemental Materials (For high-end enchants)
+        ["Elemental Fire"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Water"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Air"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Elemental Earth"] = {level = 175, type = "essence", rarity = "rare"},
+        ["Essence of Fire"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Water"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Air"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Earth"] = {level = 250, type = "essence", rarity = "rare"},
+        ["Essence of Undeath"] = {level = 275, type = "essence", rarity = "rare"},
+        ["Living Essence"] = {level = 275, type = "essence", rarity = "epic"},
+        
+        -- Special Reagents
+        ["Righteous Orb"] = {level = 300, type = "orb", rarity = "epic"},
+        ["Arcanite Bar"] = {level = 275, type = "bar", rarity = "epic"},
+        ["Large Opal"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Blue Sapphire"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Azerothian Diamond"] = {level = 275, type = "gem", rarity = "epic"},
+        
+        -- Vials and Containers (For some enchanting recipes)
+        ["Crystal Vial"] = {level = 200, type = "vial", rarity = "common"},
+        ["Imbued Vial"] = {level = 275, type = "vial", rarity = "rare"},
+        
+        -- Special High-End Materials
+        ["Fiery Core"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Lava Core"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Core of Earth"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Heart of Fire"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Globe of Water"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Breath of Wind"] = {level = 200, type = "essence", rarity = "rare"},
+        ["Ichor of Undeath"] = {level = 200, type = "essence", rarity = "rare"},
     }
 }
 
