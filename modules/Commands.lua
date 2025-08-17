@@ -486,6 +486,230 @@ commandHandlers.status = function()
     print("  Active: " .. (#professions > 0 and table.concat(professions, ", ") or "|cff808080None|r"))
 end
 
+-- Custom Material Commands
+commandHandlers.addmaterial = function(args)
+    -- Parse: /gis addmaterial [Item Link] profession
+    local itemLink = string.match(args, "|c%x+|Hitem:.-|h%[.-%]|h|r")
+    if not itemLink then
+        print("|cff00ff00[GuildItemScanner]|r Usage: /gis addmaterial [shift+click item] profession")
+        print("  Example: /gis addmaterial [Crawler Claw] Cooking")
+        return
+    end
+    
+    -- Extract item name and profession
+    local itemName = string.match(itemLink, "|h%[(.-)%]|h")
+    local profession = string.match(args, "|h|r%s+(.+)$")
+    
+    if not profession or profession == "" then
+        print("|cff00ff00[GuildItemScanner]|r Please specify a profession")
+        print("  Valid professions: Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Tailoring")
+        return
+    end
+    
+    -- Normalize profession name (capitalize first letter)
+    profession = profession:gsub("^%l", string.upper)
+    
+    -- Validate profession
+    local validProfessions = {"Alchemy", "Blacksmithing", "Cooking", "Enchanting", 
+                              "Engineering", "First Aid", "Leatherworking", "Tailoring"}
+    local isValid = false
+    for _, prof in ipairs(validProfessions) do
+        if prof == profession then
+            isValid = true
+            break
+        end
+    end
+    
+    if not isValid then
+        print("|cff00ff00[GuildItemScanner]|r Invalid profession: " .. profession)
+        return
+    end
+    
+    -- Check if player has this profession
+    local hasProfession = false
+    for _, prof in ipairs(addon.Config.GetProfessions()) do
+        if prof == profession then
+            hasProfession = true
+            break
+        end
+    end
+    
+    if not hasProfession then
+        print("|cffff00[GuildItemScanner]|r Note: You don't have " .. profession .. 
+              " in your professions list.")
+        print("|cffff00[GuildItemScanner]|r Add it with: /gis prof add " .. profession)
+    end
+    
+    -- Check if already exists in built-in database
+    if addon.Databases.HasBuiltInMaterial(itemName, profession) then
+        print("|cffff00[GuildItemScanner]|r Warning: '" .. itemName .. 
+              "' already exists in " .. profession .. " built-in database!")
+        print("|cffff00[GuildItemScanner]|r Your custom entry will OVERRIDE the built-in version.")
+        print("|cffff00[GuildItemScanner]|r Use '/gis removematerial' to revert to built-in.")
+    end
+    
+    -- Check if already in custom materials
+    local custom = addon.Config.Get("customMaterials") or {}
+    if custom[profession] and custom[profession][itemName] then
+        print("|cffff00[GuildItemScanner]|r '" .. itemName .. 
+              "' is already in your custom " .. profession .. " materials.")
+        print("|cffff00[GuildItemScanner]|r Updating entry...")
+    end
+    
+    -- Auto-detect item quality/rarity
+    local _, _, quality = GetItemInfo(itemLink)
+    local rarityMap = {
+        [0] = "common",  -- Poor (gray)
+        [1] = "common",  -- Common (white)
+        [2] = "common",  -- Uncommon (green)
+        [3] = "rare",    -- Rare (blue)
+        [4] = "epic",    -- Epic (purple)
+        [5] = "legendary" -- Legendary (orange)
+    }
+    local rarity = rarityMap[quality] or "common"
+    
+    -- Add the custom material
+    local materialInfo = {
+        level = 1,  -- Default level
+        type = "custom",
+        rarity = rarity
+    }
+    
+    addon.Databases.AddCustomMaterial(itemName, profession, materialInfo)
+    
+    print("|cff00ff00[GuildItemScanner]|r Added custom material: " .. itemLink .. 
+          " to " .. profession .. " (rarity: " .. rarity .. ")")
+    
+    -- RARITY FILTER WARNING
+    local currentFilter = addon.Config.Get("materialRarityFilter") or "common"
+    local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
+    
+    if rarityOrder[rarity] < rarityOrder[currentFilter] then
+        print("|cffff00[GuildItemScanner]|r ⚠ Warning: This material won't trigger alerts!")
+        print("|cffff00[GuildItemScanner]|r Current filter: " .. currentFilter .. 
+              " | Item rarity: " .. rarity)
+        print("|cffff00[GuildItemScanner]|r To detect this material, use: /gis rarity " .. rarity)
+    elseif hasProfession then
+        print("|cff00ff00[GuildItemScanner]|r ✓ This material WILL trigger alerts (rarity >= filter)")
+    end
+end
+
+commandHandlers.removematerial = function(args)
+    local itemLink = string.match(args, "|c%x+|Hitem:.-|h%[.-%]|h|r")
+    if not itemLink then
+        print("|cff00ff00[GuildItemScanner]|r Usage: /gis removematerial [shift+click item] profession")
+        return
+    end
+    
+    local itemName = string.match(itemLink, "|h%[(.-)%]|h")
+    local profession = string.match(args, "|h|r%s+(.+)$")
+    
+    if not profession or profession == "" then
+        print("|cff00ff00[GuildItemScanner]|r Please specify a profession")
+        return
+    end
+    
+    profession = profession:gsub("^%l", string.upper)
+    
+    -- Remove from custom materials
+    if addon.Databases.RemoveCustomMaterial(itemName, profession) then
+        print("|cff00ff00[GuildItemScanner]|r Removed custom material: " .. itemName .. " from " .. profession)
+        
+        -- Check if it exists in built-in
+        if addon.Databases.HasBuiltInMaterial(itemName, profession) then
+            print("|cff00ff00[GuildItemScanner]|r Note: Reverting to built-in database version")
+            
+            -- Show rarity info for built-in version
+            local builtInMat = addon.Databases.MATERIALS[profession][itemName]
+            if builtInMat and builtInMat.rarity then
+                local currentFilter = addon.Config.Get("materialRarityFilter") or "common"
+                local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
+                
+                if rarityOrder[builtInMat.rarity] < rarityOrder[currentFilter] then
+                    print("|cffff00[GuildItemScanner]|r Note: Built-in version (rarity: " .. 
+                          builtInMat.rarity .. ") won't trigger with current filter: " .. currentFilter)
+                end
+            end
+        end
+    else
+        print("|cffff0000[GuildItemScanner]|r Custom material not found: " .. itemName .. " in " .. profession)
+    end
+end
+
+commandHandlers.listcustom = function(args)
+    local profession = args and args:match("^(%S+)")
+    if profession then
+        profession = profession:gsub("^%l", string.upper)
+    end
+    
+    local custom = addon.Config.Get("customMaterials") or {}
+    local currentFilter = addon.Config.Get("materialRarityFilter") or "common"
+    local rarityOrder = {common = 1, rare = 2, epic = 3, legendary = 4}
+    local hasAny = false
+    
+    print("|cff00ff00[GuildItemScanner]|r === Custom Materials ===")
+    print("|cff00ff00[GuildItemScanner]|r Current rarity filter: " .. currentFilter)
+    
+    for prof, materials in pairs(custom) do
+        if not profession or prof == profession then
+            local count = 0
+            for _ in pairs(materials) do count = count + 1 end
+            
+            if count > 0 then
+                hasAny = true
+                print("|cffffcc00" .. prof .. ":|r (" .. count .. " custom)")
+                
+                for matName, matInfo in pairs(materials) do
+                    local override = ""
+                    if addon.Databases.HasBuiltInMaterial(matName, prof) then
+                        override = " |cffff0000[OVERRIDE]|r"
+                    end
+                    
+                    -- Check if will trigger with current filter
+                    local willTrigger = ""
+                    if rarityOrder[matInfo.rarity] < rarityOrder[currentFilter] then
+                        willTrigger = " |cff808080[FILTERED]|r"
+                    else
+                        willTrigger = " |cff00ff00[ACTIVE]|r"
+                    end
+                    
+                    print("  - " .. matName .. " (" .. matInfo.rarity .. ")" .. override .. willTrigger)
+                end
+            end
+        end
+    end
+    
+    if not hasAny then
+        print("  No custom materials found")
+    else
+        print("|cff00ff00[GuildItemScanner]|r [ACTIVE] = will trigger | [FILTERED] = won't trigger")
+    end
+end
+
+commandHandlers.clearcustom = function(args)
+    local profession = args and args:match("^(%S+)")
+    
+    if profession then
+        profession = profession:gsub("^%l", string.upper)
+        local custom = addon.Config.Get("customMaterials") or {}
+        if custom[profession] then
+            local count = 0
+            for _ in pairs(custom[profession]) do count = count + 1 end
+            custom[profession] = nil
+            addon.Config.Set("customMaterials", custom)
+            addon.Config.Save()
+            print("|cff00ff00[GuildItemScanner]|r Cleared " .. count .. " custom materials from " .. profession)
+        else
+            print("|cffff0000[GuildItemScanner]|r No custom materials found for " .. profession)
+        end
+    else
+        -- Clear all
+        addon.Config.Set("customMaterials", {})
+        addon.Config.Save()
+        print("|cff00ff00[GuildItemScanner]|r Cleared ALL custom materials")
+    end
+end
+
 -- Help Command
 commandHandlers.help = function()
     print("|cff00ff00[GuildItemScanner v" .. addon.version .. "]|r Complete Command List:")
@@ -509,6 +733,10 @@ commandHandlers.help = function()
     print(" /gis matbutton - Toggle material request button")
     print(" /gis rarity <level> - Set material rarity filter")
     print(" /gis quantity/qty <num> - Set minimum stack size")
+    print(" /gis addmaterial [item] <prof> - Add custom material for profession")
+    print(" /gis removematerial [item] <prof> - Remove custom material")
+    print(" /gis listcustom [prof] - List custom materials (all or by profession)")
+    print(" /gis clearcustom [prof] - Clear custom materials (all or by profession)")
     print(" |cffFFD700Bag Commands:|r")
     print(" /gis bag - Toggle bag alerts")
     print(" /gis bagbutton - Toggle bag request button")

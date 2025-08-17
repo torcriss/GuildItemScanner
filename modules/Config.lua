@@ -39,6 +39,9 @@ local defaultConfig = {
     -- Profession settings
     myProfessions = {},
     
+    -- Custom materials (player-added)
+    customMaterials = {},
+    
     -- Sound settings
     soundDuration = 2,
     

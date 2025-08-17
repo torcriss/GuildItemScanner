@@ -1114,6 +1114,15 @@ function Databases.GetBagInfo(itemName)
 end
 
 function Databases.GetMaterialInfo(itemName, profession)
+    -- Check custom materials first (priority)
+    if addon.Config and addon.Config.Get("customMaterials") then
+        local custom = addon.Config.Get("customMaterials")
+        if custom[profession] and custom[profession][itemName] then
+            return custom[profession][itemName]
+        end
+    end
+    
+    -- Fall back to built-in database
     if Databases.MATERIALS[profession] then
         return Databases.MATERIALS[profession][itemName]
     end
@@ -1130,6 +1139,32 @@ end
 
 function Databases.GetSlotID(equipLoc)
     return Databases.SLOT_ID_MAPPING[equipLoc]
+end
+
+-- Custom material management functions
+function Databases.HasBuiltInMaterial(itemName, profession)
+    return Databases.MATERIALS[profession] and Databases.MATERIALS[profession][itemName] ~= nil
+end
+
+function Databases.AddCustomMaterial(itemName, profession, itemInfo)
+    local custom = addon.Config.Get("customMaterials") or {}
+    if not custom[profession] then
+        custom[profession] = {}
+    end
+    custom[profession][itemName] = itemInfo
+    addon.Config.Set("customMaterials", custom)
+    addon.Config.Save()
+end
+
+function Databases.RemoveCustomMaterial(itemName, profession)
+    local custom = addon.Config.Get("customMaterials") or {}
+    if custom[profession] and custom[profession][itemName] then
+        custom[profession][itemName] = nil
+        addon.Config.Set("customMaterials", custom)
+        addon.Config.Save()
+        return true
+    end
+    return false
 end
 
 function Databases.GetRecipeProfession(itemName)
