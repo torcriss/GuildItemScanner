@@ -76,66 +76,120 @@ local function HookChatFrame()
     end
 end
 
+-- Get combined GZ messages (custom + default)
+local function GetCombinedGzMessages()
+    local messages = {}
+    
+    -- Add custom messages first
+    if addon.Config then
+        local customMessages = addon.Config.GetGzMessages()
+        for _, msg in ipairs(customMessages) do
+            table.insert(messages, msg)
+        end
+    end
+    
+    -- Add default messages from database
+    if addon.Databases and addon.Databases.GZ_MESSAGES then
+        for _, msg in ipairs(addon.Databases.GZ_MESSAGES) do
+            table.insert(messages, msg)
+        end
+    end
+    
+    -- Fallback if no messages available
+    if #messages == 0 then
+        messages = {"GZ", "grats", "nice!"}
+    end
+    
+    return messages
+end
+
+-- Get combined RIP messages by level (custom + default)
+local function GetCombinedRipMessages(level)
+    local levelCategory = "low"
+    if level then
+        if level >= 60 then
+            levelCategory = "high"
+        elseif level >= 40 then
+            levelCategory = "mid"
+        end
+    end
+    
+    local messages = {}
+    
+    -- Add custom messages first
+    if addon.Config then
+        local customMessages = addon.Config.GetRipMessages(levelCategory)
+        for _, msg in ipairs(customMessages) do
+            table.insert(messages, msg)
+        end
+    end
+    
+    -- Add default messages based on level
+    local defaultMessages = {}
+    if levelCategory == "low" then
+        defaultMessages = {"F", "RIP", "oof"}
+    elseif levelCategory == "mid" then
+        defaultMessages = {"F", "OMG F", "BIG RIP"}
+    else -- high
+        defaultMessages = {"F", "OMG F", "GIGA F", "MEGA RIP", "NOOOO"}
+    end
+    
+    for _, msg in ipairs(defaultMessages) do
+        table.insert(messages, msg)
+    end
+    
+    return messages
+end
+
 -- Send automatic congratulations
 function Social.SendAutoGZ(playerName)
-    -- 50% chance to congratulate
-    local shouldCongratulate = math.random() <= 0.5
+    -- Use configurable chance
+    local gzChance = (addon.Config and addon.Config.GetGzChance() or 50) / 100
+    local shouldCongratulate = math.random() <= gzChance
+    
     if shouldCongratulate then
         -- Random delay between 2-6 seconds + fractional seconds
         local delay = math.random(2, 6) + math.random()
         
         C_Timer.After(delay, function()
-            -- Pick a random GZ message
-            local gzMessage = addon.Databases and addon.Databases.GetRandomGZMessage() or "GZ"
+            -- Pick a random GZ message from combined pool
+            local gzMessages = GetCombinedGzMessages()
+            local gzMessage = gzMessages[math.random(#gzMessages)]
             SendChatMessage(gzMessage, "GUILD")
             
             if addon.Config and addon.Config.Get("debugMode") then
-                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay)", 
-                    playerName or "unknown", delay))
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay, message: %s)", 
+                    playerName or "unknown", delay, gzMessage))
             else
                 print(string.format("|cff00ff00[GuildItemScanner]|r Auto-congratulated %s for their achievement! (%.1fs delay)", 
                     playerName or "unknown", delay))
             end
         end)
     elseif addon.Config and addon.Config.Get("debugMode") then
-        print("|cff00ff00[GuildItemScanner Debug]|r Skipped GZ (50% chance)")
+        local chance = addon.Config and addon.Config.GetGzChance() or 50
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipped GZ (%d%% chance)", chance))
     end
 end
 
 -- Send automatic condolences
 function Social.SendAutoRIP(level, playerName)
-    -- 60% chance to send RIP message
-    local shouldSendRIP = math.random() <= 0.6
+    -- Use configurable chance
+    local ripChance = (addon.Config and addon.Config.GetRipChance() or 60) / 100
+    local shouldSendRIP = math.random() <= ripChance
+    
     if shouldSendRIP then
-        local deathMessage = "F" -- Default message
+        -- Get appropriate messages for the level
+        local ripMessages = GetCombinedRipMessages(level)
+        local deathMessage = ripMessages[math.random(#ripMessages)]
         
-        if level then
-            if level < 30 then
-                -- Randomly choose between "RIP" and "F" for low levels
-                deathMessage = math.random() <= 0.5 and "RIP" or "F"
-            elseif level >= 30 and level <= 40 then
-                deathMessage = "F"
-            elseif level >= 41 and level <= 59 then
-                -- Randomly choose between "OMG F" and "F" for mid levels
-                deathMessage = math.random() <= 0.7 and "F" or "OMG F"
-            elseif level >= 60 then
-                -- Randomly choose between "F", "OMG F", and "GIGA F" for max level
-                local roll = math.random()
-                if roll <= 0.4 then
-                    deathMessage = "F"
-                elseif roll <= 0.8 then
-                    deathMessage = "OMG F"
-                else
-                    deathMessage = "GIGA F"
-                end
+        if addon.Config and addon.Config.Get("debugMode") then
+            local levelCategory = "low"
+            if level then
+                if level >= 60 then levelCategory = "high"
+                elseif level >= 40 then levelCategory = "mid" end
             end
-            
-            if addon.Config and addon.Config.Get("debugMode") then
-                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Player level: %d, Message: %s", level, deathMessage))
-            end
-        else
-            -- No level info, just use simple message
-            deathMessage = math.random() <= 0.7 and "F" or "RIP"
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Player level: %s, Category: %s, Message: %s", 
+                tostring(level or "unknown"), levelCategory, deathMessage))
         end
         
         -- Random delay between 3-8 seconds + fractional seconds
@@ -153,13 +207,16 @@ function Social.SendAutoRIP(level, playerName)
             end
         end)
     elseif addon.Config and addon.Config.Get("debugMode") then
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipped RIP for %s (40%% chance)", playerName or "unknown"))
+        local chance = addon.Config and addon.Config.GetRipChance() or 60
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipped RIP for %s (%d%% chance)", playerName or "unknown", 100 - chance))
     end
 end
 
 -- Manual congratulations command
 function Social.SendManualGZ(target)
-    local gzMessage = addon.Databases and addon.Databases.GetRandomGZMessage() or "GZ"
+    local gzMessages = GetCombinedGzMessages()
+    local gzMessage = gzMessages[math.random(#gzMessages)]
+    
     if target and target ~= "" then
         SendChatMessage(gzMessage .. " " .. target .. "!", "GUILD")
     else
@@ -170,7 +227,8 @@ end
 
 -- Manual condolences command
 function Social.SendManualRIP(target)
-    local ripMessages = {"F", "RIP", "OMG F", "GIGA F"}
+    -- Use "high" level messages for manual RIP (most variety)
+    local ripMessages = GetCombinedRipMessages(60)
     local ripMessage = ripMessages[math.random(#ripMessages)]
     
     if target and target ~= "" then
@@ -195,9 +253,31 @@ end
 -- Show social feature status
 function Social.ShowStatus()
     print("|cff00ff00[GuildItemScanner]|r Social Features Status:")
-    print("  Auto-GZ: " .. ((addon.Config and addon.Config.Get("autoGZ")) and "|cff00ff00enabled|r (50% chance, 2-6s delay)" or "|cffff0000disabled|r"))
-    print("  Auto-RIP: " .. ((addon.Config and addon.Config.Get("autoRIP")) and "|cff00ff00enabled|r (60% chance, 3-8s delay)" or "|cffff0000disabled|r"))
+    
+    local gzChance = addon.Config and addon.Config.GetGzChance() or 50
+    local ripChance = addon.Config and addon.Config.GetRipChance() or 60
+    
+    print("  Auto-GZ: " .. ((addon.Config and addon.Config.Get("autoGZ")) and string.format("|cff00ff00enabled|r (%d%% chance, 2-6s delay)", gzChance) or "|cffff0000disabled|r"))
+    print("  Auto-RIP: " .. ((addon.Config and addon.Config.Get("autoRIP")) and string.format("|cff00ff00enabled|r (%d%% chance, 3-8s delay)", ripChance) or "|cffff0000disabled|r"))
     print("  Frontier Integration: " .. (DEFAULT_CHAT_FRAME.AddMessage ~= DEFAULT_CHAT_FRAME.AddMessage and "|cff00ff00active|r" or "|cff00ff00active|r"))
+    
+    -- Show custom message counts
+    if addon.Config then
+        local customGz = addon.Config.GetGzMessages()
+        local customRip = addon.Config.GetRipMessages()
+        local totalCustomRip = #customRip.low + #customRip.mid + #customRip.high
+        
+        if #customGz > 0 or totalCustomRip > 0 then
+            print("  Custom messages:")
+            if #customGz > 0 then
+                print("    GZ: " .. #customGz .. " custom messages")
+            end
+            if totalCustomRip > 0 then
+                print(string.format("    RIP: %d custom messages (low:%d, mid:%d, high:%d)", 
+                    totalCustomRip, #customRip.low, #customRip.mid, #customRip.high))
+            end
+        end
+    end
     
     if addon.Config and addon.Config.Get("debugMode") then
         local stats = Social.GetStats()

@@ -249,17 +249,190 @@ commandHandlers.potiontype = function(args)
 end
 
 -- Social Commands
-commandHandlers.gz = function()
-    if addon.Config then
-        local enabled = addon.Config and addon.Config.Toggle("autoGZ")
+commandHandlers.gz = function(args)
+    if not addon.Config then return end
+    
+    local subcommand = args and args:match("^(%S+)")
+    if not subcommand then
+        -- Toggle auto-GZ (existing behavior)
+        local enabled = addon.Config.Toggle("autoGZ")
         print("|cff00ff00[GuildItemScanner]|r Auto-GZ mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+        print("|cff00ff00[GuildItemScanner]|r Current chance: " .. addon.Config.GetGzChance() .. "%")
+        return
+    end
+    
+    subcommand = string.lower(subcommand)
+    local remaining = args:match("^%S+%s*(.*)")
+    
+    if subcommand == "add" then
+        if not remaining or remaining == "" then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis gz add <message>")
+            return
+        end
+        
+        local success, msg = addon.Config.AddGzMessage(remaining)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Added custom GZ message: '" .. remaining .. "'")
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "remove" then
+        local index = tonumber(remaining)
+        if not index then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis gz remove <index>")
+            print("|cffff0000[GuildItemScanner]|r Use '/gis gz list' to see message numbers")
+            return
+        end
+        
+        local success, msg = addon.Config.RemoveGzMessage(index)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Removed GZ message #" .. index)
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "list" then
+        local messages = addon.Config.GetGzMessages()
+        print("|cff00ff00[GuildItemScanner]|r === Custom GZ Messages (" .. #messages .. " total) ===")
+        
+        if #messages == 0 then
+            print("|cff808080[GuildItemScanner]|r No custom messages. Using defaults only.")
+        else
+            for i, message in ipairs(messages) do
+                print("|cffffcc00" .. i .. ".|r " .. message .. " |cff00ff00[CUSTOM]|r")
+            end
+        end
+        
+        -- Show default messages info
+        print("|cff808080[GuildItemScanner]|r Default messages are always available")
+        
+    elseif subcommand == "clear" then
+        addon.Config.ClearGzMessages()
+        print("|cff00ff00[GuildItemScanner]|r Cleared all custom GZ messages")
+        
+    elseif subcommand == "chance" then
+        local chance = tonumber(remaining)
+        if not chance then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis gz chance <0-100>")
+            print("|cff00ff00[GuildItemScanner]|r Current chance: " .. addon.Config.GetGzChance() .. "%")
+            return
+        end
+        
+        local success, msg = addon.Config.SetGzChance(chance)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r GZ chance set to " .. chance .. "%")
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    else
+        print("|cffff0000[GuildItemScanner]|r Unknown gz command: " .. subcommand)
+        print("|cff00ff00[GuildItemScanner]|r Available: add, remove, list, clear, chance")
     end
 end
 
-commandHandlers.rip = function()
-    if addon.Config then
-        local enabled = addon.Config and addon.Config.Toggle("autoRIP")
+commandHandlers.rip = function(args)
+    if not addon.Config then return end
+    
+    local subcommand = args and args:match("^(%S+)")
+    if not subcommand then
+        -- Toggle auto-RIP (existing behavior)
+        local enabled = addon.Config.Toggle("autoRIP")
         print("|cff00ff00[GuildItemScanner]|r Auto-RIP mode " .. (enabled and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+        print("|cff00ff00[GuildItemScanner]|r Current chance: " .. addon.Config.GetRipChance() .. "%")
+        return
+    end
+    
+    subcommand = string.lower(subcommand)
+    local remaining = args:match("^%S+%s*(.*)")
+    
+    if subcommand == "add" then
+        local level, message = remaining:match("^(%S+)%s+(.*)")
+        if not level or not message or message == "" then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis rip add <level> <message>")
+            print("|cffff0000[GuildItemScanner]|r Levels: low (1-39), mid (40-59), high (60)")
+            return
+        end
+        
+        local success, msg = addon.Config.AddRipMessage(level, message)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Added custom RIP message for " .. level .. " level: '" .. message .. "'")
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "remove" then
+        local level, index = remaining:match("^(%S+)%s+(%S+)")
+        if not level or not index then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis rip remove <level> <index>")
+            print("|cffff0000[GuildItemScanner]|r Use '/gis rip list' to see message numbers")
+            return
+        end
+        
+        local success, msg = addon.Config.RemoveRipMessage(level, index)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r Removed RIP message #" .. index .. " from " .. level .. " level")
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "list" then
+        local allMessages = addon.Config.GetRipMessages()
+        print("|cff00ff00[GuildItemScanner]|r === Custom RIP Messages ===")
+        
+        local totalCustom = 0
+        for level, messages in pairs(allMessages) do
+            totalCustom = totalCustom + #messages
+            
+            print("|cffffcc00" .. string.upper(level) .. " Level (" .. level .. " deaths):|r " .. #messages .. " custom")
+            if #messages == 0 then
+                print("|cff808080  No custom messages|r")
+            else
+                for i, message in ipairs(messages) do
+                    print("|cffffcc00  " .. i .. ".|r " .. message .. " |cff00ff00[CUSTOM]|r")
+                end
+            end
+        end
+        
+        if totalCustom == 0 then
+            print("|cff808080[GuildItemScanner]|r No custom messages. Using defaults only.")
+        end
+        
+        -- Show level ranges
+        print("|cff808080[GuildItemScanner]|r Level ranges: LOW=1-39, MID=40-59, HIGH=60")
+        
+    elseif subcommand == "clear" then
+        local level = remaining and remaining ~= "" and remaining or nil
+        local success, msg = addon.Config.ClearRipMessages(level)
+        if success then
+            if level then
+                print("|cff00ff00[GuildItemScanner]|r Cleared all custom RIP messages for " .. level .. " level")
+            else
+                print("|cff00ff00[GuildItemScanner]|r Cleared all custom RIP messages for all levels")
+            end
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    elseif subcommand == "chance" then
+        local chance = tonumber(remaining)
+        if not chance then
+            print("|cffff0000[GuildItemScanner]|r Usage: /gis rip chance <0-100>")
+            print("|cff00ff00[GuildItemScanner]|r Current chance: " .. addon.Config.GetRipChance() .. "%")
+            return
+        end
+        
+        local success, msg = addon.Config.SetRipChance(chance)
+        if success then
+            print("|cff00ff00[GuildItemScanner]|r RIP chance set to " .. chance .. "%")
+        else
+            print("|cffff0000[GuildItemScanner]|r Error: " .. msg)
+        end
+        
+    else
+        print("|cffff0000[GuildItemScanner]|r Unknown rip command: " .. subcommand)
+        print("|cff00ff00[GuildItemScanner]|r Available: add, remove, list, clear, chance")
     end
 end
 

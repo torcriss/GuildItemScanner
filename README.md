@@ -126,7 +126,18 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | Command | Description |
 |---------|-------------|
 | `/gis gz` | Toggle auto-congratulations for achievements |
+| `/gis gz chance <0-100>` | Set GZ chance percentage (default: 50%) |
+| `/gis gz add <message>` | Add custom GZ message (max 50 chars) |
+| `/gis gz remove <index>` | Remove custom GZ message by number |
+| `/gis gz list` | List all custom GZ messages |
+| `/gis gz clear` | Clear all custom GZ messages |
 | `/gis rip` | Toggle auto-condolences for deaths |
+| `/gis rip chance <0-100>` | Set RIP chance percentage (default: 60%) |
+| `/gis rip add <level> <message>` | Add custom RIP message for level category |
+|  | • Level categories: `low` (1-39), `mid` (40-59), `high` (60) |
+| `/gis rip remove <level> <index>` | Remove custom RIP message by level and number |
+| `/gis rip list` | List all custom RIP messages by level |
+| `/gis rip clear [level]` | Clear custom RIP messages (all or specific level) |
 
 ### **History Commands**
 | Command | Description |
@@ -195,10 +206,35 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### **Social Automation**
 ```
 [Frontier] PlayerName earned achievement: [Level 60]
-→ GIS: (50% chance) Sends "GZ" after 2-6 second delay
+→ GIS: (configurable% chance) Sends random GZ message after 2-6 second delay
 
 [Frontier] PlayerName (Level 23) has died
-→ GIS: (60% chance) Sends "RIP" after 3-8 second delay
+→ GIS: (configurable% chance) Sends level-appropriate RIP message after 3-8 second delay
+```
+
+### **Custom Social Messages**
+```
+/gis gz add Awesome job!
+→ "Added custom GZ message: 'Awesome job!'"
+
+/gis gz chance 75
+→ "GZ chance set to 75%"
+
+/gis rip add high MEGA F LEGENDARY PLAYER
+→ "Added custom RIP message for high level: 'MEGA F LEGENDARY PLAYER'"
+
+/gis gz list
+→ "=== Custom GZ Messages (2 total) ==="
+→ "1. Awesome job! [CUSTOM]"
+→ "2. LETSGOOO [CUSTOM]"
+→ "Default messages are always available"
+
+/gis rip list
+→ "=== Custom RIP Messages ==="
+→ "LOW Level (low deaths): 0 custom"
+→ "MID Level (mid deaths): 0 custom"  
+→ "HIGH Level (high deaths): 1 custom"
+→ "  1. MEGA F LEGENDARY PLAYER [CUSTOM]"
 ```
 
 ### **Whisper Testing**
@@ -347,6 +383,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.2** - Custom Social Message System:
+  - Configurable chance percentages for GZ and RIP messages
+  - Custom message management with full CRUD operations
+  - Level-based RIP messages (low/mid/high categories)
+  - Message validation (50 char limit, duplicate prevention)
+  - Enhanced status display with custom message counts
 - **v2.1** - Enhanced testing and debugging features:
   - Whisper-based testing mode for private item testing
   - Manual item comparison command (`/gis compare`)
