@@ -18,6 +18,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **Auto-Condolences** - Level-based RIP messages for deaths (60% chance, 3-8s delay)  
 - **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
+**⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
+
 ### 🔧 **Smart Filtering**
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
@@ -249,6 +251,9 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 |  | • `misc` - Fun items/antidotes/holiday potions |
 
 ### **Social Features**
+
+**⚠️ Requires Frontier Addon**: These commands configure social automation features that only work with the **Frontier addon** installed. They respond to Frontier's achievement and death notifications for the **<Frontier>** guild.
+
 | Command | Description |
 |---------|-------------|
 | `/gis gz` | Toggle auto-congratulations for achievements |
