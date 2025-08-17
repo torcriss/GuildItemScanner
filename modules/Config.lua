@@ -648,12 +648,18 @@ function Config.AutoSaveProfile()
         Config.EnsureDefaultProfile()
     end
     
-    -- Auto-save to the current profile (preserving metadata)
-    local success, result = Config.SaveProfile(currentProfile)
-    if success then
+    -- Directly update the profile without calling SaveProfile (to avoid circular dependency)
+    local existingProfile = GuildItemScannerDB.profiles[currentProfile]
+    if existingProfile then
+        -- Update the profile's config section with current settings
+        existingProfile.config = {}
+        for k, v in pairs(config) do
+            existingProfile.config[k] = v
+        end
+        existingProfile.lastUpdated = time()
         return true, "Auto-saved to " .. currentProfile
     else
-        return false, "Auto-save failed: " .. result
+        return false, "Auto-save failed: Profile not found"
     end
 end
 
