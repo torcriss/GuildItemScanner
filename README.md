@@ -62,7 +62,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
 
 ### 🔧 **Smart Filtering**
-- **WTB Detection** - Automatically filters out WTB (Want To Buy) messages with visible feedback
+- **WTB Detection** - Automatically filters out WTB (Want To Buy) messages containing item links
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
 - **BoP Detection** - Excludes Bind on Pickup items
