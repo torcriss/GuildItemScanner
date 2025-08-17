@@ -22,9 +22,39 @@ local function Initialize()
     if addon.Commands then addon.Commands.Initialize() end
     
     local _, class = UnitClass("player")
-    local statusText = addon.Config and addon.Config.Get("enabled") and "|cff00ff00ENABLED|r" or "|cffff0000DISABLED|r"
-    print(string.format("|cff00ff00[GuildItemScanner v%s]|r Loaded for Level %d %s - Addon is %s. Type /gis help for commands.", 
-        addon.version, UnitLevel("player"), class, statusText))
+    local profileName = addon.Config and addon.Config.GetCurrentProfile()
+    local profileText
+    
+    if profileName then
+        profileText = "Profile: " .. profileName
+    else
+        -- Check if settings have been customized from defaults
+        local isCustomized = false
+        if addon.Config then
+            -- Check if any professions are set (default is empty)
+            local professions = addon.Config.GetProfessions()
+            if professions and #professions > 0 then
+                isCustomized = true
+            end
+            
+            -- Check if any custom materials exist
+            local customMaterials = addon.Config.Get("customMaterials")
+            if customMaterials and next(customMaterials) then
+                isCustomized = true
+            end
+            
+            -- Check if stat priorities are set
+            local statPriorities = addon.Config.Get("statPriorities")
+            if statPriorities and #statPriorities > 0 then
+                isCustomized = true
+            end
+        end
+        
+        profileText = isCustomized and "Profile: Custom Settings" or "Profile: Default Settings"
+    end
+    
+    print(string.format("|cff00ff00[GuildItemScanner v%s]|r Level %d %s - %s - Type /gis help for commands.", 
+        addon.version, UnitLevel("player"), class, profileText))
 end
 
 -- Event handling
