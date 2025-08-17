@@ -56,6 +56,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
 - **Auto-Condolences** - Level-based RIP messages for deaths (30% chance, 3-8s delay)  
+- **Clear Feedback** - Always shows when messages are skipped due to chance rolls
 - **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
