@@ -117,7 +117,6 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis debug` | Toggle debug logging |
 | `/gis sound` | Toggle sound alerts |
 | `/gis duration <seconds>` | Set alert duration (1-60 seconds, default: 15) |
-| `/gis autosave` | Toggle auto-save profile feature (enabled by default) |
 | `/gis reset` | Reset all settings to defaults |
 
 ### **Equipment Settings**
@@ -325,7 +324,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 
 **DEFAULT Profile**: A special permanent profile that always exists and contains factory default settings. It cannot be deleted but can be customized and saved. When you delete all other profiles, the DEFAULT profile is automatically loaded.
 
-**🔄 Auto-Save Feature**: By default, any setting change automatically updates the current profile (or DEFAULT if no profile is loaded). This ensures your configurations are always preserved. You can disable this with `/gis autosave` if you prefer manual control.
+**🔄 Auto-Save Feature**: Any setting change automatically updates the current profile (or DEFAULT if no profile is loaded). This ensures your configurations are always preserved without needing manual saves.
 
 | Command | Description |
 |---------|-------------|
@@ -391,7 +390,6 @@ The DEFAULT profile contains these factory settings:
 - Debug mode: `disabled`
 - Whisper mode: `disabled`
 - Greed button: `enabled`
-- Auto-save profile: `enabled`
 
 **Detection Settings:**
 - Recipe alerts: `enabled`
