@@ -518,6 +518,7 @@ Databases.MATERIALS = {
         ["Goretusk Snout"] = {level = 15, type = "meat", rarity = "common"},
         ["Boar Intestines"] = {level = 5, type = "meat", rarity = "common"},
         ["Boar Ribs"] = {level = 40, type = "meat", rarity = "common"},
+        ["Crag Boar Rib"] = {level = 35, type = "meat", rarity = "common"},
         ["Stringy Vulture Meat"] = {level = 1, type = "meat", rarity = "common"},
         ["Small Spider Leg"] = {level = 1, type = "meat", rarity = "common"},
         ["Bear Meat"] = {level = 35, type = "meat", rarity = "common"},
