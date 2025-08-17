@@ -10,7 +10,7 @@ local defaultConfig = {
     whisperMode = false,
     greedMode = true,
     recipeButton = true,
-    alertDuration = 10,
+    alertDuration = 15,
     debugMode = false,
     autoGZ = false,
     autoRIP = false,
@@ -24,7 +24,7 @@ local defaultConfig = {
     materialAlert = true,
     materialButton = true,
     materialRarityFilter = "common",
-    materialQuantityThreshold = 5,
+    materialQuantityThreshold = 1,
     
     -- Bag settings
     bagAlert = true,
@@ -43,8 +43,8 @@ local defaultConfig = {
     customMaterials = {},
     
     -- Custom social messages
-    gzChance = 50,  -- percentage chance to send GZ
-    ripChance = 60, -- percentage chance to send RIP
+    gzChance = 30,  -- percentage chance to send GZ
+    ripChance = 30, -- percentage chance to send RIP
     customGzMessages = {},  -- custom GZ messages
     customRipMessages = {    -- custom RIP messages by level
         low = {},   -- levels 1-39

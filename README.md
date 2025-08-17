@@ -14,8 +14,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **🧪 Potions & Consumables** - 120+ potions with type filtering
 
 ### 🤖 **Social Automation**
-- **Auto-Congratulations** - Random GZ messages for achievements (50% chance, 2-6s delay)
-- **Auto-Condolences** - Level-based RIP messages for deaths (60% chance, 3-8s delay)  
+- **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
+- **Auto-Condolences** - Level-based RIP messages for deaths (30% chance, 3-8s delay)  
 - **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
@@ -61,7 +61,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 /gis prof add Engineering     -- Add your professions
 /gis prof add Blacksmithing
 /gis rarity rare             -- Set material filter to rare+
-/gis quantity 10             -- Only alert for stacks of 10+
+/gis quantity 1              -- Alert for any quantity (default)
 /gis bagsize 12              -- Only alert for 12+ slot bags  
 /gis potiontype combat       -- Only combat potions
 /gis status                  -- Verify configuration
@@ -76,7 +76,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis status` | Show complete configuration |
 | `/gis debug` | Toggle debug logging |
 | `/gis sound` | Toggle sound alerts |
-| `/gis duration <seconds>` | Set alert duration (1-60 seconds) |
+| `/gis duration <seconds>` | Set alert duration (1-60 seconds, default: 15) |
 | `/gis reset` | Reset all settings to defaults |
 
 ### **Equipment Settings**
@@ -226,7 +226,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis material` | Toggle material alerts |
 | `/gis matbutton` | Toggle material request button |
 | `/gis rarity <level>` | Set rarity filter (common/rare/epic/legendary) |
-| `/gis quantity <num>` | Set minimum stack size (1-1000) |
+| `/gis quantity <num>` | Set minimum stack size (1-1000, default: 1) |
 | `/gis addmaterial [item] <prof>` | Add custom material for profession |
 | `/gis removematerial [item] <prof>` | Remove custom material |
 | `/gis listcustom [prof]` | List custom materials (all or by profession) |
@@ -257,13 +257,13 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | Command | Description |
 |---------|-------------|
 | `/gis gz` | Toggle auto-congratulations for achievements |
-| `/gis gz chance <0-100>` | Set GZ chance percentage (default: 50%) |
+| `/gis gz chance <0-100>` | Set GZ chance percentage (default: 30%) |
 | `/gis gz add <message>` | Add custom GZ message (max 50 chars) |
 | `/gis gz remove <index>` | Remove custom GZ message by number |
 | `/gis gz list` | List all custom GZ messages |
 | `/gis gz clear` | Clear all custom GZ messages |
 | `/gis rip` | Toggle auto-condolences for deaths |
-| `/gis rip chance <0-100>` | Set RIP chance percentage (default: 60%) |
+| `/gis rip chance <0-100>` | Set RIP chance percentage (default: 30%) |
 | `/gis rip add <level> <message>` | Add custom RIP message for level category |
 |  | • Level categories: `low` (1-39), `mid` (40-59), `high` (60) |
 | `/gis rip remove <level> <index>` | Remove custom RIP message by level and number |
@@ -555,7 +555,7 @@ Send all requests as whispers instead of guild chat:
 ### **No Alerts Appearing**
 1. Check if addon is enabled: `/gis status`
 2. Verify professions are set: `/gis prof`
-3. Check filter settings: `/gis rarity common` and `/gis quantity 1`
+3. Check filter settings: `/gis rarity common` and `/gis quantity 1` (defaults)
 4. Test with: `/gis testmat`
 
 ### **Button Text Cut Off**
