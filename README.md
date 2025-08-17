@@ -288,7 +288,8 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis profile list` | List all saved profiles with creation info |
 | `/gis profile delete <name>` | Delete a specific profile |
 | `/gis profile clear` | **Delete ALL profiles and reset to defaults** |
-| `/gis profile default [name]` | Set a profile to auto-load on login (or clear) |
+| `/gis profile default <name>` | Set a profile to auto-load on login |
+| `/gis profile default` | Clear the default profile (no auto-load) |
 
 **Example Usage**:
 ```lua
@@ -301,8 +302,11 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 /gis bagsize 8
 /gis profile save "Leveling" "Basic settings for 1-60"
 
--- Set default profile
+-- Set default profile to auto-load on login
 /gis profile default "Raiding"
+
+-- Clear default profile (no auto-load)
+/gis profile default
 
 -- Switch between profiles
 /gis profile load "Leveling"
