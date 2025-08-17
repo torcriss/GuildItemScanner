@@ -682,12 +682,22 @@ function Config.ExportProfile(name)
         exportedAt = time()
     }
     
-    -- Serialize to string (basic serialization)
-    local function serialize(t, depth)
+    -- Serialize to string with circular reference detection
+    local function serialize(t, depth, seen)
         depth = depth or 0
-        if depth > 10 then return "nil" end -- prevent infinite recursion
+        seen = seen or {}
+        
+        if depth > 20 then 
+            return "nil" -- prevent excessive recursion
+        end
         
         if type(t) == "table" then
+            -- Check for circular references
+            if seen[t] then
+                return "nil" -- circular reference detected
+            end
+            seen[t] = true
+            
             local result = "{"
             local first = true
             for k, v in pairs(t) do
@@ -699,17 +709,29 @@ function Config.ExportProfile(name)
                 else
                     result = result .. "[" .. tostring(k) .. "]="
                 end
-                result = result .. serialize(v, depth + 1)
+                result = result .. serialize(v, depth + 1, seen)
             end
+            
+            seen[t] = nil -- cleanup for next branches
             return result .. "}"
         elseif type(t) == "string" then
             return string.format("%q", t)
-        else
+        elseif type(t) == "number" or type(t) == "boolean" then
             return tostring(t)
+        elseif t == nil then
+            return "nil"
+        else
+            return "nil" -- unknown type
         end
     end
     
     local serialized = serialize(exportData)
+    
+    -- Check if serialization failed
+    if not serialized or serialized == "nil" or string.find(serialized, "nil") then
+        return false, "Profile export failed - data too complex or corrupted"
+    end
+    
     local encoded = "GIS_PROFILE:" .. serialized
     
     return true, encoded
@@ -726,18 +748,24 @@ function Config.ImportProfile(importString)
     
     local dataString = string.sub(importString, 13) -- Remove "GIS_PROFILE:" prefix
     
-    -- Deserialize (basic deserialization)
+    -- Deserialize with better error handling
     local function deserialize(str)
-        local func = loadstring("return " .. str)
-        if func then
-            return func()
+        local func, err = loadstring("return " .. str)
+        if not func then
+            return nil, "Syntax error: " .. (err or "unknown")
         end
-        return nil
+        
+        local success, result = pcall(func)
+        if not success then
+            return nil, "Execution error: " .. (result or "unknown")
+        end
+        
+        return result
     end
     
-    local success, exportData = pcall(deserialize, dataString)
-    if not success or not exportData then
-        return false, "Failed to parse import string"
+    local exportData, deserializeError = deserialize(dataString)
+    if not exportData then
+        return false, "Failed to parse import string: " .. (deserializeError or "unknown error")
     end
     
     if not exportData.name or not exportData.profile then
