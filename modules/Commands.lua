@@ -740,13 +740,16 @@ commandHandlers.smoketest = function()
                             local testItem = "|cff1eff00|Hitem:2030::::::::15:::::::|h[Gnarled Staff]|h|r"
                             
                             print("      |cffffff00Sending test whisper to yourself...|r")
+                            print("      |cff808080Note: Whispers to yourself may not appear in chat (this is normal)|r")
                             SendChatMessage("[SMOKE TEST] " .. testItem, "WHISPER", nil, playerName)
                             
-                            -- Restore original whisper test mode state
-                            if not wasWhisperTestEnabled then
-                                addon.Config.Set("whisperTestMode", false)
-                                print("      |cffffff00Whisper test mode restored to disabled|r")
-                            end
+                            -- Delay before restoring whisper test mode to ensure whisper is processed
+                            C_Timer.After(0.5, function()
+                                if not wasWhisperTestEnabled then
+                                    addon.Config.Set("whisperTestMode", false)
+                                    print("      |cffffff00Whisper test mode restored to disabled|r")
+                                end
+                            end)
                             
                             passedCount = passedCount + 1
                             print("      |cff00ff00[OK] Test whisper sent - check for alert popup|r")

@@ -340,8 +340,9 @@ Safe mode: No guild spam, whispers to self only
 [6/7] Testing Whisper Mode (Safe)... 
       Temporarily enabling whisper test mode...
       Sending test whisper to yourself...
-      Whisper test mode restored to disabled
+      Note: Whispers to yourself may not appear in chat (this is normal)
       [OK] Test whisper sent - check for alert popup
+      Whisper test mode restored to disabled
 [7/7] Testing Social Features (Simulation)... [OK] Social simulation completed safely
 
 === SMOKE TEST COMPLETE ===
@@ -448,6 +449,7 @@ No guild messages sent - all tests safe
 → GIS Alert: Shows upgrade analysis
 /gis whispertest                    -- Disable when done
 ```
+**Note**: Whispers to yourself may not appear in your chat window - this is normal WoW behavior. The detection will still work and show alerts.
 
 ### **Manual Item Comparison**
 ```
