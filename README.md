@@ -562,6 +562,8 @@ No guild messages sent - all tests safe
 
 ## 🏭 Supported Professions
 
+**Only crafting professions with material databases are supported:**
+
 - **Alchemy** - All herbs, vials, reagents
 - **Blacksmithing** - Ores, bars, stones, gems
 - **Engineering** - Metals, cloth, parts, explosives
@@ -570,6 +572,8 @@ No guild messages sent - all tests safe
 - **Leatherworking** - Leather, hides, scales
 - **Cooking** - Meats, fish, spices, ingredients
 - **First Aid** - Cloth, venom sacs
+
+**Note**: Gathering professions (Mining, Herbalism, Skinning) are NOT supported as separate professions. Their materials are already tracked through the crafting professions that use them (e.g., herbs through Alchemy, ores through Blacksmithing/Engineering).
 
 ## 🧪 Potion Categories
 

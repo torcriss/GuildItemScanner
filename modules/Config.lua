@@ -3,6 +3,18 @@ local addonName, addon = ...
 addon.Config = addon.Config or {}
 local Config = addon.Config
 
+-- Valid professions (must match the ones defined in Databases.lua)
+local VALID_PROFESSIONS = {
+    "Alchemy",
+    "Blacksmithing", 
+    "Cooking",
+    "Enchanting",
+    "Engineering",
+    "First Aid",
+    "Leatherworking",
+    "Tailoring"
+}
+
 -- Default configuration
 local defaultConfig = {
     enabled = true,
@@ -147,6 +159,20 @@ end
 
 function Config.AddProfession(profession)
     profession = profession:gsub("^%l", string.upper)
+    
+    -- Validate that profession is supported
+    local isValidProfession = false
+    for _, validProf in ipairs(VALID_PROFESSIONS) do
+        if string.lower(validProf) == string.lower(profession) then
+            isValidProfession = true
+            profession = validProf  -- Use the canonical capitalization
+            break
+        end
+    end
+    
+    if not isValidProfession then
+        return false, "Invalid profession. Supported: " .. table.concat(VALID_PROFESSIONS, ", ")
+    end
     
     for _, prof in ipairs(config.myProfessions) do
         if string.lower(prof) == string.lower(profession) then
