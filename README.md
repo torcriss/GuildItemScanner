@@ -337,7 +337,11 @@ Safe mode: No guild spam, whispers to self only
 [3/7] Testing Bag Detection... [OK] Bag test completed
 [4/7] Testing Recipe Detection... [OK] Recipe test completed  
 [5/7] Testing Potion Detection... [OK] Potion test completed
-[6/7] Testing Whisper Mode (Safe)... [OK] Test whisper sent - check for alert popup
+[6/7] Testing Whisper Mode (Safe)... 
+      Temporarily enabling whisper test mode...
+      Sending test whisper to yourself...
+      Whisper test mode restored to disabled
+      [OK] Test whisper sent - check for alert popup
 [7/7] Testing Social Features (Simulation)... [OK] Social simulation completed safely
 
 === SMOKE TEST COMPLETE ===

@@ -728,12 +728,26 @@ commandHandlers.smoketest = function()
                         testCount = testCount + 1
                         print("|cff00ff00[GuildItemScanner]|r |cffffff00[" .. testCount .. "/7]|r Testing Whisper Mode (Safe)...")
                         
-                        if addon.Detection then
+                        if addon.Detection and addon.Config then
+                            -- Enable whisper test mode temporarily
+                            local wasWhisperTestEnabled = addon.Config.Get("whisperTestMode")
+                            if not wasWhisperTestEnabled then
+                                addon.Config.Set("whisperTestMode", true)
+                                print("      |cffffff00Temporarily enabling whisper test mode...|r")
+                            end
+                            
                             local playerName = UnitName("player")
                             local testItem = "|cff1eff00|Hitem:2030::::::::15:::::::|h[Gnarled Staff]|h|r"
                             
                             print("      |cffffff00Sending test whisper to yourself...|r")
                             SendChatMessage("[SMOKE TEST] " .. testItem, "WHISPER", nil, playerName)
+                            
+                            -- Restore original whisper test mode state
+                            if not wasWhisperTestEnabled then
+                                addon.Config.Set("whisperTestMode", false)
+                                print("      |cffffff00Whisper test mode restored to disabled|r")
+                            end
+                            
                             passedCount = passedCount + 1
                             print("      |cff00ff00[OK] Test whisper sent - check for alert popup|r")
                         else
