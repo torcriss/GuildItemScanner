@@ -573,7 +573,7 @@ No guild messages sent - all tests safe
 - **Cooking** - Meats, fish, spices, ingredients
 - **First Aid** - Cloth, venom sacs
 
-**Note**: Gathering professions (Mining, Herbalism, Skinning) are NOT supported as separate professions. Their materials are already tracked through the crafting professions that use them (e.g., herbs through Alchemy, ores through Blacksmithing/Engineering).
+**Note**: Gathering professions (Mining, Herbalism, Skinning) and Fishing are NOT supported as separate professions. Their materials are already tracked through the crafting professions that use them (e.g., herbs through Alchemy, ores through Blacksmithing/Engineering, fish through Cooking/Alchemy).
 
 ## 🧪 Potion Categories
 
