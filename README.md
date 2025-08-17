@@ -276,6 +276,47 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis history [filter]` | Show alert history with optional filtering |
 | `/gis clearhistory` | Clear all alert history |
 
+### **⚙️ Profile Management**
+
+**Overview**: Save and load different configurations for various activities like raiding, leveling, or farming. Profiles store all your settings including professions, materials, stat priorities, and social configurations.
+
+| Command | Description |
+|---------|-------------|
+| `/gis profile` | Show current profile status and default profile |
+| `/gis profile save <name> [description]` | Save current settings as a named profile |
+| `/gis profile load <name>` | Load a saved profile |
+| `/gis profile list` | List all saved profiles with creation info |
+| `/gis profile delete <name>` | Delete a specific profile |
+| `/gis profile clear` | **Delete ALL profiles and reset to defaults** |
+| `/gis profile default [name]` | Set a profile to auto-load on login (or clear) |
+
+**Example Usage**:
+```lua
+-- Save your current raiding setup
+/gis profile save "Raiding" "MC/BWL optimized settings"
+
+-- Create a leveling profile
+/gis prof clear
+/gis rarity common
+/gis bagsize 8
+/gis profile save "Leveling" "Basic settings for 1-60"
+
+-- Set default profile
+/gis profile default "Raiding"
+
+-- Switch between profiles
+/gis profile load "Leveling"
+/gis profile load "Raiding"
+```
+
+**What's Saved in Profiles**:
+- All addon settings (enabled/disabled features)
+- Profession list and material settings
+- Bag and potion filters
+- Custom stat priorities and comparison mode
+- Social automation settings and custom messages
+- Custom materials for professions
+
 ### **🎣 Fishing Items**
 
 **Why Fishing is NOT a Profession**: Fish are already tracked through existing professions - Cooking (most fish) and Alchemy (special fish like Oily Blackmouth, Firefin Snapper, Stonescale Eel). Adding "Fishing" as a separate profession would create redundancy.

@@ -1301,7 +1301,7 @@ commandHandlers.profile = function(args)
     elseif subCmd == "clear" then
         local success, result = addon.Config and addon.Config.ResetToDefaults()
         if success then
-            print("|cff00ff00[GuildItemScanner]|r Settings reset to defaults (no active profile)")
+            print("|cff00ff00[GuildItemScanner]|r " .. result)
         else
             print("|cffff0000[GuildItemScanner]|r " .. result)
         end
@@ -1322,47 +1322,6 @@ commandHandlers.profile = function(args)
             end
         end
         
-    elseif subCmd == "copy" then
-        local source, target = rest:match("^(%S+)%s+(%S+)")
-        if not source or not target then
-            print("|cff00ff00[GuildItemScanner]|r Usage: /gis profile copy <source> <target>")
-            return
-        end
-        
-        local success, result = addon.Config and addon.Config.CopyProfile(source, target)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r Profile copied: " .. source .. " -> " .. target)
-        else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
-        end
-        
-    elseif subCmd == "export" then
-        if rest == "" then
-            print("|cff00ff00[GuildItemScanner]|r Usage: /gis profile export <name>")
-            return
-        end
-        
-        local success, result = addon.Config and addon.Config.ExportProfile(rest)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r Profile export string (copy this):")
-            print(result)
-        else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
-        end
-        
-    elseif subCmd == "import" then
-        if rest == "" then
-            print("|cff00ff00[GuildItemScanner]|r Usage: /gis profile import <export_string>")
-            return
-        end
-        
-        local success, result = addon.Config and addon.Config.ImportProfile(rest)
-        if success then
-            print("|cff00ff00[GuildItemScanner]|r " .. result)
-        else
-            print("|cffff0000[GuildItemScanner]|r " .. result)
-        end
-        
     else
         print("|cff00ff00[GuildItemScanner]|r Profile commands:")
         print("  /gis profile - Show current profile status")
@@ -1370,11 +1329,8 @@ commandHandlers.profile = function(args)
         print("  /gis profile load <name> - Load a profile")
         print("  /gis profile list - List all profiles")
         print("  /gis profile delete <name> - Delete a profile")
-        print("  /gis profile clear - Reset to default settings")
+        print("  /gis profile clear - Delete ALL profiles and reset to defaults")
         print("  /gis profile default [name] - Set/clear default profile")
-        print("  /gis profile copy <source> <target> - Copy profile to new name")
-        print("  /gis profile export <name> - Export profile as string")
-        print("  /gis profile import <string> - Import profile from string")
     end
 end
 
@@ -1394,11 +1350,8 @@ commandHandlers.help = function()
     print(" /gis profile load <name> - Load a profile")
     print(" /gis profile list - List all profiles")
     print(" /gis profile delete <name> - Delete a profile")
-    print(" /gis profile clear - Reset to default settings")
+    print(" /gis profile clear - Delete ALL profiles and reset to defaults")
     print(" /gis profile default [name] - Set/clear default profile")
-    print(" /gis profile copy <source> <target> - Copy profile")
-    print(" /gis profile export <name> - Export profile as string")
-    print(" /gis profile import <string> - Import profile from string")
     print(" |cffFFD700Equipment Commands:|r")
     print(" /gis test - Test equipment alert")
     print(" /gis whisper - Toggle whisper mode for requests")
