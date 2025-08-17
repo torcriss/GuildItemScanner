@@ -116,7 +116,11 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 |---------|-------------|
 | `/gis potion` | Toggle potion alerts |
 | `/gis potionbutton` | Toggle potion request button |
-| `/gis potiontype <type>` | Filter by type (all/combat/profession/misc) |
+| `/gis potiontype <type>` | Filter potion alerts by category: |
+|  | • `all` - All potions (default) |
+|  | • `combat` - Healing/mana/buffs/resistance/flasks |
+|  | • `profession` - Utility (invisibility/water walking/detection) |
+|  | • `misc` - Fun items/antidotes/holiday potions |
 
 ### **Social Features**
 | Command | Description |
