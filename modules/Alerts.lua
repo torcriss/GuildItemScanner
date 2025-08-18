@@ -83,7 +83,7 @@ local function createAlertFrame()
     -- Button handlers
     greedButton:SetScript("OnClick", function()
         if currentAlert then
-            local msg = "I'll take " .. currentAlert.itemLink .. " if no one needs"
+            local msg = "I would take " .. currentAlert.itemLink .. " if no one needs"
             local whisperMode = addon.Config and addon.Config.Get("whisperMode")
             local channel = whisperMode and "WHISPER" or "GUILD"
             local target = whisperMode and currentAlert.playerName or nil
@@ -94,7 +94,7 @@ local function createAlertFrame()
     
     requestButton:SetScript("OnClick", function()
         if currentAlert then
-            local msg = "Can I have that " .. currentAlert.itemLink .. "? Thanks!"
+            local msg = "I could use " .. currentAlert.itemLink .. " if available"
             local whisperMode = addon.Config and addon.Config.Get("whisperMode")
             local channel = whisperMode and "WHISPER" or "GUILD"
             local target = whisperMode and currentAlert.playerName or nil
