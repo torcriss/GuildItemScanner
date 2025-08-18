@@ -104,7 +104,17 @@ local function isWTBMessage(message)
         " iso ",           -- "... ISO [item]"
         "anyone have",     -- "anyone have [item]"
         "anyone got",      -- "anyone got [item]"
-        "does anyone have" -- "does anyone have [item]"
+        "does anyone have", -- "does anyone have [item]"
+        "send all ",       -- "Send all [item]"
+        "send me ",        -- "Send me [item]"
+        "mail me ",        -- "Mail me [item]"
+        "mail all ",       -- "Mail all [item]"
+        "send your ",      -- "Send your [item]"
+        "mail your ",      -- "Mail your [item]"
+        " cod ",           -- "... COD [item]"
+        "^cod ",           -- "COD [item]"
+        " c%.o%.d ",       -- "... C.O.D [item]" (escaped periods)
+        "^c%.o%.d "        -- "C.O.D [item]" (escaped periods)
     }
     
     for _, pattern in ipairs(wtbPatterns) do
