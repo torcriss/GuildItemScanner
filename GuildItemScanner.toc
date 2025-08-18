@@ -2,7 +2,7 @@
 ## Title: Guild Item Scanner
 ## Notes: Enhanced guild chat scanner for equipment upgrades, recipes, materials, bags, and potions with comprehensive features
 ## Author: Enhanced Version
-## Version: 2.3.4
+## Version: 2.3.5
 ## SavedVariables: GuildItemScannerDB
 
 modules\Config.lua
