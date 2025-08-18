@@ -138,7 +138,11 @@ function Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
     local detailText = string.format("From: %s", playerName)
     alertText:SetText(string.format("Upgrade from %s:\n%s\n|cff00ff00%s|r", playerName, itemLink, detailText))
     
-    greedButton:SetShown(addon.Config and addon.Config.Get("greedMode"))
+    local showGreedButton = true -- Default to showing button
+    if addon.Config and addon.Config.Get then
+        showGreedButton = addon.Config.Get("greedMode") ~= false -- Show unless explicitly disabled
+    end
+    greedButton:SetShown(showGreedButton)
     requestButton:Hide()
     
     showAlertWithTimer()
@@ -165,7 +169,11 @@ function Alerts.ShowRecipeAlert(itemLink, playerName, profession)
     alertText:SetText(string.format("%s recipe from %s:\n%s\n|cff00ff00%s|r", profession, playerName, itemLink, detailText))
     
     greedButton:Hide()
-    requestButton:SetShown(addon.Config and addon.Config.Get("recipeButton"))
+    local showButton = true -- Default to showing button
+    if addon.Config and addon.Config.Get then
+        showButton = addon.Config.Get("recipeButton") ~= false -- Show unless explicitly disabled
+    end
+    requestButton:SetShown(showButton)
     requestButton:SetText("Request Recipe")
     
     showAlertWithTimer()
@@ -211,7 +219,11 @@ function Alerts.ShowMaterialAlert(itemLink, playerName, professions, material, q
     alertText:SetText(string.format("%s Material from %s:\n%s%s|r\n|cff00ff00%s|r", professionText, playerName, color, itemLink, detailText))
     
     greedButton:Hide()
-    requestButton:SetShown(addon.Config and addon.Config.Get("materialButton"))
+    local showButton = true -- Default to showing button
+    if addon.Config and addon.Config.Get then
+        showButton = addon.Config.Get("materialButton") ~= false -- Show unless explicitly disabled
+    end
+    requestButton:SetShown(showButton)
     requestButton:SetText("Request Material")
     
     showAlertWithTimer()
@@ -246,7 +258,11 @@ function Alerts.ShowBagAlert(itemLink, playerName, bagInfo)
     alertText:SetText(string.format("Bag from %s:\n%s%s|r\n|cff00ff00%s|r", playerName, color, itemLink, detailText))
     
     greedButton:Hide()
-    requestButton:SetShown(addon.Config and addon.Config.Get("bagButton"))
+    local showButton = true -- Default to showing button
+    if addon.Config and addon.Config.Get then
+        showButton = addon.Config.Get("bagButton") ~= false -- Show unless explicitly disabled
+    end
+    requestButton:SetShown(showButton)
     requestButton:SetText("Request Bag")
     
     showAlertWithTimer()
@@ -286,7 +302,11 @@ function Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
     alertText:SetText(string.format("Potion from %s:\n%s%s|r\n|cff00ff00%s|r", playerName, color, itemLink, detailText))
     
     greedButton:Hide()
-    requestButton:SetShown(addon.Config and addon.Config.Get("potionButton"))
+    local showButton = true -- Default to showing button
+    if addon.Config and addon.Config.Get then
+        showButton = addon.Config.Get("potionButton") ~= false -- Show unless explicitly disabled
+    end
+    requestButton:SetShown(showButton)
     requestButton:SetText("Request Potion")
     
     showAlertWithTimer()
