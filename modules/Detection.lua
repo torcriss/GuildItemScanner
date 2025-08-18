@@ -43,7 +43,7 @@ local function retryUncachedItems()
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item now cached, processing: %s", itemName))
         end
-        processItemLink(retryEntry.itemLink, retryEntry.playerName, true)
+        processItemLink(retryEntry.itemLink, retryEntry.playerName, true, retryEntry, retryEntry.isWTBRequest)
     else
         -- Still not cached, re-queue if under max retries
         if retryEntry.retryCount < MAX_RETRIES then
@@ -592,7 +592,7 @@ local function isPotionUseful(itemLink)
 end
 
 -- Main processing function
-processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
+processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBRequest)
     if not itemLink or not playerName then
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r Invalid itemLink or playerName: %s, %s", tostring(itemLink), tostring(playerName)))
@@ -622,7 +622,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     
     if not itemName then
         if not skipRetry then
-            table.insert(retryQueue, { itemLink = itemLink, playerName = playerName, retryCount = 0 })
+            table.insert(retryQueue, { itemLink = itemLink, playerName = playerName, retryCount = 0, isWTBRequest = isWTBRequest })
             addToUncachedHistory(itemLink, playerName, "Waiting for item info cache...")
             C_Timer.After(RETRY_DELAY, retryUncachedItems)
             if addon.Config and addon.Config.Get("debugMode") then
@@ -665,6 +665,10 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     -- Check for recipe first (highest priority)
     local isRecipe, profession = isRecipeForMyProfession(itemLink)
     if isRecipe and addon.Alerts then
+        if isWTBRequest then
+            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profession .. " recipe from " .. playerName)
+            return
+        end
         if addon.Config and addon.Config.Get("debugMode") then
             print("|cff00ff00[GuildItemScanner Debug]|r Showing recipe alert for: " .. itemName)
         end
@@ -675,6 +679,11 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     -- Check for materials
     local isMaterial, matProfessions, material, quantity, rarity = isMaterialForMyProfession(itemLink)
     if isMaterial and addon.Alerts then
+        if isWTBRequest then
+            local profString = type(matProfessions) == "table" and table.concat(matProfessions, "/") or tostring(matProfessions)
+            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profString .. " material from " .. playerName)
+            return
+        end
         if addon.Config and addon.Config.Get("debugMode") then
             local profString = type(matProfessions) == "table" and table.concat(matProfessions, "/") or tostring(matProfessions)
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s (professions: %s)", itemName, profString))
@@ -688,6 +697,10 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     -- Check for bags
     local isBag, bagInfo = isBagNeeded(itemLink)
     if isBag and addon.Alerts then
+        if isWTBRequest then
+            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for bag from " .. playerName)
+            return
+        end
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBAG MATCH|r - Showing bag alert for: %s", itemName))
         end
@@ -700,6 +713,10 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     -- Check for potions
     local isPotion, potionInfo = isPotionUseful(itemLink)
     if isPotion and addon.Alerts then
+        if isWTBRequest then
+            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for potion from " .. playerName)
+            return
+        end
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eePOTION MATCH|r - Showing potion alert for: %s", itemName))
         end
@@ -714,6 +731,10 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry)
     if itemEquipLoc and itemEquipLoc ~= "" and itemEquipLoc ~= "INVTYPE_NON_EQUIP_IGNORE" then
         local isUpgrade, improvement = isItemUpgrade(itemLink)
         if isUpgrade and addon.Alerts then
+            if isWTBRequest then
+                print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for equipment from " .. playerName)
+                return
+            end
             if addon.Config and addon.Config.Get("debugMode") then
                 print("|cff00ff00[GuildItemScanner Debug]|r Showing equipment alert for: " .. itemName)
             end
@@ -742,52 +763,30 @@ function Detection.ProcessGuildMessage(message, sender, ...)
         return 
     end
     
-    -- Check if WTB filtering is enabled and if this is a WTB message
-    if addon.Config.Get("ignoreWTB") and isWTBMessage(message) then
-        -- Extract item names from the message to show what was filtered
-        local filteredItems = extractItemLinks(message)
-        if #filteredItems > 0 then
-            local itemNames = {}
-            for _, itemLink in ipairs(filteredItems) do
-                local itemName = string.match(itemLink, "|h%[(.-)%]|h")
-                if itemName then
-                    table.insert(itemNames, itemName)
-                end
-            end
-            
-            if #itemNames > 0 then
-                local itemsText = table.concat(itemNames, ", ")
-                print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. itemsText .. " from " .. (sender or "unknown"))
-            else
-                print("|cff00ff00[GuildItemScanner]|r Filtered WTB message from " .. (sender or "unknown"))
-            end
-        else
-            print("|cff00ff00[GuildItemScanner]|r Filtered WTB message from " .. (sender or "unknown"))
-        end
-        
-        if addon.Config.Get("debugMode") then
-            print("|cff00ff00[GuildItemScanner Debug]|r Full WTB message: " .. (message or "nil"))
-        end
-        return
-    end
-    
     local itemLinks = extractItemLinks(message)
     if #itemLinks == 0 then
         -- No item links found, nothing to process
         return
     end
     
+    -- Check if this is a WTB message for selective filtering
+    local isWTBRequest = addon.Config.Get("ignoreWTB") and isWTBMessage(message)
+    
     if addon.Config.Get("debugMode") then
-        print("|cff00ff00[GuildItemScanner Debug]|r Processing message from " .. sender)
+        print("|cff00ff00[GuildItemScanner Debug]|r Processing message from " .. sender .. (isWTBRequest and " (WTB request)" or ""))
     end
     
     -- Process each item link - check recipes first, then equipment (like working version)
     for _, itemLink in ipairs(itemLinks) do
         local isRecipe, profession = isRecipeForMyProfession(itemLink)
         if isRecipe and addon.Alerts then
-            addon.Alerts.ShowRecipeAlert(itemLink, sender, profession)
+            if isWTBRequest then
+                print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profession .. " recipe from " .. sender)
+            else
+                addon.Alerts.ShowRecipeAlert(itemLink, sender, profession)
+            end
         else
-            processItemLink(itemLink, sender)
+            processItemLink(itemLink, sender, false, nil, isWTBRequest)
         end
     end
 end
