@@ -738,4 +738,4 @@ This addon is free to use and modify for personal use. Please credit the origina
 
 ---
 
-**GuildItemScanner** - Making guild chat useful again! 🎯
+**GuildItemScanner**
