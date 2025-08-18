@@ -6,6 +6,7 @@ WARP.md
 # IDE/Editor files
 .vscode/
 .idea/
+GIS.code-workspace
 *.swp
 *.swo
 *~
