@@ -98,6 +98,8 @@ local function isWTBMessage(message)
         "looking for ",    -- "looking for [item]" (added space to be more specific)
         "^need ",          -- "need [item]" at start only
         " need an? ",      -- "need a/an [item]" (more specific)
+        " need some ",     -- "need some [item]"
+        "i need ",         -- "i need [item]" or "i need some [item]"
         "buying ",         -- "buying [item]"
         "want to buy",     -- "want to buy [item]"
         "^iso ",           -- "ISO [item]" (In Search Of)
@@ -105,12 +107,11 @@ local function isWTBMessage(message)
         "anyone have",     -- "anyone have [item]"
         "anyone got",      -- "anyone got [item]"
         "does anyone have", -- "does anyone have [item]"
-        "send all ",       -- "Send all [item]"
-        "send me ",        -- "Send me [item]"
-        "mail me ",        -- "Mail me [item]"
-        "mail all ",       -- "Mail all [item]"
+        "^send ",          -- "send [item]" (covers "send X to me", "send all X", etc.)
+        "^mail ",          -- "mail [item]" (covers "mail X to me", "mail all X", etc.)
         "send your ",      -- "Send your [item]"
         "mail your ",      -- "Mail your [item]"
+        " to me",          -- "[item] to me" (catches send/mail X to me)
         " cod ",           -- "... COD [item]"
         "^cod ",           -- "COD [item]"
         " c%.o%.d ",       -- "... C.O.D [item]" (escaped periods)
