@@ -50,19 +50,21 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
-- **👜 Storage Bags** - 50+ bags with customizable size filtering
+- **👜 Storage Bags** - 55+ bags with customizable size filtering (including colored leather bags)
 - **🧪 Potions & Consumables** - 90+ potions with type filtering
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
 - **Auto-Condolences** - Level-based RIP messages for deaths (30% chance, 3-8s delay)  
+- **Social History Tracking** - Records last 50 GZ/RIP events with timestamps and details
 - **Clear Feedback** - Always shows when messages are skipped due to chance rolls
 - **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
 
 ### 🔧 **Smart Filtering**
-- **WTB Detection** - Automatically filters out WTB (Want To Buy) messages containing item links
+- **Intelligent WTB Detection** - Only filters requests for items you're actually tracking (based on professions/settings)
+- **Smart Request Recognition** - Detects "send me", "mail all", "i need some", COD patterns, etc.
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
 - **BoP Detection** - Excludes Bind on Pickup items
@@ -316,6 +318,10 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 |---------|-------------|
 | `/gis history [filter]` | Show alert history with optional filtering |
 | `/gis clearhistory` | Clear all alert history |
+| `/gis socialhistory [filter]` | Show social automation history (gz/rip/all) |
+| `/gis clearsocialhistory` | Clear social automation history |
+
+**Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events sent by the auto-social features, including timestamps, player names, messages sent, and relevant details like achievement names or player levels.
 
 ### **⚙️ Profile Management**
 

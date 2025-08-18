@@ -472,7 +472,23 @@ commandHandlers.clearhistory = function()
     end
 end
 
+-- Social History Commands
+commandHandlers.socialhistory = function(args)
+    if addon.Social then
+        addon.Social.ShowSocialHistory(args)
+    else
+        print("|cff00ff00[GuildItemScanner]|r Social module not available")
+    end
+end
 
+commandHandlers.clearsocialhistory = function()
+    if addon.Social then
+        addon.Social.ClearSocialHistory()
+        print("|cff00ff00[GuildItemScanner]|r Social history cleared")
+    else
+        print("|cff00ff00[GuildItemScanner]|r Social module not available")
+    end
+end
 
 commandHandlers.compare = function(args)
     if args == "" then
@@ -1344,6 +1360,8 @@ commandHandlers.help = function()
     print(" |cffFFD700History Commands:|r")
     print(" /gis history [filter] - Show alert history")
     print(" /gis clearhistory - Clear alert history")
+    print(" /gis socialhistory [filter] - Show social history (gz/rip/all)")
+    print(" /gis clearsocialhistory - Clear social history")
     print(" /gis compare [item] - Compare any item with your equipped gear")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test - Test equipment alert")

@@ -5,6 +5,10 @@ local Social = addon.Social
 
 -- Module references - use addon namespace to avoid loading order issues
 
+-- Social History tracking
+local MAX_SOCIAL_HISTORY = 50
+local socialHistory = {}
+
 -- Hook into chat frame for Frontier addon integration
 local function HookChatFrame()
     local originalAddMessage = DEFAULT_CHAT_FRAME.AddMessage
@@ -157,6 +161,9 @@ function Social.SendAutoGZ(playerName)
             local gzMessage = gzMessages[math.random(#gzMessages)]
             SendChatMessage(gzMessage, "GUILD")
             
+            -- Track in social history
+            Social.AddSocialHistory("GZ", playerName, gzMessage, {achievement = "achievement"})
+            
             if addon.Config and addon.Config.Get("debugMode") then
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay, message: %s)", 
                     playerName or "unknown", delay, gzMessage))
@@ -197,6 +204,9 @@ function Social.SendAutoRIP(level, playerName)
         
         C_Timer.After(delay, function()
             SendChatMessage(deathMessage, "GUILD")
+            
+            -- Track in social history
+            Social.AddSocialHistory("RIP", playerName, deathMessage, {level = level})
             
             if addon.Config and addon.Config.Get("debugMode") then
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-RIP for %s: %s (%.1fs delay)", 
@@ -289,13 +299,111 @@ function Social.ShowStatus()
     end
 end
 
+-- Social History Functions
+function Social.AddSocialHistory(eventType, playerName, message, details)
+    local entry = {
+        time = date("%H:%M:%S"),
+        date = date("%Y-%m-%d"),
+        eventType = eventType, -- "GZ" or "RIP"
+        player = playerName,
+        message = message,
+        details = details or {}, -- For achievement name, level, etc.
+        timestamp = time()
+    }
+    
+    table.insert(socialHistory, 1, entry)
+    
+    -- Maintain max history size
+    while #socialHistory > MAX_SOCIAL_HISTORY do
+        table.remove(socialHistory)
+    end
+    
+    -- Save to persistent storage
+    Social.SaveSocialHistory()
+end
+
+function Social.GetSocialHistory(filter)
+    if not filter or filter == "" or filter == "all" then
+        return socialHistory
+    end
+    
+    filter = string.upper(filter)
+    local filtered = {}
+    for _, entry in ipairs(socialHistory) do
+        if entry.eventType == filter then
+            table.insert(filtered, entry)
+        end
+    end
+    return filtered
+end
+
+function Social.ShowSocialHistory(filter)
+    local history = Social.GetSocialHistory(filter)
+    
+    if #history == 0 then
+        local filterText = filter and filter ~= "" and " (" .. filter .. ")" or ""
+        print("|cff00ff00[GuildItemScanner]|r No social history found" .. filterText)
+        return
+    end
+    
+    local filterText = ""
+    if filter and filter ~= "" and filter ~= "all" then
+        filterText = " (" .. string.upper(filter) .. " only)"
+    end
+    
+    print("|cff00ff00[GuildItemScanner]|r Social History" .. filterText .. " (" .. #history .. " entries):")
+    print("|cffFFD700Time     | Type | Player           | Message                    | Details|r")
+    
+    for i, entry in ipairs(history) do
+        if i <= 20 then -- Limit display to 20 most recent
+            local typeColor = entry.eventType == "GZ" and "|cff00ff00" or "|cffff4040"
+            local detailsText = ""
+            
+            if entry.eventType == "GZ" and entry.details.achievement then
+                detailsText = "Achievement: " .. entry.details.achievement
+            elseif entry.eventType == "RIP" and entry.details.level then
+                detailsText = "Level " .. entry.details.level
+            end
+            
+            local playerName = entry.player and string.sub(entry.player, 1, 15) or "Unknown"
+            local message = entry.message and string.sub(entry.message, 1, 25) or ""
+            
+            print(string.format("%s | %s%s|r  | %-15s | %-25s | %s", 
+                entry.time, typeColor, entry.eventType, playerName, message, detailsText))
+        end
+    end
+    
+    if #history > 20 then
+        print("|cff808080... and " .. (#history - 20) .. " more entries (use /gis clearsocialhistory to clear)|r")
+    end
+end
+
+function Social.ClearSocialHistory()
+    socialHistory = {}
+    Social.SaveSocialHistory()
+end
+
+function Social.SaveSocialHistory()
+    if GuildItemScannerDB then
+        GuildItemScannerDB.socialHistory = socialHistory
+    end
+end
+
+function Social.LoadSocialHistory()
+    if GuildItemScannerDB and GuildItemScannerDB.socialHistory then
+        socialHistory = GuildItemScannerDB.socialHistory
+    end
+end
+
 -- Initialize social features
 function Social.Initialize()
     HookChatFrame()
+    Social.LoadSocialHistory()
     
     if addon.Config and addon.Config.Get("debugMode") then
         print("|cff00ff00[GuildItemScanner Debug]|r Social features initialized")
         print("  Auto-GZ: " .. ((addon.Config and addon.Config.Get("autoGZ")) and "enabled" or "disabled"))
         print("  Auto-RIP: " .. ((addon.Config and addon.Config.Get("autoRIP")) and "enabled" or "disabled"))
+        print("  Social history loaded: " .. #socialHistory .. " entries")
     end
 end
