@@ -407,26 +407,35 @@ The DEFAULT profile contains these factory settings:
 - Debug mode: `disabled`
 - Whisper mode: `disabled`
 - Greed button: `enabled`
+- WTB filtering: `enabled` (ignores Want To Buy messages)
 
 **Detection Settings:**
 - Recipe alerts: `enabled`
+- Equipment alerts: `enabled`
 - Material alerts: `enabled`
 - Bag alerts: `enabled`
 - Potion alerts: `enabled`
 - All request buttons: `enabled`
+
+**Equipment Settings:**
+- Equipment quality filter: `uncommon` (minimum quality)
+- Legendary alerts: `enabled` (always alert legendary items)
+- Stat comparison mode: `ilvl` (item level comparison)
+- No stat priorities configured
 
 **Filter Settings:**
 - Material rarity: `common` (all rarities)
 - Material quantity: `1` (any stack size)
 - Bag size minimum: `6 slots`
 - Potion type: `all`
-- Stat comparison: `ilvl` mode
 - No professions configured
+- No custom materials
 
 **Social Automation:**
 - Auto-GZ: `disabled` (30% chance when enabled)
 - Auto-RIP: `disabled` (30% chance when enabled)
-- No custom messages
+- No custom GZ messages
+- No custom RIP messages
 
 To reset to these defaults: `/gis profile clear`
 
