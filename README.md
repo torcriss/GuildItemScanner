@@ -56,7 +56,8 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
 - **Auto-Condolences** - Level-based RIP messages for deaths (30% chance, 3-8s delay)  
-- **Social History Tracking** - Records last 50 GZ/RIP events with timestamps and details
+- **Complete History Tracking** - Records ALL Frontier events (sent + skipped) with actual achievement names
+- **Roll Transparency** - Shows skip reasons with chance percentages for complete visibility
 - **Clear Feedback** - Always shows when messages are skipped due to chance rolls
 - **Frontier Integration** - Monitors Frontier addon achievement/death notifications
 
@@ -321,7 +322,17 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis socialhistory [filter]` | Show social automation history (gz/rip/all) |
 | `/gis clearsocialhistory` | Clear social automation history |
 
-**Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events sent by the auto-social features, including timestamps, player names, messages sent, and relevant details like achievement names or player levels.
+**Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events from ALL Frontier activity, including both sent messages and skipped events (due to failed rolls). Records timestamps, player names, actual achievement names, player levels, and skip reasons with roll percentages for complete social automation visibility.
+
+**Example Social History Output:**
+```
+[GuildItemScanner] Social History (4 entries):
+Time     | Type | Player           | Message                    | Details
+19:40:43 | GZ   | Minibolt        | gratz                     | Achievement: Reach Level 30
+19:43:12 | GZ   | Fusebanker      | [Skipped - Roll Failed]  | Achievement: Blessed Run: Loot a Colored Pouch
+19:44:33 | RIP  | Warrior         | F                         | Level 60
+19:45:01 | RIP  | Mage            | [Skipped - Roll Failed]  | Level 23
+```
 
 ### **⚙️ Profile Management**
 
