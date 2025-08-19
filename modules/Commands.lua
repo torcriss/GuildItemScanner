@@ -113,7 +113,7 @@ end
 
 commandHandlers.equipquality = function(args)
     if not args or args == "" then
-        local current = addon.Config.Get("equipmentQualityFilter")
+        local current = addon.Config.Get("equipmentQualityFilter") or "uncommon"
         print("|cff00ff00[GuildItemScanner]|r Current equipment quality filter: " .. current)
         print("Valid qualities: common, uncommon, rare, epic, legendary")
         return
