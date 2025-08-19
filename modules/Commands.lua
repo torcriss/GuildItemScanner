@@ -84,33 +84,6 @@ commandHandlers.test = function()
     end
 end
 
-commandHandlers.testweapon = function()
-    print("|cff00ff00[GuildItemScanner]|r Testing weapon detection...")
-    -- Test with a sample weapon link (example: Thunderfury)
-    local testWeaponLink = "|cffa335ee|Hitem:19019:0:0:0:0:0:0:0:60|h[Thunderfury, Blessed Blade of the Windseeker]|h|r"
-    print("Test weapon: " .. testWeaponLink)
-    if addon.Detection then
-        addon.Detection.ProcessGuildMessage("TestPlayer whispers: Check out " .. testWeaponLink)
-    end
-end
-
-commandHandlers.testarmor = function()
-    print("|cff00ff00[GuildItemScanner]|r Testing armor detection...")
-    -- Test with sample armor links
-    local testArmorLinks = {
-        "|cffa335ee|Hitem:16820:0:0:0:0:0:0:0:60|h[Nightslayer Chestpiece]|h|r",
-        "|cffa335ee|Hitem:16963:0:0:0:0:0:0:0:60|h[Helm of Wrath]|h|r",
-        "|cffa335ee|Hitem:18404:0:0:0:0:0:0:0:60|h[Xorothian Firestick]|h|r"
-    }
-    
-    for _, link in ipairs(testArmorLinks) do
-        print("Test armor: " .. link)
-        if addon.Detection then
-            addon.Detection.ProcessGuildMessage("TestPlayer whispers: Check out " .. link)
-        end
-    end
-end
-
 commandHandlers.equipquality = function(args)
     if not args or args == "" then
         local current = addon.Config.Get("equipmentQualityFilter") or "uncommon"
@@ -1417,8 +1390,6 @@ commandHandlers.help = function()
     print(" /gis profile default [name] - Set/clear default profile")
     print(" |cffFFD700Equipment Commands:|r")
     print(" /gis test - Test equipment alert")
-    print(" /gis testweapon - Test weapon detection and DPS comparison")
-    print(" /gis testarmor - Test armor detection and armor value comparison")
     print(" /gis equipquality [quality] - Set minimum equipment quality filter")
     print(" /gis legendary [on/off] - Toggle legendary item alerts")
     print(" /gis whisper - Toggle whisper mode for requests")
