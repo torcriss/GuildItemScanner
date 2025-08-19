@@ -49,7 +49,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 ### 🎯 **Five Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
-- **📜 Profession Recipes** - All 8 professions with smart pattern matching  
+- **📜 Profession Recipes** - All 9 professions with accurate pattern matching (validated against ClassicDB)  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 90+ potions with type filtering
@@ -621,16 +621,18 @@ No guild messages sent - all tests safe
 
 ## 🏭 Supported Professions
 
-**Only crafting professions with material databases are supported:**
+**All crafting professions with material databases and recipe detection are supported:**
 
-- **Alchemy** - All herbs, vials, reagents
-- **Blacksmithing** - Ores, bars, stones, gems
-- **Engineering** - Metals, cloth, parts, explosives
-- **Enchanting** - Dusts, essences, shards, crystals
-- **Tailoring** - Cloth, threads, dyes
-- **Leatherworking** - Leather, hides, scales
-- **Cooking** - Meats, fish, spices, ingredients
-- **First Aid** - Cloth, venom sacs
+- **Alchemy** - All herbs, vials, reagents + accurate recipe detection (ClassicDB validated)
+- **Blacksmithing** - Ores, bars, stones, gems + Plans: pattern detection
+- **Engineering** - Metals, cloth, parts, explosives + Schematic: pattern detection
+- **Enchanting** - Dusts, essences, shards, crystals + Formula: pattern detection
+- **Tailoring** - Cloth, threads, dyes + Pattern: detection (shared with Leatherworking)
+- **Leatherworking** - Leather, hides, scales + Pattern: detection (shared with Tailoring)
+- **Cooking** - Meats, fish, spices, ingredients + Recipe: pattern detection
+- **First Aid** - Cloth, venom sacs + Manual: pattern detection (NEW in v2.7+)
+
+**Recipe Detection Accuracy**: The addon now uses ordered pattern matching validated against ClassicDB to ensure Alchemy recipes are never misclassified as Cooking recipes. Longer, more specific patterns are checked before shorter generic ones.
 
 **Note**: Gathering professions (Mining, Herbalism, Skinning) and Fishing are NOT supported as separate professions. Their materials are already tracked through the crafting professions that use them (e.g., herbs through Alchemy, ores through Blacksmithing/Engineering, fish through Cooking/Alchemy).
 
@@ -729,6 +731,19 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.7** - Recipe Detection Accuracy Improvements:
+  - Reorganized recipe detection for consistent, ordered pattern matching
+  - Added First Aid manual support (Manual: patterns)
+  - Comprehensive Alchemy recipe patterns from ClassicDB validation
+  - Fixed Alchemy vs Cooking misclassification issues
+  - Added 10+ new Alchemy recipe patterns (Major Rejuvenation, Living Action, etc.)
+  - Created regression test suite to ensure no breaking changes
+  - Performance optimization with early return pattern matching
+- **v2.6** - Comprehensive Bag Database Expansion:
+  - Expanded bag database from 55 to 100+ bags using ClassicDB validation
+  - Fixed incorrect slot counts for existing bags (Core Felcloth, Felcloth bags)
+  - Added missing bag categories (4-slot, 6-slot, 8-slot through 28-slot)
+  - Complete Classic WoW bag coverage with accurate slot counts
 - **v2.2** - Custom Social Message System:
   - Configurable chance percentages for GZ and RIP messages
   - Custom message management with full CRUD operations
