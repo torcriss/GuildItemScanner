@@ -1029,40 +1029,60 @@ Databases.CLASS_ARMOR_RESTRICTIONS = {
     DRUID = { Cloth = true, Leather = true }
 }
 
--- Recipe profession mappings
+-- Recipe profession mappings - ORDERED LIST for consistent pattern matching
+-- Longer, more specific patterns MUST come before shorter ones
 Databases.RECIPE_PROFESSIONS = {
-    ["Formula: "] = "Enchanting",
-    ["Pattern: "] = {"Tailoring", "Leatherworking"},
-    ["Plans: "] = "Blacksmithing",
-    ["Schematic: "] = "Engineering",
+    -- Non-Recipe patterns (highest priority)
+    {"Formula: ", "Enchanting"},
+    {"Pattern: ", {"Tailoring", "Leatherworking"}},
+    {"Plans: ", "Blacksmithing"},
+    {"Schematic: ", "Engineering"},
+    {"Manual: ", "First Aid"},
     
-    -- Alchemy recipes (transmutes, potions, elixirs)
-    ["Recipe: Transmute "] = "Alchemy",
-    ["Recipe: Elixir "] = "Alchemy",
-    ["Recipe: Flask "] = "Alchemy",
-    ["Recipe: Potion "] = "Alchemy",
-    ["Recipe: Oil "] = "Alchemy",
-    ["Recipe: Protection Potion"] = "Alchemy",
-    ["Recipe: Fire Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Fire Protection Potion"] = "Alchemy",
-    ["Recipe: Frost Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Frost Protection Potion"] = "Alchemy",
-    ["Recipe: Nature Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Nature Protection Potion"] = "Alchemy",
-    ["Recipe: Shadow Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Shadow Protection Potion"] = "Alchemy",
-    ["Recipe: Arcane Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Arcane Protection Potion"] = "Alchemy",
-    ["Recipe: Holy Protection Potion"] = "Alchemy",
-    ["Recipe: Greater Holy Protection Potion"] = "Alchemy",
-    ["Recipe: Philosopher's Stone"] = "Alchemy",
-    ["Recipe: Alchemist's Stone"] = "Alchemy",
+    -- Specific Alchemy recipes (must come before generic Recipe: patterns)
+    {"Recipe: Transmute ", "Alchemy"},
+    {"Recipe: Elixir ", "Alchemy"},
+    {"Recipe: Flask ", "Alchemy"},
+    {"Recipe: Potion ", "Alchemy"},  -- Covers "Major X Potion", "Greater X Potion", etc.
+    {"Recipe: Oil ", "Alchemy"},
     
-    -- Cooking recipes (specific valuable ones)
-    ["Recipe: Savory Deviate Delight"] = "Cooking",
+    -- Specific protection potions (longer patterns first)
+    {"Recipe: Greater Fire Protection Potion", "Alchemy"},
+    {"Recipe: Greater Frost Protection Potion", "Alchemy"},
+    {"Recipe: Greater Nature Protection Potion", "Alchemy"},
+    {"Recipe: Greater Shadow Protection Potion", "Alchemy"},
+    {"Recipe: Greater Arcane Protection Potion", "Alchemy"},
+    {"Recipe: Greater Holy Protection Potion", "Alchemy"},
+    {"Recipe: Fire Protection Potion", "Alchemy"},
+    {"Recipe: Frost Protection Potion", "Alchemy"},
+    {"Recipe: Nature Protection Potion", "Alchemy"},
+    {"Recipe: Shadow Protection Potion", "Alchemy"},
+    {"Recipe: Arcane Protection Potion", "Alchemy"},
+    {"Recipe: Holy Protection Potion", "Alchemy"},
+    {"Recipe: Protection Potion", "Alchemy"},
     
-    -- Cooking recipes (default for remaining Recipe: items)
-    ["Recipe: "] = "Cooking"
+    -- Specific named Alchemy recipes (from ClassicDB)
+    {"Recipe: Philosopher's Stone", "Alchemy"},
+    {"Recipe: Alchemist's Stone", "Alchemy"},
+    {"Recipe: Major Rejuvenation", "Alchemy"},
+    {"Recipe: Living Action", "Alchemy"},
+    {"Recipe: Mageblood", "Alchemy"},
+    {"Recipe: Dreamless Sleep", "Alchemy"},
+    {"Recipe: Major Troll's Blood", "Alchemy"},
+    {"Recipe: Limited Invulnerability", "Alchemy"},
+    {"Recipe: Free Action", "Alchemy"},
+    {"Recipe: Purification", "Alchemy"},
+    {"Recipe: Restorative", "Alchemy"},
+    
+    -- Specific valuable Cooking recipes
+    {"Recipe: Savory Deviate Delight", "Cooking"},
+    
+    -- First Aid manuals (specific ones)
+    {"Manual: Heavy Silk Bandage", "First Aid"},
+    {"Manual: Mageweave Bandage", "First Aid"},
+    
+    -- Generic Recipe: pattern (MUST be last - catches all remaining cooking recipes)
+    {"Recipe: ", "Cooking"}
 }
 
 -- Material rarity overrides
@@ -1238,7 +1258,13 @@ function Databases.RemoveCustomMaterial(itemName, profession)
 end
 
 function Databases.GetRecipeProfession(itemName)
-    for prefix, professions in pairs(Databases.RECIPE_PROFESSIONS) do
+    -- Iterate through ordered list to ensure consistent, predictable matching
+    -- Longer patterns are checked first, preventing false matches
+    for i = 1, #Databases.RECIPE_PROFESSIONS do
+        local entry = Databases.RECIPE_PROFESSIONS[i]
+        local prefix = entry[1]
+        local professions = entry[2]
+        
         if string.find(itemName, prefix, 1, true) then
             return professions
         end

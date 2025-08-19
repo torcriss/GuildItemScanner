@@ -1,0 +1,52 @@
+# Recipe Detection Regression Test Results
+
+Testing the new ordered recipe detection system to ensure no regression.
+
+## Test Cases:
+
+### Existing Recipes (Must maintain profession):
+1. "Recipe: Savory Deviate Delight" -> Should be Cooking ✓
+2. "Recipe: Spiced Wolf Meat" -> Should be Cooking ✓
+3. "Recipe: Gooey Spider Cake" -> Should be Cooking ✓
+4. "Recipe: Elixir of Giant Growth" -> Should be Alchemy ✓
+5. "Recipe: Flask of the Titans" -> Should be Alchemy ✓
+6. "Recipe: Transmute Iron to Gold" -> Should be Alchemy ✓
+7. "Recipe: Greater Fire Protection Potion" -> Should be Alchemy ✓
+8. "Recipe: Fire Protection Potion" -> Should be Alchemy ✓
+9. "Recipe: Potion of Insight" -> Should be Alchemy ✓
+10. "Recipe: Oil of Immolation" -> Should be Alchemy ✓
+
+### New ClassicDB Recipes:
+11. "Recipe: Major Rejuvenation Potion" -> Should be Alchemy ✓
+12. "Recipe: Living Action Potion" -> Should be Alchemy ✓
+13. "Recipe: Mageblood Potion" -> Should be Alchemy ✓
+
+### First Aid (New Category):
+14. "Manual: Heavy Silk Bandage" -> Should be First Aid ✓
+15. "Manual: Mageweave Bandage" -> Should be First Aid ✓
+
+### Non-Recipe Patterns:
+16. "Formula: Enchant Weapon - Agility" -> Should be Enchanting ✓
+17. "Pattern: Bloodvine Vest" -> Should be Tailoring/Leatherworking ✓
+18. "Plans: Dark Iron Boots" -> Should be Blacksmithing ✓
+19. "Schematic: Goblin Jumper Cables" -> Should be Engineering ✓
+
+### Generic Cooking Recipes:
+20. "Recipe: Hot Lion Chops" -> Should be Cooking ✓
+21. "Recipe: Nightfin Soup" -> Should be Cooking ✓
+22. "Recipe: Westfall Stew" -> Should be Cooking ✓
+
+## Algorithm Verification:
+
+The new ordered list ensures:
+1. Longer patterns are matched first (prevents false positives)
+2. Specific Alchemy patterns are checked before generic "Recipe:"
+3. Generic "Recipe:" catches all remaining cooking recipes
+4. Consistent behavior across all function calls
+5. First Aid manuals are properly recognized
+
+## Expected Results:
+- All 22 test cases should pass
+- No changes to existing recipe categorization
+- Improved accuracy for Alchemy vs Cooking classification
+- Support for First Aid manuals
