@@ -37,7 +37,7 @@ local defaultConfig = {
     statComparisonMode = "ilvl",  -- "ilvl", "stats", "both", "dps", "armor", or "smart"
     statPriorities = {},  -- ordered array of stat names
     equipmentQualityFilter = "uncommon", -- minimum quality: common, uncommon, rare, epic, legendary
-    alertLegendaryItems = true -- always alert legendary items regardless of other filters
+    alertLegendaryItems = true, -- always alert legendary items regardless of other filters
     
     -- Material settings
     materialAlert = true,
