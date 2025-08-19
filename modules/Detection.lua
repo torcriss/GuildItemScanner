@@ -1016,8 +1016,8 @@ end
 
 -- Test functions for debugging
 function Detection.TestEquipment()
-    -- Level 15 priest appropriate weapon - Gnarled Staff (req level 13, definitely exists in Classic)
-    local testItem = "|cff9d9d9d|Hitem:2030::::::::15:::::::|h[Gnarled Staff]|h|r"
+    -- Level 21 priest appropriate weapon - Twisted Chanter's Staff (req level 19, iLvl 24, BoE from Deadmines)
+    local testItem = "|cff1eff00|Hitem:890::::::::21:::::::|h[Twisted Chanter's Staff]|h|r"
     processItemLink(testItem, UnitName("player"))
 end
 
