@@ -100,7 +100,9 @@ local function isWTBMessage(message)
         " need an? ",      -- "need a/an [item]" (more specific)
         " need some ",     -- "need some [item]"
         "i need ",         -- "i need [item]" or "i need some [item]"
-        "buying ",         -- "buying [item]"
+        "^buying ",        -- "buying [item]" (at start of message)
+        " i.*buying ",     -- "... I am buying [item]" or "... I'm buying [item]"
+        "am buying ",      -- "I am buying [item]"
         "want to buy",     -- "want to buy [item]"
         "^iso ",           -- "ISO [item]" (In Search Of)
         " iso ",           -- "... ISO [item]"

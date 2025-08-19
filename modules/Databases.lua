@@ -610,11 +610,10 @@ Databases.MATERIALS = {
         ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
         ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
         
-        -- Leather Materials
+        -- Leather Materials (Engineering uses leather for some items)
         ["Light Leather"] = {level = 1, type = "leather", rarity = "common"},
         ["Medium Leather"] = {level = 75, type = "leather", rarity = "common"},
         ["Heavy Leather"] = {level = 125, type = "leather", rarity = "common"},
-        ["Thick Leather"] = {level = 175, type = "leather", rarity = "common"},
         ["Rugged Leather"] = {level = 250, type = "leather", rarity = "common"},
         
         -- Gems and Jewels
