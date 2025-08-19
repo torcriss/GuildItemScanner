@@ -464,7 +464,7 @@ To reset to these defaults: `/gis profile clear`
 | Command | Description |
 |---------|-------------|
 | `/gis smoketest` | **Run comprehensive test suite (recommended after deployment)** |
-| `/gis test` | Test equipment upgrade alert |
+| `/gis test` | Test equipment upgrade alert (uses Twisted Chanter's Staff) |
 | `/gis whispertest` | Toggle whisper-based testing mode |
 | `/gis compare [item]` | Compare any item with equipped gear |
 
@@ -731,6 +731,11 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.11.1** - Command Cleanup and Testing Improvements:
+  - Removed `/gis testweapon` and `/gis testarmor` commands (redundant testing)
+  - Updated `/gis test` to use Twisted Chanter's Staff (iLvl 24, more realistic upgrade test)
+  - Improved equipment testing for level 20+ characters with BoE validation
+- **v2.11.0** - Equipment Alert Enhancements (comprehensive equipment system upgrade)
 - **v2.7** - Recipe Detection Accuracy Improvements:
   - Reorganized recipe detection for consistent, ordered pattern matching
   - Added First Aid manual support (Manual: patterns)
