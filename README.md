@@ -740,6 +740,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.11.3** - Comprehensive Database Cleanup:
+  - Fixed 8 duplicate entries within same professions (Leatherworking and Cooking)
+  - Removed incorrect material assignments (vials from First Aid, Peacebloom from Blacksmithing, Coal from Alchemy)
+  - Removed unnecessary cloth duplicates from Blacksmithing and excessive entries from Leatherworking
+  - Standardized spider silk naming conventions (Spider's Silk, Thick Spider's Silk)
+  - Improved WTB filtering accuracy - materials only trigger for professions that actually use them
 - **v2.11.2** - WTB Filtering Accuracy Fix:
   - Fixed false positive WTB filtering for "whos buying" messages (now correctly treated as sell offers)
   - Refined WTB pattern matching to be more specific (prevents legitimate sell offers from being filtered)
