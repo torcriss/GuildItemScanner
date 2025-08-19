@@ -49,7 +49,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 ### 🎯 **Five Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
-- **📜 Profession Recipes** - All 9 professions with accurate pattern matching (validated against ClassicDB)  
+- **📜 Profession Recipes** - All 8 professions with accurate pattern matching (validated against ClassicDB)  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 90+ potions with type filtering
