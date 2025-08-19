@@ -41,12 +41,26 @@ local function HookChatFrame()
                     end
                 end
                 
-                if playerName and addon.Config and addon.Config.Get("autoGZ") then
-                    -- Don't congratulate yourself
+                if playerName then
+                    -- Always log achievement events to history, regardless of autoGZ setting
                     if playerName ~= UnitName("player") then
-                        Social.SendAutoGZ(playerName, achievementName)
-                    elseif addon.Config and addon.Config.Get("debugMode") then
-                        print("|cff00ff00[GuildItemScanner Debug]|r Skipped GZ for self: " .. playerName)
+                        -- Check if we should auto-respond
+                        if addon.Config and addon.Config.Get("autoGZ") then
+                            Social.SendAutoGZ(playerName, achievementName)
+                        else
+                            -- Log as skipped due to feature disabled
+                            Social.AddSocialHistory("GZ", playerName, "[Feature Disabled]", 
+                                {achievement = achievementName or "Unknown Achievement", 
+                                 skipped = true, reason = "Auto-GZ disabled"})
+                        end
+                    else
+                        -- Log self-achievement as skipped
+                        Social.AddSocialHistory("GZ", playerName, "[Self Achievement]", 
+                            {achievement = achievementName or "Unknown Achievement", 
+                             skipped = true, reason = "Self achievement"})
+                        if addon.Config and addon.Config.Get("debugMode") then
+                            print("|cff00ff00[GuildItemScanner Debug]|r Logged self achievement: " .. playerName)
+                        end
                     end
                 end
             
@@ -65,7 +79,8 @@ local function HookChatFrame()
                     end
                 end
                 
-                if playerName and playerName ~= UnitName("player") and addon.Config and addon.Config.Get("autoRIP") then
+                if playerName then
+                    -- Always log death events to history, regardless of autoRIP setting
                     -- Try to extract level from both original text and clean text
                     local level = string.match(text, "Level (%d+)") or string.match(cleanText, "Level (%d+)")
                     
@@ -73,7 +88,25 @@ local function HookChatFrame()
                         print("|cff00ff00[GuildItemScanner Debug]|r Extracted level: " .. level)
                     end
                     
-                    Social.SendAutoRIP(level and tonumber(level), playerName)
+                    if playerName ~= UnitName("player") then
+                        -- Check if we should auto-respond
+                        if addon.Config and addon.Config.Get("autoRIP") then
+                            Social.SendAutoRIP(level and tonumber(level), playerName)
+                        else
+                            -- Log as skipped due to feature disabled
+                            Social.AddSocialHistory("RIP", playerName, "[Feature Disabled]", 
+                                {level = level and tonumber(level), 
+                                 skipped = true, reason = "Auto-RIP disabled"})
+                        end
+                    else
+                        -- Log self-death as skipped
+                        Social.AddSocialHistory("RIP", playerName, "[Self Death]", 
+                            {level = level and tonumber(level), 
+                             skipped = true, reason = "Self death"})
+                        if addon.Config and addon.Config.Get("debugMode") then
+                            print("|cff00ff00[GuildItemScanner Debug]|r Logged self death: " .. playerName)
+                        end
+                    end
                 end
             end
         end

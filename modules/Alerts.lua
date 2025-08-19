@@ -344,7 +344,7 @@ end
 
 -- Test alert function
 function Alerts.TestAlert(alertType)
-    local testPlayer = UnitName("player")
+    local testPlayer = UnitName("player") .. "-" .. GetRealmName()
     
     if alertType == "equipment" then
         Alerts.ShowEquipmentAlert("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", testPlayer, 15)

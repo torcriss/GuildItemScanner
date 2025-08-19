@@ -1016,17 +1016,22 @@ function Detection.ProcessGuildMessage(message, sender, ...)
     end
 end
 
+-- Helper function to get full player name with realm
+local function getFullPlayerName()
+    return UnitName("player") .. "-" .. GetRealmName()
+end
+
 -- Test functions for debugging
 function Detection.TestEquipment()
     -- Level 21 priest appropriate weapon - Twisted Chanter's Staff (req level 19, iLvl 24, BoE from Deadmines)
     local testItem = "|cff1eff00|Hitem:890::::::::21:::::::|h[Twisted Chanter's Staff]|h|r"
-    processItemLink(testItem, UnitName("player"))
+    processItemLink(testItem, getFullPlayerName())
 end
 
 function Detection.TestMaterial()
     if addon.Config and #addon.Config.GetProfessions() > 0 then
         local testItem = "|cffffffff|Hitem:2770::::::::15:::::::|h[Copper Ore]|h|r"
-        processItemLink(testItem, UnitName("player"))
+        processItemLink(testItem, getFullPlayerName())
     else
         print("|cff00ff00[GuildItemScanner]|r Add a profession first: /gis prof add Engineering")
     end
@@ -1035,14 +1040,14 @@ end
 function Detection.TestBag()
     -- 10 slot bag appropriate for lower levels
     local testItem = "|cffffffff|Hitem:4496::::::::15:::::::|h[Small Brown Pouch]|h|r"
-    processItemLink(testItem, UnitName("player"))
+    processItemLink(testItem, getFullPlayerName())
 end
 
 function Detection.TestRecipe()
     if addon.Config and #addon.Config.GetProfessions() > 0 then
         -- Low level cooking recipe that exists in Classic - Recipe: Spiced Wolf Meat
         local testItem = "|cffffffff|Hitem:2697::::::::15:::::::|h[Recipe: Spiced Wolf Meat]|h|r"
-        processItemLink(testItem, UnitName("player"))
+        processItemLink(testItem, getFullPlayerName())
     else
         print("|cff00ff00[GuildItemScanner]|r Add a profession first: /gis prof add Cooking")
     end
@@ -1051,7 +1056,7 @@ end
 function Detection.TestPotion()
     -- Lower level healing potion
     local testItem = "|cffffffff|Hitem:118::::::::15:::::::|h[Minor Healing Potion]|h|r"
-    processItemLink(testItem, UnitName("player"))
+    processItemLink(testItem, getFullPlayerName())
 end
 
 -- Export canPlayerUseItem function for use by Commands module
