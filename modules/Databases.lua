@@ -120,9 +120,14 @@ Databases.POTIONS = {
     ["Goblin Rocket Fuel"] = {level = 35, type = "misc", category = "profession", effect = "Used in engineering recipes"},
 }
 
--- Comprehensive bag database (70+ bags)
+-- Comprehensive bag database (100+ bags)
 Databases.BAGS = {
-    -- Basic Common Bags (6-8 slots)
+    -- Tiny Bags (4 slots)
+    ["Old Blanchy's Feed Pouch"] = {slots = 4, level = 5, rarity = "common"},
+    ["Sunstrider Book Satchel"] = {slots = 4, level = 10, rarity = "common"},
+    ["Handmade Leather Bag"] = {slots = 4, level = 12, rarity = "common"},
+    
+    -- Basic Common Bags (6 slots)
     ["Small Brown Pouch"] = {slots = 6, level = 5, rarity = "common"},
     ["Linen Bag"] = {slots = 6, level = 5, rarity = "common"},
     ["Knotted Handkerchief"] = {slots = 6, level = 1, rarity = "common"},
@@ -131,6 +136,9 @@ Databases.BAGS = {
     ["Small Green Pouch"] = {slots = 6, level = 5, rarity = "common"},
     ["Small Black Pouch"] = {slots = 6, level = 5, rarity = "common"},
     ["Brown Linen Pants"] = {slots = 6, level = 1, rarity = "common"},
+    ["Wizbang's Gunnysack"] = {slots = 6, level = 8, rarity = "common"},
+    ["Kodo Hide Bag"] = {slots = 6, level = 12, rarity = "common"},
+    ["Jewelry Box"] = {slots = 6, level = 15, rarity = "common"},
     
     -- Small Common Bags (8 slots)
     ["Small Silk Pack"] = {slots = 8, level = 15, rarity = "common"},
@@ -145,7 +153,10 @@ Databases.BAGS = {
     ["Green Leather Bag"] = {slots = 8, level = 15, rarity = "common"},
     ["Brown Leather Bag"] = {slots = 8, level = 15, rarity = "common"},
     ["Gnome Bag"] = {slots = 8, level = 10, rarity = "common"},
-    ["Handmade Leather Bag"] = {slots = 8, level = 12, rarity = "common"},
+    ["Captain Sander's Booty Bag"] = {slots = 8, level = 20, rarity = "uncommon"},
+    ["Brown Leather Satchel"] = {slots = 8, level = 12, rarity = "common"},
+    ["Green Woolen Bag"] = {slots = 8, level = 18, rarity = "common"},
+    ["Gnoll Hide Sack"] = {slots = 8, level = 15, rarity = "common"},
     ["Bandolier"] = {slots = 8, level = 15, rarity = "common"},
     
     -- Medium Common Bags (10-12 slots)
@@ -157,20 +168,41 @@ Databases.BAGS = {
     ["Thick Leather Bag"] = {slots = 10, level = 22, rarity = "common"},
     ["Green Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
     ["Black Silk Pack"] = {slots = 10, level = 25, rarity = "common"},
+    ["Murloc Skin Bag"] = {slots = 10, level = 18, rarity = "common"},
+    ["Large Blue Sack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Large Green Sack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Fel Steed Saddlebags"] = {slots = 10, level = 40, rarity = "rare"},
+    ["Snakeskin Bag"] = {slots = 10, level = 22, rarity = "common"},
+    ["Ooze-covered Bag"] = {slots = 10, level = 25, rarity = "common"},
+    ["Large Brown Sack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Large Red Sack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Large Rucksack"] = {slots = 10, level = 22, rarity = "common"},
+    ["Deviate Hide Pack"] = {slots = 10, level = 20, rarity = "common"},
+    
+    -- 12-slot bags
     ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
     ["Red Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
     ["Green Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
     ["Blue Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
     ["Black Mageweave Bag"] = {slots = 12, level = 35, rarity = "uncommon"},
+    ["Huge Brown Sack"] = {slots = 12, level = 25, rarity = "common"},
+    ["Sturdy Lunchbox"] = {slots = 12, level = 30, rarity = "common"},
     
     -- Large Common Bags (14-16 slots)
     ["Runecloth Bag"] = {slots = 14, level = 50, rarity = "common"},
     ["Heavy Leather Bag"] = {slots = 14, level = 40, rarity = "common"},
+    ["Troll-hide Bag"] = {slots = 14, level = 35, rarity = "common"},
+    ["Thawpelt Sack"] = {slots = 14, level = 30, rarity = "common"},
+    ["Darkmoon Storage Box"] = {slots = 14, level = 25, rarity = "rare"},
     
     -- Rare General Purpose Bags
     ["Mooncloth Bag"] = {slots = 16, level = 60, rarity = "rare"},
+    ["Box of Souls"] = {slots = 16, level = 45, rarity = "uncommon", special = "soul shard"},
+    ["Demon Hide Sack"] = {slots = 16, level = 50, rarity = "common"},
+    ["Wayfarer's Knapsack"] = {slots = 16, level = 45, rarity = "common"},
+    ["Pumpkin Bag"] = {slots = 16, level = 1, rarity = "common"},
     ["Traveler's Backpack"] = {slots = 12, level = 30, rarity = "rare"},
-    ["Felcloth Bag"] = {slots = 18, level = 55, rarity = "rare"},
+    ["Felcloth Bag"] = {slots = 24, level = 55, rarity = "rare"},
     
     -- Epic General Purpose Bags
     ["Onyxia Hide Backpack"] = {slots = 18, level = 60, rarity = "epic"},
@@ -180,18 +212,18 @@ Databases.BAGS = {
     ["Small Soul Pouch"] = {slots = 10, level = 25, rarity = "common", special = "soul shard"},
     ["Box of Souls"] = {slots = 12, level = 35, rarity = "rare", special = "soul shard"},
     ["Soul Bag"] = {slots = 24, level = 48, rarity = "rare", special = "soul shard"},
-    ["Core Felcloth Bag"] = {slots = 20, level = 60, rarity = "rare", special = "soul shard"},
+    ["Core Felcloth Bag"] = {slots = 28, level = 60, rarity = "rare", special = "soul shard"},
     
     -- Enchanting Bags
-    ["Big Bag of Enchantment"] = {slots = 12, level = 35, rarity = "rare", special = "enchanting"},
+    ["Big Bag of Enchantment"] = {slots = 24, level = 35, rarity = "rare", special = "enchanting"},
     ["Enchanted Mageweave Pouch"] = {slots = 16, level = 45, rarity = "rare", special = "enchanting"},
-    ["Enchanted Runecloth Bag"] = {slots = 18, level = 55, rarity = "rare", special = "enchanting"},
+    ["Enchanted Runecloth Bag"] = {slots = 20, level = 55, rarity = "rare", special = "enchanting"},
     ["Spellfire Bag"] = {slots = 28, level = 60, rarity = "epic", special = "enchanting"},
     
     -- Herb Bags
     ["Herb Pouch"] = {slots = 20, level = 45, rarity = "rare", special = "herbalism"},
     ["Cenarion Herb Bag"] = {slots = 20, level = 50, rarity = "rare", special = "herbalism"},
-    ["Satchel of Cenarius"] = {slots = 20, level = 55, rarity = "rare", special = "herbalism"},
+    ["Satchel of Cenarius"] = {slots = 24, level = 60, rarity = "epic", special = "herbalism"},
     
     -- Mining Bags
     ["Mining Bag"] = {slots = 20, level = 45, rarity = "rare", special = "mining"},
