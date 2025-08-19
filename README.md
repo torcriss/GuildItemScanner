@@ -740,6 +740,15 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.11.5** - Social History & UI Improvements:
+  - **Fixed social history logging** - Now records ALL Frontier events regardless of autoGZ/autoRIP settings
+  - **Material alert clarity** - Alerts now show only the first matching profession instead of all professions
+  - **Test function improvements** - All test commands now display proper "PlayerName-ServerName" format
+  - **Complete event visibility** - Social history shows: sent messages, "[Feature Disabled]", "[Self Events]", "[Skipped - Roll Failed]"
+  - **Better UX** - Cleaner alert messages and comprehensive event tracking for better guild activity monitoring
+- **v2.11.4** - Alert Message Clarity Enhancement:
+  - Simplified material alerts to show only first matching profession instead of all matching professions
+  - Improved UI clarity and reduced message clutter while maintaining functionality
 - **v2.11.3** - Comprehensive Database Cleanup:
   - Fixed 8 duplicate entries within same professions (Leatherworking and Cooking)
   - Removed incorrect material assignments (vials from First Aid, Peacebloom from Blacksmithing, Coal from Alchemy)
