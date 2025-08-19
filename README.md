@@ -740,6 +740,10 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.11.2** - WTB Filtering Accuracy Fix:
+  - Fixed false positive WTB filtering for "whos buying" messages (now correctly treated as sell offers)
+  - Refined WTB pattern matching to be more specific (prevents legitimate sell offers from being filtered)
+  - Removed duplicate Thick Leather entry from Engineering materials (belongs only in Leatherworking)
 - **v2.11.1** - Command Cleanup and Testing Improvements:
   - Removed `/gis testweapon` and `/gis testarmor` commands (redundant testing)
   - Updated `/gis test` to use Twisted Chanter's Staff (iLvl 24, more realistic upgrade test)
