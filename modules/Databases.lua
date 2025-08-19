@@ -826,7 +826,6 @@ Databases.MATERIALS = {
         ["Silk Cloth"] = {level = 150, type = "cloth", rarity = "common"},
         ["Mageweave Cloth"] = {level = 210, type = "cloth", rarity = "common"},
         ["Runecloth"] = {level = 260, type = "cloth", rarity = "common"},
-        ["Felcloth"] = {level = 275, type = "cloth", rarity = "rare"},
         
         -- Venom Sacs (For anti-venom recipes)
         ["Small Venom Sac"] = {level = 80, type = "venom", rarity = "common"},
