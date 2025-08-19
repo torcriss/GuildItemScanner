@@ -50,9 +50,9 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🎯 **Five Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with accurate pattern matching (validated against ClassicDB)  
-- **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
+- **🏭 Crafting Materials** - 800+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
-- **🧪 Potions & Consumables** - 90+ potions with type filtering
+- **🧪 Potions & Consumables** - 170+ potions with type filtering
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
@@ -687,9 +687,9 @@ The addon uses a clean modular architecture for maintainability:
 
 ### **Extensible Databases**
 Each database is easily expandable with new items:
-- **80+ Potions** - All Classic WoW potions with effects and levels
-- **50+ Bags** - Including special profession bags
-- **100+ Materials** - Covering all 8 professions
+- **170+ Potions** - All Classic WoW potions with effects and levels
+- **100+ Bags** - Including special profession bags
+- **800+ Materials** - Covering all 8 professions
 - **Complete Equipment** - All slot mappings and class restrictions
 
 ## 🔧 Debug & Testing
