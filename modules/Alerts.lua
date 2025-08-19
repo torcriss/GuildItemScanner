@@ -196,9 +196,10 @@ function Alerts.ShowMaterialAlert(itemLink, playerName, professions, material, q
     local color = rarityColors[rarity] or "|cffffff00"
     
     -- Handle both single profession (backward compatibility) and multiple professions
+    -- Show only the first profession to avoid cluttered messages
     local professionText = ""
     if type(professions) == "table" then
-        professionText = table.concat(professions, "/")
+        professionText = professions[1] or "Unknown"
     else
         professionText = tostring(professions)
     end
