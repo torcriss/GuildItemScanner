@@ -516,6 +516,20 @@ Databases.MATERIALS = {
         ["Fiery Core"] = {level = 300, type = "essence", rarity = "epic"},
         ["Lava Core"] = {level = 300, type = "essence", rarity = "epic"},
         ["Blood of the Mountain"] = {level = 300, type = "essence", rarity = "epic"},
+        ["Elementium Ingot"] = {level = 300, type = "bar", rarity = "legendary"},
+        
+        -- ZG/AQ Raid Materials
+        ["Zulian Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Razzashi Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Hakkari Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Gurubashi Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Sandfury Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Vilebranch Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Witherbark Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Skullsplitter Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Bloodscalp Coin"] = {level = 300, type = "coin", rarity = "rare"},
+        ["Silithid Carapace Fragment"] = {level = 300, type = "carapace", rarity = "rare"},
+        ["Peacebloom"] = {level = 1, type = "herb", rarity = "common"}, -- AQ enchant mats
         ["Elementium Ore"] = {level = 300, type = "ore", rarity = "legendary"},
         ["Elementium Bar"] = {level = 300, type = "bar", rarity = "legendary"},
     },
@@ -577,6 +591,13 @@ Databases.MATERIALS = {
         ["Silver Contact"] = {level = 75, type = "part", rarity = "common"},
         ["Gold Power Core"] = {level = 150, type = "part", rarity = "common"},
         ["Truesilver Transformer"] = {level = 260, type = "part", rarity = "rare"},
+        
+        -- High-End Engineering Components
+        ["Delicate Arcanite Converter"] = {level = 285, type = "part", rarity = "epic"},
+        ["Elemental Blasting Powder"] = {level = 250, type = "powder", rarity = "rare"},
+        ["Thorium Grenade"] = {level = 260, type = "explosive", rarity = "common"},
+        ["Hi-Explosive Bomb"] = {level = 235, type = "explosive", rarity = "common"},
+        ["Arcane Bomb"] = {level = 260, type = "explosive", rarity = "rare"},
         
         -- Fishing Consumables (Engineering)
         ["Aquadynamic Fish Attractor"] = {level = 150, type = "consumable", rarity = "common"},
@@ -932,6 +953,14 @@ Databases.MATERIALS = {
         ["Core Leather"] = {level = 300, type = "leather", rarity = "epic"},
         ["Primal Bat Leather"] = {level = 300, type = "leather", rarity = "epic"},
         
+        -- Missing Special Leathers and Scales
+        ["Warbear Leather"] = {level = 275, type = "leather", rarity = "rare"},
+        ["Heavy Scorpid Scale"] = {level = 225, type = "scale", rarity = "rare"},
+        ["Chimera Leather"] = {level = 250, type = "leather", rarity = "rare"},
+        ["Frostsaber Leather"] = {level = 200, type = "leather", rarity = "rare"},
+        ["Turtle Scale"] = {level = 175, type = "scale", rarity = "common"},
+        ["Perfect Deviate Scale"] = {level = 100, type = "scale", rarity = "rare"},
+        
         -- Salts and Curing Materials
         ["Salt"] = {level = 1, type = "salt", rarity = "common"},
         ["Deeprock Salt"] = {level = 150, type = "salt", rarity = "common"},
@@ -1058,6 +1087,50 @@ Databases.MATERIALS = {
         ["Globe of Water"] = {level = 200, type = "essence", rarity = "rare"},
         ["Breath of Wind"] = {level = 200, type = "essence", rarity = "rare"},
         ["Ichor of Undeath"] = {level = 200, type = "essence", rarity = "rare"},
+    },
+    
+    -- First Aid Materials
+    FirstAid = {
+        -- Cloth materials (shared with Tailoring)
+        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
+        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        ["Silk Cloth"] = {level = 125, type = "cloth", rarity = "common"},
+        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
+        ["Runecloth"] = {level = 225, type = "cloth", rarity = "common"},
+        
+        -- Specific First Aid reagents
+        ["Venom Sac"] = {level = 80, type = "reagent", rarity = "common"},
+        ["Crystal Vial"] = {level = 150, type = "vial", rarity = "common"},
+        ["Anti-Venom"] = {level = 80, type = "antidote", rarity = "common"},
+        ["Strong Anti-Venom"] = {level = 130, type = "antidote", rarity = "common"},
+        ["Powerful Anti-Venom"] = {level = 300, type = "antidote", rarity = "rare"},
+    },
+    
+    -- Gems (Cross-profession materials)
+    Gems = {
+        -- Basic gems
+        ["Rough Stone"] = {level = 1, type = "stone", rarity = "common"},
+        ["Malachite"] = {level = 50, type = "gem", rarity = "common"},
+        ["Tigerseye"] = {level = 100, type = "gem", rarity = "common"},
+        ["Shadowgem"] = {level = 100, type = "gem", rarity = "rare"},
+        ["Moss Agate"] = {level = 125, type = "gem", rarity = "common"},
+        ["Lesser Moonstone"] = {level = 150, type = "gem", rarity = "rare"},
+        ["Citrine"] = {level = 175, type = "gem", rarity = "common"},
+        ["Jade"] = {level = 175, type = "gem", rarity = "rare"},
+        
+        -- High-end gems
+        ["Star Ruby"] = {level = 200, type = "gem", rarity = "rare"},
+        ["Aquamarine"] = {level = 225, type = "gem", rarity = "rare"},
+        ["Blue Sapphire"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Large Opal"] = {level = 250, type = "gem", rarity = "rare"},
+        ["Huge Emerald"] = {level = 275, type = "gem", rarity = "rare"},
+        ["Azerothian Diamond"] = {level = 275, type = "gem", rarity = "epic"},
+        
+        -- Raw gems from mining
+        ["Small Lustrous Pearl"] = {level = 100, type = "pearl", rarity = "common"},
+        ["Iridescent Pearl"] = {level = 150, type = "pearl", rarity = "rare"},
+        ["Black Pearl"] = {level = 200, type = "pearl", rarity = "rare"},
+        ["Golden Pearl"] = {level = 275, type = "pearl", rarity = "epic"},
     }
 }
 
@@ -1349,7 +1422,12 @@ function Databases.GetMaterialInfo(itemName, profession)
         end
     end
     
-    -- Fall back to built-in database
+    -- Check centralized gems (cross-profession)
+    if Databases.MATERIALS.Gems and Databases.MATERIALS.Gems[itemName] then
+        return Databases.MATERIALS.Gems[itemName]
+    end
+    
+    -- Fall back to profession-specific database
     if Databases.MATERIALS[profession] then
         return Databases.MATERIALS[profession][itemName]
     end
@@ -1357,7 +1435,18 @@ function Databases.GetMaterialInfo(itemName, profession)
 end
 
 function Databases.GetMaterialRarity(itemName)
-    return Databases.MATERIAL_RARITY[itemName] or "common"
+    -- Check explicit rarity overrides first
+    if Databases.MATERIAL_RARITY[itemName] then
+        return Databases.MATERIAL_RARITY[itemName]
+    end
+    
+    -- Check centralized gems for rarity
+    if Databases.MATERIALS.Gems and Databases.MATERIALS.Gems[itemName] then
+        return Databases.MATERIALS.Gems[itemName].rarity or "common"
+    end
+    
+    -- Default fallback
+    return "common"
 end
 
 function Databases.GetSlotMapping(equipLoc)
