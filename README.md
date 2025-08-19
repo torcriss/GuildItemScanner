@@ -43,6 +43,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **USE AT YOUR OWN RISK** - We take no responsibility for any issues, lost loot opportunities, or guild drama that may occur
 - **REPORT ISSUES** - Please report bugs at https://github.com/torcriss/GuildItemScanner/issues
 - **COMMUNITY PROJECT** - Contributions and feedback are welcome!
+- **DATABASE VALIDATED** - Item databases cross-referenced with ClassicDB for accuracy
 
 ## ✨ Features
 
@@ -50,7 +51,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with smart pattern matching  
 - **🏭 Crafting Materials** - 100+ materials with quantity/rarity filtering + custom materials
-- **👜 Storage Bags** - 55+ bags with customizable size filtering (including colored leather bags)
+- **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 90+ potions with type filtering
 
 ### 🤖 **Social Automation**
