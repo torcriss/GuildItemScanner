@@ -1130,16 +1130,57 @@ Databases.CLASS_ARMOR_RESTRICTIONS = {
 Databases.RECIPE_PROFESSIONS = {
     -- Non-Recipe patterns (highest priority)
     {"Formula: ", "Enchanting"},
-    {"Pattern: ", {"Tailoring", "Leatherworking"}},
     {"Plans: ", "Blacksmithing"},
     {"Schematic: ", "Engineering"},
     {"Manual: ", "First Aid"},
     
-    -- Specific Alchemy recipes (must come before generic Recipe: patterns)
+    -- Specific Tailoring patterns (BEFORE generic Pattern:)
+    {"Pattern: Mooncloth ", "Tailoring"},
+    {"Pattern: Runecloth ", "Tailoring"},
+    {"Pattern: Mageweave ", "Tailoring"},
+    {"Pattern: Silk ", "Tailoring"},
+    {"Pattern: Linen ", "Tailoring"},
+    {"Pattern: Woolen ", "Tailoring"},
+    {"Pattern: Enchanted ", "Tailoring"},  -- Enchanted bags/pouches
+    {"Pattern: Cenarion Herb Bag", "Tailoring"},
+    {"Pattern: Gaea's Embrace", "Tailoring"},
+    {"Pattern: Sylvan ", "Tailoring"},  -- Sylvan Crown, Sylvan Vest, etc.
+    
+    -- Specific Leatherworking patterns (BEFORE generic Pattern:)
+    {"Pattern: Dragonscale ", "Leatherworking"},
+    {"Pattern: Black Dragonscale ", "Leatherworking"},
+    {"Pattern: Blue Dragonscale ", "Leatherworking"},
+    {"Pattern: Green Dragonscale ", "Leatherworking"},
+    {"Pattern: Red Dragonscale ", "Leatherworking"},
+    {"Pattern: Devilsaur ", "Leatherworking"},
+    {"Pattern: Warbear ", "Leatherworking"},
+    {"Pattern: Bramblewood ", "Leatherworking"},
+    {"Pattern: Heavy Scorpid ", "Leatherworking"},
+    {"Pattern: Rugged Leather ", "Leatherworking"},
+    {"Pattern: Thick Leather ", "Leatherworking"},
+    {"Pattern: Heavy Leather ", "Leatherworking"},
+    
+    -- Generic Pattern fallback (for unknown/edge cases)
+    {"Pattern: ", {"Tailoring", "Leatherworking"}},
+    
+    -- Enhanced Alchemy detection (BEFORE generic Recipe:)
+    {"Recipe: Major ", "Alchemy"},     -- Major Healing Potion, Major Mana Potion
+    {"Recipe: Superior ", "Alchemy"},  -- Superior Healing Potion, Superior Mana Potion
+    {"Recipe: Lesser ", "Alchemy"},    -- Lesser Healing Potion, Lesser Mana Potion
+    {"Recipe: Mighty ", "Alchemy"},    -- Mighty Rage Potion, Mighty Troll's Blood
+    {"Recipe: Great ", "Alchemy"},     -- Great Rage Potion
+    {"Recipe: Combat ", "Alchemy"},    -- Combat Healing Potion, Combat Mana Potion
+    {"Recipe: Crystal ", "Alchemy"},   -- Crystal Force, Crystal Spire, etc.
+    {"Recipe: Magic ", "Alchemy"},     -- Magic Resistance Potion
+    {"Recipe: Iron Shield ", "Alchemy"}, -- Iron Shield Potion
+    {"Recipe: Wildvine ", "Alchemy"},  -- Wildvine Potion
+    {"Recipe: Rage ", "Alchemy"},      -- Rage Potion (if standalone)
+    
+    -- Existing Alchemy patterns (keep as-is for backward compatibility)
     {"Recipe: Transmute ", "Alchemy"},
     {"Recipe: Elixir ", "Alchemy"},
     {"Recipe: Flask ", "Alchemy"},
-    {"Recipe: Potion ", "Alchemy"},  -- Covers "Major X Potion", "Greater X Potion", etc.
+    {"Recipe: Potion ", "Alchemy"},  -- Covers remaining "X Potion" patterns
     {"Recipe: Oil ", "Alchemy"},
     
     -- Specific protection potions (longer patterns first)

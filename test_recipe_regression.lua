@@ -78,12 +78,51 @@ function addon.Databases.GetRecipeProfession(itemName)
     return nil
 end
 
--- Test cases to verify no regression
+-- Test cases to verify no regression and test all 8 professions
 local test_cases = {
-    -- Existing recipes that must maintain their profession assignment
-    {"Recipe: Savory Deviate Delight", "Cooking"},
-    {"Recipe: Spiced Wolf Meat", "Cooking"},
-    {"Recipe: Gooey Spider Cake", "Cooking"},
+    -- 1. ENCHANTING - All Formula: items
+    {"Formula: Enchant Weapon - Agility", "Enchanting"},
+    {"Formula: Enchant Bracer - Healing", "Enchanting"},
+    {"Formula: Lesser Wizard Oil", "Enchanting"},
+    {"Formula: Enchant Gloves - Shadow Power", "Enchanting"},
+    
+    -- 2. BLACKSMITHING - All Plans: items  
+    {"Plans: Dark Iron Boots", "Blacksmithing"},
+    {"Plans: Arcanite Reaper", "Blacksmithing"},
+    {"Plans: Ironvine Breastplate", "Blacksmithing"},
+    {"Plans: Sulfuron Hammer", "Blacksmithing"},
+    
+    -- 3. ENGINEERING - All Schematic: items
+    {"Schematic: Goblin Jumper Cables", "Engineering"},
+    {"Schematic: Mechanical Dragonling", "Engineering"},
+    {"Schematic: Gyrofreeze Ice Reflector", "Engineering"},
+    {"Schematic: Bloodvine Goggles", "Engineering"},
+    
+    -- 4. FIRST AID - Manual: items
+    {"Manual: Heavy Silk Bandage", "First Aid"},
+    {"Manual: Mageweave Bandage", "First Aid"},
+    {"Manual: Runecloth Bandage", "First Aid"},  -- Test generic Manual: fallback
+    
+    -- 5. TAILORING - Specific cloth patterns (NEW - should NOT alert Leatherworking)
+    {"Pattern: Mooncloth Robe", "Tailoring"},
+    {"Pattern: Runecloth Bag", "Tailoring"},
+    {"Pattern: Mageweave Gloves", "Tailoring"},
+    {"Pattern: Silk Headband", "Tailoring"},
+    {"Pattern: Enchanted Mageweave Pouch", "Tailoring"},
+    {"Pattern: Gaea's Embrace", "Tailoring"},
+    {"Pattern: Sylvan Crown", "Tailoring"},
+    
+    -- 6. LEATHERWORKING - Specific leather patterns (NEW - should NOT alert Tailoring)
+    {"Pattern: Dragonscale Breastplate", "Leatherworking"},
+    {"Pattern: Devilsaur Gauntlets", "Leatherworking"},
+    {"Pattern: Warbear Harness", "Leatherworking"},
+    {"Pattern: Bramblewood Helm", "Leatherworking"},
+    {"Pattern: Heavy Scorpid Bracers", "Leatherworking"},
+    {"Pattern: Black Dragonscale Boots", "Leatherworking"},
+    {"Pattern: Rugged Leather Pants", "Leatherworking"},
+    
+    -- 7. ALCHEMY - Enhanced detection (existing + new patterns)
+    -- Existing patterns (backward compatibility)
     {"Recipe: Elixir of Giant Growth", "Alchemy"},
     {"Recipe: Flask of the Titans", "Alchemy"},
     {"Recipe: Transmute Iron to Gold", "Alchemy"},
@@ -91,31 +130,44 @@ local test_cases = {
     {"Recipe: Fire Protection Potion", "Alchemy"},
     {"Recipe: Potion of Insight", "Alchemy"},
     {"Recipe: Oil of Immolation", "Alchemy"},
-    
-    -- New patterns that should work
     {"Recipe: Major Rejuvenation Potion", "Alchemy"},
     {"Recipe: Living Action Potion", "Alchemy"},
     {"Recipe: Mageblood Potion", "Alchemy"},
-    {"Manual: Heavy Silk Bandage", "First Aid"},
-    {"Manual: Mageweave Bandage", "First Aid"},
     
-    -- Non-recipe patterns
-    {"Formula: Enchant Weapon - Agility", "Enchanting"},
-    {"Pattern: Bloodvine Vest", {"Tailoring", "Leatherworking"}},
-    {"Plans: Dark Iron Boots", "Blacksmithing"},
-    {"Schematic: Goblin Jumper Cables", "Engineering"},
+    -- New enhanced patterns
+    {"Recipe: Major Healing Potion", "Alchemy"},
+    {"Recipe: Superior Mana Potion", "Alchemy"},
+    {"Recipe: Lesser Invisibility Potion", "Alchemy"},
+    {"Recipe: Mighty Rage Potion", "Alchemy"},
+    {"Recipe: Great Rage Potion", "Alchemy"},
+    {"Recipe: Combat Healing Potion", "Alchemy"},
+    {"Recipe: Crystal Force", "Alchemy"},
+    {"Recipe: Magic Resistance Potion", "Alchemy"},
+    {"Recipe: Iron Shield Potion", "Alchemy"},
+    {"Recipe: Wildvine Potion", "Alchemy"},
+    {"Recipe: Rage Potion", "Alchemy"},
     
-    -- Random cooking recipes (should default to Cooking)
+    -- 8. COOKING - Should catch all remaining Recipe: items
+    {"Recipe: Savory Deviate Delight", "Cooking"},
+    {"Recipe: Spiced Wolf Meat", "Cooking"},
+    {"Recipe: Gooey Spider Cake", "Cooking"},
     {"Recipe: Hot Lion Chops", "Cooking"},
     {"Recipe: Nightfin Soup", "Cooking"},
     {"Recipe: Westfall Stew", "Cooking"},
+    {"Recipe: Grilled Squid", "Cooking"},
+    {"Recipe: Tender Wolf Steak", "Cooking"},
+    
+    -- Edge cases - Unknown patterns should fall back gracefully
+    {"Pattern: Unknown Item", {"Tailoring", "Leatherworking"}}, -- Generic fallback
+    {"Recipe: Unknown Food", "Cooking"}, -- Generic cooking fallback
 }
 
 -- Run tests
 local passed = 0
 local failed = 0
 
-print("=== Recipe Detection Regression Test ===")
+print("=== Comprehensive Recipe Detection Test (All 8 Professions) ===")
+print("Testing enhanced recipe detection with specific Tailoring/Leatherworking patterns")
 print("")
 
 for i, test in ipairs(test_cases) do
