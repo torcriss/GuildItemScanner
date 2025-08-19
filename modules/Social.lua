@@ -27,12 +27,14 @@ local function HookChatFrame()
             -- Handle achievement notifications
             if string.find(cleanText, "earned achievement:") then
                 local playerName = string.match(cleanText, "%[Frontier%]%s*([^%s].-)%s*earned achievement:")
+                local achievementName = string.match(cleanText, "earned achievement:%s*(.+)")
                 
                 if addon.Config and addon.Config.Get("debugMode") then
                     print("|cff00ff00[GuildItemScanner Debug]|r Caught achievement: " .. text)
                     print("|cff00ff00[GuildItemScanner Debug]|r Clean text: " .. cleanText)
                     if playerName then
                         print("|cff00ff00[GuildItemScanner Debug]|r Player name: " .. playerName)
+                        print("|cff00ff00[GuildItemScanner Debug]|r Achievement name: " .. (achievementName or "unknown"))
                         print("|cff00ff00[GuildItemScanner Debug]|r Auto-GZ enabled: " .. tostring(addon.Config.Get("autoGZ")))
                     else
                         print("|cff00ff00[GuildItemScanner Debug]|r Failed to extract player name")
@@ -42,7 +44,7 @@ local function HookChatFrame()
                 if playerName and addon.Config and addon.Config.Get("autoGZ") then
                     -- Don't congratulate yourself
                     if playerName ~= UnitName("player") then
-                        Social.SendAutoGZ(playerName)
+                        Social.SendAutoGZ(playerName, achievementName)
                     elseif addon.Config and addon.Config.Get("debugMode") then
                         print("|cff00ff00[GuildItemScanner Debug]|r Skipped GZ for self: " .. playerName)
                     end
@@ -146,7 +148,7 @@ local function GetCombinedRipMessages(level)
 end
 
 -- Send automatic congratulations
-function Social.SendAutoGZ(playerName)
+function Social.SendAutoGZ(playerName, achievementName)
     -- Use configurable chance
     local gzChance = (addon.Config and addon.Config.GetGzChance() or 50) / 100
     local shouldCongratulate = math.random() <= gzChance
@@ -162,7 +164,7 @@ function Social.SendAutoGZ(playerName)
             SendChatMessage(gzMessage, "GUILD")
             
             -- Track in social history
-            Social.AddSocialHistory("GZ", playerName, gzMessage, {achievement = "achievement"})
+            Social.AddSocialHistory("GZ", playerName, gzMessage, {achievement = achievementName or "Unknown Achievement"})
             
             if addon.Config and addon.Config.Get("debugMode") then
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay, message: %s)", 
@@ -175,6 +177,9 @@ function Social.SendAutoGZ(playerName)
     else
         local chance = addon.Config and addon.Config.GetGzChance() or 50
         print(string.format("|cff00ff00[GuildItemScanner]|r Skipped GZ for %s (%d%% chance roll failed)", playerName or "unknown", chance))
+        
+        -- Track skipped event in social history
+        Social.AddSocialHistory("GZ", playerName, "[Skipped - Roll Failed]", {achievement = achievementName or "Unknown Achievement", skipped = true, chance = chance})
     end
 end
 
@@ -219,6 +224,9 @@ function Social.SendAutoRIP(level, playerName)
     else
         local chance = addon.Config and addon.Config.GetRipChance() or 60
         print(string.format("|cff00ff00[GuildItemScanner]|r Skipped RIP for %s (%d%% chance roll failed)", playerName or "unknown", chance))
+        
+        -- Track skipped event in social history
+        Social.AddSocialHistory("RIP", playerName, "[Skipped - Roll Failed]", {level = level, skipped = true, chance = chance})
     end
 end
 
