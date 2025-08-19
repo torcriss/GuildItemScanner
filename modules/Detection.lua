@@ -181,12 +181,21 @@ local function canPlayerUseItem(itemLink)
     end
     
     local _, class = UnitClass("player")
-    local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
+    local _, _, itemQuality, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
+    
+    -- Skip cosmetic items (shirts, tabards)
+    if addon.Databases and addon.Databases.IsCosmetic(itemEquipLoc) then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Skipping cosmetic item: %s", itemEquipLoc))
+        end
+        return false
+    end
     
     if addon.Config and addon.Config.Get("debugMode") then
         local slotName = addon.Databases and addon.Databases.GetSlotMapping(itemEquipLoc) or itemEquipLoc or "unknown"
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r %s %s (%s)", 
-            itemSubType or "Unknown", slotName, class))
+        local qualityName = addon.Databases and addon.Databases.GetQualityName(itemQuality) or "Unknown"
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r %s %s %s (%s)", 
+            qualityName, itemSubType or "Unknown", slotName, class))
     end
     
     local isArmor = itemEquipLoc and (
@@ -195,7 +204,8 @@ local function canPlayerUseItem(itemLink)
         itemEquipLoc == "INVTYPE_WAIST" or itemEquipLoc == "INVTYPE_LEGS" or 
         itemEquipLoc == "INVTYPE_FEET" or itemEquipLoc == "INVTYPE_WRIST" or 
         itemEquipLoc == "INVTYPE_HAND" or itemEquipLoc == "INVTYPE_CLOAK" or 
-        itemEquipLoc == "INVTYPE_BODY"
+        itemEquipLoc == "INVTYPE_NECK" or itemEquipLoc == "INVTYPE_FINGER" or
+        itemEquipLoc == "INVTYPE_TRINKET" or itemEquipLoc == "INVTYPE_HOLDABLE"
     )
     
     if isArmor and itemSubType then
@@ -211,7 +221,8 @@ local function canPlayerUseItem(itemLink)
         itemEquipLoc == "INVTYPE_WEAPON" or itemEquipLoc == "INVTYPE_2HWEAPON" or
         itemEquipLoc == "INVTYPE_WEAPONMAINHAND" or itemEquipLoc == "INVTYPE_WEAPONOFFHAND" or
         itemEquipLoc == "INVTYPE_RANGED" or itemEquipLoc == "INVTYPE_THROWN" or
-        itemEquipLoc == "INVTYPE_RANGEDRIGHT" or itemEquipLoc == "INVTYPE_SHIELD"
+        itemEquipLoc == "INVTYPE_RANGEDRIGHT" or itemEquipLoc == "INVTYPE_SHIELD" or
+        itemEquipLoc == "INVTYPE_RELIC"
     )
     
     if isWeapon and itemSubType then
@@ -231,6 +242,82 @@ local function getEquippedItemLevel(slot)
     if not itemLink then return 0 end
     local _, _, _, itemLevel = GetItemInfo(itemLink)
     return itemLevel or 0
+end
+
+-- Calculate weapon DPS for better weapon comparison
+local function getWeaponDPS(itemLink)
+    if not itemLink then return 0 end
+    
+    -- Use tooltip scanning for weapon stats
+    local scanTip = CreateFrame("GameTooltip", "GISWeaponScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetHyperlink(itemLink)
+    
+    local dps = 0
+    local speed = 0
+    local minDmg, maxDmg = 0, 0
+    
+    -- Scan tooltip lines for damage and speed
+    for i = 2, scanTip:NumLines() do
+        local line = _G[scanTip:GetName() .. "TextLeft" .. i]:GetText()
+        if line then
+            -- Look for damage range (e.g., "50 - 94 Damage")
+            local min, max = line:match("(%d+)%s*%-%s*(%d+)%s+Damage")
+            if min and max then
+                minDmg = tonumber(min)
+                maxDmg = tonumber(max)
+            end
+            
+            -- Look for speed (e.g., "Speed 2.60")
+            local weaponSpeed = line:match("Speed%s+([%d%.]+)")
+            if weaponSpeed then
+                speed = tonumber(weaponSpeed)
+            end
+            
+            -- Look for DPS (e.g., "(27.9 damage per second)")
+            local directDPS = line:match("%(([%d%.]+)%s+damage per second%)")
+            if directDPS then
+                dps = tonumber(directDPS)
+            end
+        end
+    end
+    
+    scanTip:Hide()
+    
+    -- Calculate DPS if not directly available
+    if dps == 0 and minDmg > 0 and maxDmg > 0 and speed > 0 then
+        local avgDmg = (minDmg + maxDmg) / 2
+        dps = avgDmg / speed
+    end
+    
+    return dps
+end
+
+-- Get armor value for better armor comparison
+local function getArmorValue(itemLink)
+    if not itemLink then return 0 end
+    
+    local scanTip = CreateFrame("GameTooltip", "GISArmorScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetHyperlink(itemLink)
+    
+    local armor = 0
+    
+    -- Scan tooltip lines for armor value
+    for i = 2, scanTip:NumLines() do
+        local line = _G[scanTip:GetName() .. "TextLeft" .. i]:GetText()
+        if line then
+            -- Look for armor value (e.g., "425 Armor")
+            local armorValue = line:match("(%d+)%s+Armor")
+            if armorValue then
+                armor = tonumber(armorValue)
+                break
+            end
+        end
+    end
+    
+    scanTip:Hide()
+    return armor
 end
 
 -- Stat extraction and scoring functions
@@ -375,24 +462,54 @@ local function isItemUpgrade(itemLink)
     -- Find lowest equipped values
     local lowestEquippedLevel = 999
     local lowestEquippedStatScore = 999999
+    local lowestEquippedDPS = 999999
+    local lowestEquippedArmor = 999999
+    
     for _, slot in ipairs(slotsToCheck) do
         local equippedLevel = getEquippedItemLevel(slot)
         if equippedLevel < lowestEquippedLevel then
             lowestEquippedLevel = equippedLevel
         end
         
-        if comparisonMode == "stats" or comparisonMode == "both" then
+        if comparisonMode == "stats" or comparisonMode == "both" or comparisonMode == "smart" then
             local equippedStatScore = getEquippedItemStatScore(slot)
             if equippedStatScore < lowestEquippedStatScore then
                 lowestEquippedStatScore = equippedStatScore
+            end
+        end
+        
+        if comparisonMode == "dps" or comparisonMode == "smart" then
+            local equippedLink = GetInventoryItemLink("player", slot)
+            local equippedDPS = getWeaponDPS(equippedLink)
+            if equippedDPS < lowestEquippedDPS then
+                lowestEquippedDPS = equippedDPS
+            end
+        end
+        
+        if comparisonMode == "armor" or comparisonMode == "smart" then
+            local equippedLink = GetInventoryItemLink("player", slot)
+            local equippedArmor = getArmorValue(equippedLink)
+            if equippedArmor < lowestEquippedArmor then
+                lowestEquippedArmor = equippedArmor
             end
         end
     end
     
     -- Calculate scores for new item
     local itemStatScore = 0
-    if comparisonMode == "stats" or comparisonMode == "both" then
+    local itemDPS = 0
+    local itemArmor = 0
+    
+    if comparisonMode == "stats" or comparisonMode == "both" or comparisonMode == "smart" then
         itemStatScore = getItemStatScore(itemLink)
+    end
+    
+    if comparisonMode == "dps" or comparisonMode == "smart" then
+        itemDPS = getWeaponDPS(itemLink)
+    end
+    
+    if comparisonMode == "armor" or comparisonMode == "smart" then
+        itemArmor = getArmorValue(itemLink)
     end
     
     -- Determine if upgrade based on mode
@@ -441,6 +558,76 @@ local function isItemUpgrade(itemLink)
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBOTH UPGRADES - ITEM IS UPGRADE!|r"))
             else
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffff0000NOT UPGRADE IN BOTH - NOT AN UPGRADE|r"))
+            end
+        end
+        
+    elseif comparisonMode == "dps" then
+        -- DPS comparison for weapons
+        isUpgrade = itemDPS > lowestEquippedDPS
+        improvement = math.floor((itemDPS - lowestEquippedDPS) * 10) / 10 -- Round to 1 decimal
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            if isUpgrade then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r DPS %.1f vs %.1f |cffa335eeUPGRADE!|r", itemDPS, lowestEquippedDPS))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r DPS %.1f vs %.1f |cffff0000NOT AN UPGRADE|r", itemDPS, lowestEquippedDPS))
+            end
+        end
+        
+    elseif comparisonMode == "armor" then
+        -- Armor comparison for armor pieces
+        isUpgrade = itemArmor > lowestEquippedArmor
+        improvement = itemArmor - lowestEquippedArmor
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            if isUpgrade then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Armor %d vs %d |cffa335eeUPGRADE!|r", itemArmor, lowestEquippedArmor))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Armor %d vs %d |cffff0000NOT AN UPGRADE|r", itemArmor, lowestEquippedArmor))
+            end
+        end
+        
+    elseif comparisonMode == "smart" then
+        -- Smart comparison - use DPS for weapons, armor for armor pieces, stats otherwise
+        local _, _, _, _, _, _, itemSubType, _, itemEquipLoc = GetItemInfo(itemLink)
+        
+        local isWeapon = itemEquipLoc and (
+            itemEquipLoc == "INVTYPE_WEAPON" or itemEquipLoc == "INVTYPE_2HWEAPON" or
+            itemEquipLoc == "INVTYPE_WEAPONMAINHAND" or itemEquipLoc == "INVTYPE_WEAPONOFFHAND" or
+            itemEquipLoc == "INVTYPE_RANGED" or itemEquipLoc == "INVTYPE_THROWN" or
+            itemEquipLoc == "INVTYPE_RANGEDRIGHT" or itemEquipLoc == "INVTYPE_RELIC"
+        )
+        
+        local isArmorPiece = itemEquipLoc and (
+            itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_ROBE" or
+            itemEquipLoc == "INVTYPE_LEGS" or itemEquipLoc == "INVTYPE_FEET" or itemEquipLoc == "INVTYPE_HANDS" or
+            itemEquipLoc == "INVTYPE_WRIST" or itemEquipLoc == "INVTYPE_WAIST" or itemEquipLoc == "INVTYPE_SHOULDER" or
+            itemEquipLoc == "INVTYPE_CLOAK"
+        )
+        
+        if isWeapon and itemDPS > 0 then
+            -- Use DPS for weapons
+            isUpgrade = itemDPS > lowestEquippedDPS
+            improvement = math.floor((itemDPS - lowestEquippedDPS) * 10) / 10
+            
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Smart mode (DPS): %.1f vs %.1f", itemDPS, lowestEquippedDPS))
+            end
+        elseif isArmorPiece and itemArmor > 0 then
+            -- Use armor for armor pieces
+            isUpgrade = itemArmor > lowestEquippedArmor
+            improvement = itemArmor - lowestEquippedArmor
+            
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Smart mode (Armor): %d vs %d", itemArmor, lowestEquippedArmor))
+            end
+        else
+            -- Fallback to item level for accessories and other items
+            isUpgrade = itemLevel > lowestEquippedLevel
+            improvement = itemLevel - lowestEquippedLevel
+            
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Smart mode (iLvl): %d vs %d", itemLevel, lowestEquippedLevel))
             end
         end
     end
@@ -744,6 +931,27 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     -- Finally check for equipment upgrades
     -- Only check equipment if it has a valid equipment location
     if itemEquipLoc and itemEquipLoc ~= "" and itemEquipLoc ~= "INVTYPE_NON_EQUIP_IGNORE" then
+        -- Check equipment quality filter
+        local minQuality = addon.Config and addon.Config.Get("equipmentQualityFilter") or "uncommon"
+        local qualityLevels = {common = 1, uncommon = 2, rare = 3, epic = 4, legendary = 5}
+        local minQualityLevel = qualityLevels[minQuality] or 2
+        local alertLegendary = addon.Config and addon.Config.Get("alertLegendaryItems")
+        
+        -- Always alert legendary items if enabled, otherwise check quality filter
+        local shouldCheckQuality = true
+        if alertLegendary and addon.Databases and addon.Databases.IsLegendaryItem(itemQuality) then
+            shouldCheckQuality = false
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r Legendary item - bypassing quality filter")
+            end
+        elseif itemQuality < minQualityLevel then
+            if addon.Config and addon.Config.Get("debugMode") then
+                local qualityName = addon.Databases and addon.Databases.GetQualityName(itemQuality) or "Unknown"
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Item quality %s below filter %s", qualityName, minQuality))
+            end
+            return
+        end
+        
         local isUpgrade, improvement = isItemUpgrade(itemLink)
         if isUpgrade and addon.Alerts then
             if isWTBRequest then

@@ -84,6 +84,74 @@ commandHandlers.test = function()
     end
 end
 
+commandHandlers.testweapon = function()
+    print("|cff00ff00[GuildItemScanner]|r Testing weapon detection...")
+    -- Test with a sample weapon link (example: Thunderfury)
+    local testWeaponLink = "|cffa335ee|Hitem:19019:0:0:0:0:0:0:0:60|h[Thunderfury, Blessed Blade of the Windseeker]|h|r"
+    print("Test weapon: " .. testWeaponLink)
+    if addon.Detection then
+        addon.Detection.ProcessGuildMessage("TestPlayer whispers: Check out " .. testWeaponLink)
+    end
+end
+
+commandHandlers.testarmor = function()
+    print("|cff00ff00[GuildItemScanner]|r Testing armor detection...")
+    -- Test with sample armor links
+    local testArmorLinks = {
+        "|cffa335ee|Hitem:16820:0:0:0:0:0:0:0:60|h[Nightslayer Chestpiece]|h|r",
+        "|cffa335ee|Hitem:16963:0:0:0:0:0:0:0:60|h[Helm of Wrath]|h|r",
+        "|cffa335ee|Hitem:18404:0:0:0:0:0:0:0:60|h[Xorothian Firestick]|h|r"
+    }
+    
+    for _, link in ipairs(testArmorLinks) do
+        print("Test armor: " .. link)
+        if addon.Detection then
+            addon.Detection.ProcessGuildMessage("TestPlayer whispers: Check out " .. link)
+        end
+    end
+end
+
+commandHandlers.equipquality = function(args)
+    if not args or args == "" then
+        local current = addon.Config.Get("equipmentQualityFilter")
+        print("|cff00ff00[GuildItemScanner]|r Current equipment quality filter: " .. current)
+        print("Valid qualities: common, uncommon, rare, epic, legendary")
+        return
+    end
+    
+    local validQualities = {common = true, uncommon = true, rare = true, epic = true, legendary = true}
+    local quality = string.lower(args)
+    
+    if not validQualities[quality] then
+        print("|cff00ff00[GuildItemScanner]|r Invalid quality. Valid options: common, uncommon, rare, epic, legendary")
+        return
+    end
+    
+    addon.Config.Set("equipmentQualityFilter", quality)
+    print("|cff00ff00[GuildItemScanner]|r Equipment quality filter set to: " .. quality)
+end
+
+commandHandlers.legendary = function(args)
+    if not args or args == "" then
+        local current = addon.Config.Get("alertLegendaryItems")
+        print("|cff00ff00[GuildItemScanner]|r Alert legendary items: " .. (current and "enabled" or "disabled"))
+        return
+    end
+    
+    local value
+    if args == "on" or args == "true" or args == "1" then
+        value = true
+    elseif args == "off" or args == "false" or args == "0" then
+        value = false
+    else
+        print("|cff00ff00[GuildItemScanner]|r Invalid value. Use: on/off, true/false, or 1/0")
+        return
+    end
+    
+    addon.Config.Set("alertLegendaryItems", value)
+    print("|cff00ff00[GuildItemScanner]|r Alert legendary items: " .. (value and "enabled" or "disabled"))
+end
+
 commandHandlers.whisper = function()
     if addon.Config then
         local enabled = addon.Config and addon.Config.Toggle("whisperMode")
@@ -913,6 +981,9 @@ commandHandlers.status = function()
     print("  Player: " .. class .. " (Level " .. UnitLevel("player") .. ")")
     print("  Debug mode: " .. (addon.Config and addon.Config.Get("debugMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print(" |cffFFD700Equipment Settings:|r")
+    print("  Equipment alerts: " .. (addon.Config and addon.Config.Get("equipmentAlert") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
+    print("  Quality filter: " .. (addon.Config and addon.Config.Get("equipmentQualityFilter") and string.upper(addon.Config.Get("equipmentQualityFilter")) or "UNCOMMON"))
+    print("  Legendary alerts: " .. (addon.Config and addon.Config.Get("alertLegendaryItems") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Whisper mode: " .. (addon.Config and addon.Config.Get("whisperMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Greed mode: " .. (addon.Config and addon.Config.Get("greedMode") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  WTB filtering: " .. (addon.Config and addon.Config.Get("ignoreWTB") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
@@ -1346,6 +1417,10 @@ commandHandlers.help = function()
     print(" /gis profile default [name] - Set/clear default profile")
     print(" |cffFFD700Equipment Commands:|r")
     print(" /gis test - Test equipment alert")
+    print(" /gis testweapon - Test weapon detection and DPS comparison")
+    print(" /gis testarmor - Test armor detection and armor value comparison")
+    print(" /gis equipquality [quality] - Set minimum equipment quality filter")
+    print(" /gis legendary [on/off] - Toggle legendary item alerts")
     print(" /gis whisper - Toggle whisper mode for requests")
     print(" /gis greed - Toggle greed button display")
     print(" /gis ignorewtb - Toggle WTB (Want To Buy) message filtering")

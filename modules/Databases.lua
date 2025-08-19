@@ -1339,7 +1339,8 @@ Databases.CLASS_WEAPON_RESTRICTIONS = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
         ["One-Handed Swords"] = true, ["Two-Handed Swords"] = true,
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
-        ["Polearms"] = true, ["Shields"] = true, ["Fishing Poles"] = true
+        ["Polearms"] = true, ["Shields"] = true, ["Librams"] = true,
+        ["Fishing Poles"] = true
     },
     HUNTER = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
@@ -1349,9 +1350,9 @@ Databases.CLASS_WEAPON_RESTRICTIONS = {
         ["Guns"] = true, ["Thrown"] = true, ["Fishing Poles"] = true
     },
     ROGUE = {
-        ["One-Handed Swords"] = true, ["One-Handed Maces"] = true,
-        ["Daggers"] = true, ["Fist Weapons"] = true, ["Bows"] = true,
-        ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true,
+        ["One-Handed Axes"] = true, ["One-Handed Swords"] = true, 
+        ["One-Handed Maces"] = true, ["Daggers"] = true, ["Fist Weapons"] = true, 
+        ["Bows"] = true, ["Crossbows"] = true, ["Guns"] = true, ["Thrown"] = true,
         ["Fishing Poles"] = true
     },
     PRIEST = {
@@ -1362,7 +1363,7 @@ Databases.CLASS_WEAPON_RESTRICTIONS = {
         ["One-Handed Axes"] = true, ["Two-Handed Axes"] = true,
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
         ["Staves"] = true, ["Daggers"] = true, ["Fist Weapons"] = true,
-        ["Shields"] = true, ["Fishing Poles"] = true
+        ["Shields"] = true, ["Totems"] = true, ["Fishing Poles"] = true
     },
     MAGE = {
         ["One-Handed Swords"] = true, ["Daggers"] = true, ["Staves"] = true, 
@@ -1375,7 +1376,7 @@ Databases.CLASS_WEAPON_RESTRICTIONS = {
     DRUID = {
         ["One-Handed Maces"] = true, ["Two-Handed Maces"] = true,
         ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
-        ["Fist Weapons"] = true, ["Fishing Poles"] = true
+        ["Fist Weapons"] = true, ["Idols"] = true, ["Fishing Poles"] = true
     }
 }
 
@@ -1388,8 +1389,24 @@ Databases.SLOT_MAPPING = {
     INVTYPE_HAND = "hands", INVTYPE_CLOAK = "back", INVTYPE_WEAPON = "main hand", 
     INVTYPE_SHIELD = "off hand", INVTYPE_2HWEAPON = "two-hand", 
     INVTYPE_WEAPONMAINHAND = "main hand", INVTYPE_WEAPONOFFHAND = "off hand", 
-    INVTYPE_HOLDABLE = "off hand", INVTYPE_RANGED = "ranged", INVTYPE_THROWN = "ranged",
-    INVTYPE_RANGEDRIGHT = "ranged", INVTYPE_RELIC = "ranged", INVTYPE_TABARD = "tabard"
+    INVTYPE_HOLDABLE = "held in off-hand", INVTYPE_RANGED = "ranged", INVTYPE_THROWN = "ranged",
+    INVTYPE_RANGEDRIGHT = "ranged", INVTYPE_RELIC = "relic", INVTYPE_TABARD = "tabard"
+}
+
+-- Equipment types that should not trigger alerts (cosmetic only)
+Databases.COSMETIC_EQUIPMENT = {
+    INVTYPE_BODY = true,    -- Shirts
+    INVTYPE_TABARD = true   -- Tabards
+}
+
+-- Quality-based equipment filtering
+Databases.EQUIPMENT_QUALITY = {
+    [0] = "Poor",        -- Gray
+    [1] = "Common",      -- White  
+    [2] = "Uncommon",    -- Green
+    [3] = "Rare",        -- Blue
+    [4] = "Epic",        -- Purple
+    [5] = "Legendary"    -- Orange
 }
 
 -- Slot ID mapping for equipment slots
@@ -1455,6 +1472,18 @@ end
 
 function Databases.GetSlotID(equipLoc)
     return Databases.SLOT_ID_MAPPING[equipLoc]
+end
+
+function Databases.IsCosmetic(equipLoc)
+    return Databases.COSMETIC_EQUIPMENT[equipLoc] == true
+end
+
+function Databases.GetQualityName(qualityLevel)
+    return Databases.EQUIPMENT_QUALITY[qualityLevel] or "Unknown"
+end
+
+function Databases.IsLegendaryItem(qualityLevel)
+    return qualityLevel == 5
 end
 
 -- Custom material management functions

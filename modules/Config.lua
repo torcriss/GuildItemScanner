@@ -33,8 +33,11 @@ local defaultConfig = {
     
     -- Equipment settings
     recipeAlert = true,
-    statComparisonMode = "ilvl",  -- "ilvl", "stats", or "both"
+    equipmentAlert = true,
+    statComparisonMode = "ilvl",  -- "ilvl", "stats", "both", "dps", "armor", or "smart"
     statPriorities = {},  -- ordered array of stat names
+    equipmentQualityFilter = "uncommon", -- minimum quality: common, uncommon, rare, epic, legendary
+    alertLegendaryItems = true -- always alert legendary items regardless of other filters
     
     -- Material settings
     materialAlert = true,
@@ -457,9 +460,9 @@ function Config.MoveStatPriority(stat, newPosition)
 end
 
 function Config.SetStatComparisonMode(mode)
-    local validModes = {ilvl = true, stats = true, both = true}
+    local validModes = {ilvl = true, stats = true, both = true, dps = true, armor = true, smart = true}
     if not validModes[mode] then
-        return false, "Invalid mode. Valid modes: ilvl, stats, both"
+        return false, "Invalid mode. Valid modes: ilvl, stats, both, dps, armor, smart"
     end
     
     config.statComparisonMode = mode
