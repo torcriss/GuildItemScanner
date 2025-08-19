@@ -820,7 +820,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
         GameTooltip:Hide()
     end
     
-    local itemName, _, _, _, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
+    local itemName, _, itemQuality, _, _, _, _, _, itemEquipLoc, _, _, _, _, bindType = GetItemInfo(itemLink)
     
     if not itemName then
         if not skipRetry then
