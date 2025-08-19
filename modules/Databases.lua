@@ -416,7 +416,6 @@ Databases.MATERIALS = {
         
         -- Special Reagents
         ["Deeprock Salt"] = {level = 150, type = "salt", rarity = "common"},
-        ["Coal"] = {level = 1, type = "fuel", rarity = "common"},
         ["Salt"] = {level = 1, type = "salt", rarity = "common"},
         ["Large Venom Sac"] = {level = 175, type = "venom", rarity = "common"},
         ["Small Flame Sac"] = {level = 100, type = "sac", rarity = "common"},
@@ -479,12 +478,6 @@ Databases.MATERIALS = {
         ["Cured Thick Hide"] = {level = 200, type = "leather", rarity = "common"},
         ["Cured Rugged Hide"] = {level = 275, type = "leather", rarity = "common"},
         
-        -- Cloth Materials (Used in some blacksmithing items)
-        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
-        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
-        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
-        ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
-        
         -- Gems (Used in high-end blacksmithing)
         ["Malachite"] = {level = 50, type = "gem", rarity = "common"},
         ["Tigerseye"] = {level = 100, type = "gem", rarity = "common"},
@@ -529,7 +522,6 @@ Databases.MATERIALS = {
         ["Skullsplitter Coin"] = {level = 300, type = "coin", rarity = "rare"},
         ["Bloodscalp Coin"] = {level = 300, type = "coin", rarity = "rare"},
         ["Silithid Carapace Fragment"] = {level = 300, type = "carapace", rarity = "rare"},
-        ["Peacebloom"] = {level = 1, type = "herb", rarity = "common"}, -- AQ enchant mats
         ["Elementium Ore"] = {level = 300, type = "ore", rarity = "legendary"},
         ["Elementium Bar"] = {level = 300, type = "bar", rarity = "legendary"},
     },
@@ -736,8 +728,7 @@ Databases.MATERIALS = {
         ["Buzzard Wing"] = {level = 35, type = "meat", rarity = "common"},
         ["Carrion Bird Lung"] = {level = 175, type = "meat", rarity = "common"},
         
-        -- Eggs
-        ["Small Egg"] = {level = 1, type = "ingredient", rarity = "common"},
+        -- Eggs (Small Egg already listed earlier)
         ["Raptor Egg"] = {level = 125, type = "ingredient", rarity = "common"},
         ["Giant Egg"] = {level = 175, type = "ingredient", rarity = "common"},
         ["Owl Egg"] = {level = 100, type = "ingredient", rarity = "common"},
@@ -750,7 +741,6 @@ Databases.MATERIALS = {
         -- High-Level Meats (Level 150-225+)
         ["Tender Wolf Meat"] = {level = 150, type = "meat", rarity = "common"},
         ["Cured Ham Steak"] = {level = 175, type = "meat", rarity = "common"},
-        ["Giant Egg"] = {level = 175, type = "ingredient", rarity = "common"},
         ["Sandworm Meat"] = {level = 225, type = "meat", rarity = "common"},
         ["Chimera Meat"] = {level = 250, type = "meat", rarity = "common"},
         
@@ -837,10 +827,6 @@ Databases.MATERIALS = {
         ["Ironweb Spider Silk"] = {level = 250, type = "silk", rarity = "rare"},
         ["Spider's Silk"] = {level = 50, type = "silk", rarity = "common"},
         
-        -- Additional Materials for Special Recipes
-        ["Crystal Vial"] = {level = 150, type = "vial", rarity = "common"},
-        ["Empty Vial"] = {level = 50, type = "vial", rarity = "common"},
-        ["Leaded Vial"] = {level = 200, type = "vial", rarity = "common"},
     },
     
     ["Tailoring"] = {
@@ -880,8 +866,8 @@ Databases.MATERIALS = {
         ["Bleach"] = {level = 50, type = "dye", rarity = "common"},
         
         -- Spider Silk Materials
-        ["Spider Silk"] = {level = 50, type = "silk", rarity = "common"},
-        ["Thick Spider Silk"] = {level = 125, type = "silk", rarity = "common"},
+        ["Spider's Silk"] = {level = 50, type = "silk", rarity = "common"},
+        ["Thick Spider's Silk"] = {level = 125, type = "silk", rarity = "common"},
         ["Shadow Silk"] = {level = 175, type = "silk", rarity = "common"},
         ["Ironweb Spider Silk"] = {level = 250, type = "silk", rarity = "rare"},
         
@@ -985,25 +971,15 @@ Databases.MATERIALS = {
         
         -- Chitin and Scale Materials
         ["Silithid Chitin"] = {level = 275, type = "chitin", rarity = "common"},
-        ["Heavy Scorpid Scale"] = {level = 250, type = "scale", rarity = "common"},
         ["Worn Dragonscale"] = {level = 150, type = "scale", rarity = "common"},
-        ["Perfect Deviate Scale"] = {level = 100, type = "scale", rarity = "rare"},
         
-        -- Cloth Materials (Used in some leatherworking)
-        ["Linen Cloth"] = {level = 1, type = "cloth", rarity = "common"},
-        ["Wool Cloth"] = {level = 75, type = "cloth", rarity = "common"},
+        -- Cloth Materials (Used in some leatherworking recipes)
         ["Silk Cloth"] = {level = 125, type = "cloth", rarity = "common"},
-        ["Mageweave Cloth"] = {level = 175, type = "cloth", rarity = "common"},
-        ["Runecloth"] = {level = 250, type = "cloth", rarity = "common"},
         
         -- Special Materials
         ["Enchanted Leather"] = {level = 200, type = "leather", rarity = "rare"},
-        ["Turtle Scale"] = {level = 150, type = "scale", rarity = "common"},
         ["Turtle Scale Bracers"] = {level = 160, type = "scale", rarity = "common"},
         ["Shadowcat Hide"] = {level = 275, type = "hide", rarity = "rare"},
-        ["Frostsaber Leather"] = {level = 275, type = "leather", rarity = "rare"},
-        ["Chimera Leather"] = {level = 275, type = "leather", rarity = "rare"},
-        ["Warbear Leather"] = {level = 275, type = "leather", rarity = "rare"},
     },
     
     ["Enchanting"] = {
