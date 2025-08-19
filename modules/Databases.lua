@@ -118,6 +118,102 @@ Databases.POTIONS = {
     
     -- Engineering Consumables
     ["Goblin Rocket Fuel"] = {level = 35, type = "misc", category = "profession", effect = "Used in engineering recipes"},
+    
+    -- Scrolls (Stat Buffs)
+    ["Scroll of Agility"] = {level = 5, type = "scroll", category = "combat", effect = "+5 Agility for 30 minutes"},
+    ["Scroll of Agility II"] = {level = 15, type = "scroll", category = "combat", effect = "+9 Agility for 30 minutes"},
+    ["Scroll of Agility III"] = {level = 35, type = "scroll", category = "combat", effect = "+13 Agility for 30 minutes"},
+    ["Scroll of Agility IV"] = {level = 55, type = "scroll", category = "combat", effect = "+17 Agility for 30 minutes"},
+    ["Scroll of Intellect"] = {level = 1, type = "scroll", category = "combat", effect = "+4 Intellect for 30 minutes"},
+    ["Scroll of Intellect II"] = {level = 15, type = "scroll", category = "combat", effect = "+8 Intellect for 30 minutes"},
+    ["Scroll of Intellect III"] = {level = 35, type = "scroll", category = "combat", effect = "+12 Intellect for 30 minutes"},
+    ["Scroll of Intellect IV"] = {level = 55, type = "scroll", category = "combat", effect = "+16 Intellect for 30 minutes"},
+    ["Scroll of Strength"] = {level = 5, type = "scroll", category = "combat", effect = "+5 Strength for 30 minutes"},
+    ["Scroll of Strength II"] = {level = 15, type = "scroll", category = "combat", effect = "+9 Strength for 30 minutes"},
+    ["Scroll of Strength III"] = {level = 35, type = "scroll", category = "combat", effect = "+13 Strength for 30 minutes"},
+    ["Scroll of Strength IV"] = {level = 55, type = "scroll", category = "combat", effect = "+17 Strength for 30 minutes"},
+    ["Scroll of Spirit"] = {level = 1, type = "scroll", category = "combat", effect = "+4 Spirit for 30 minutes"},
+    ["Scroll of Spirit II"] = {level = 15, type = "scroll", category = "combat", effect = "+8 Spirit for 30 minutes"},
+    ["Scroll of Spirit III"] = {level = 35, type = "scroll", category = "combat", effect = "+12 Spirit for 30 minutes"},
+    ["Scroll of Spirit IV"] = {level = 55, type = "scroll", category = "combat", effect = "+16 Spirit for 30 minutes"},
+    ["Scroll of Stamina"] = {level = 1, type = "scroll", category = "combat", effect = "+4 Stamina for 30 minutes"},
+    ["Scroll of Stamina II"] = {level = 15, type = "scroll", category = "combat", effect = "+8 Stamina for 30 minutes"},
+    ["Scroll of Stamina III"] = {level = 35, type = "scroll", category = "combat", effect = "+12 Stamina for 30 minutes"},
+    ["Scroll of Stamina IV"] = {level = 55, type = "scroll", category = "combat", effect = "+16 Stamina for 30 minutes"},
+    ["Scroll of Protection"] = {level = 5, type = "scroll", category = "combat", effect = "+60 Armor for 30 minutes"},
+    ["Scroll of Protection II"] = {level = 15, type = "scroll", category = "combat", effect = "+120 Armor for 30 minutes"},
+    ["Scroll of Protection III"] = {level = 35, type = "scroll", category = "combat", effect = "+180 Armor for 30 minutes"},
+    ["Scroll of Protection IV"] = {level = 55, type = "scroll", category = "combat", effect = "+240 Armor for 30 minutes"},
+    
+    -- Juju Items (Un'Goro Crater consumables)
+    ["Juju Power"] = {level = 55, type = "juju", category = "combat", effect = "+30 Strength for 30 minutes"},
+    ["Juju Might"] = {level = 55, type = "juju", category = "combat", effect = "+40 Attack Power for 10 minutes"},
+    ["Juju Flurry"] = {level = 55, type = "juju", category = "combat", effect = "+3% Attack Speed for 20 seconds"},
+    ["Juju Ember"] = {level = 55, type = "juju", category = "combat", effect = "+15 Fire Resistance for 10 minutes"},
+    ["Juju Chill"] = {level = 55, type = "juju", category = "combat", effect = "+15 Frost Resistance for 10 minutes"},
+    ["Juju Guile"] = {level = 55, type = "juju", category = "combat", effect = "+20 Attack Power vs Undead for 30 minutes"},
+    ["Juju Escape"] = {level = 55, type = "juju", category = "utility", effect = "Break immobilization effects"},
+    
+    -- Food Buffs (Valuable stat foods)
+    ["Blessed Sunfruit"] = {level = 45, type = "food", category = "combat", effect = "+10 All Stats for 10 minutes"},
+    ["Blessed Sunfruit Juice"] = {level = 45, type = "food", category = "combat", effect = "+10 Spirit for 10 minutes"},
+    ["Grilled Squid"] = {level = 35, type = "food", category = "combat", effect = "+10 Agility for 10 minutes"},
+    ["Nightfin Soup"] = {level = 35, type = "food", category = "combat", effect = "+8 Mana every 5 sec for 10 minutes"},
+    ["Runn Tum Tuber Surprise"] = {level = 45, type = "food", category = "combat", effect = "+10 Intellect for 10 minutes"},
+    ["Dirge's Kickin' Chimaerok Chops"] = {level = 55, type = "food", category = "combat", effect = "+25 Stamina for 25 minutes"},
+    ["Smoked Desert Dumplings"] = {level = 45, type = "food", category = "combat", effect = "+20 Strength for 15 minutes"},
+    ["Tender Wolf Steak"] = {level = 25, type = "food", category = "combat", effect = "+12 Stamina and Spirit for 15 minutes"},
+    ["Hot Wolf Ribs"] = {level = 15, type = "food", category = "combat", effect = "+8 Stamina and Spirit for 15 minutes"},
+    ["Tasty Lion Steak"] = {level = 35, type = "food", category = "combat", effect = "+20 Strength and Stamina for 15 minutes"},
+    ["Hot Lion Chops"] = {level = 40, type = "food", category = "combat", effect = "+20 Strength and Stamina for 15 minutes"},
+    
+    -- Alcohol/Drinks (Stat boosting drinks)
+    ["Rumsey Rum Black Label"] = {level = 38, type = "drink", category = "combat", effect = "+15 Stamina for 15 minutes"},
+    ["Gordok Green Grog"] = {level = 55, type = "drink", category = "combat", effect = "+10 Stamina for 1 hour"},
+    ["Rumsey Rum Light"] = {level = 15, type = "drink", category = "combat", effect = "+5 Stamina for 15 minutes"},
+    ["Rumsey Rum Dark"] = {level = 25, type = "drink", category = "combat", effect = "+10 Stamina for 15 minutes"},
+    
+    -- Blasted Lands Buffs (High-value stat buffs)
+    ["Cerebral Cortex Compound"] = {level = 50, type = "blasted", category = "combat", effect = "+25 Intellect for 1 hour"},
+    ["Gizzard Gum"] = {level = 50, type = "blasted", category = "combat", effect = "+25 Spirit for 1 hour"},
+    ["Ground Scorpok Assay"] = {level = 50, type = "blasted", category = "combat", effect = "+25 Agility for 1 hour"},
+    ["R.O.I.D.S."] = {level = 50, type = "blasted", category = "combat", effect = "+25 Strength for 1 hour"},
+    ["Infallible Mind"] = {level = 50, type = "blasted", category = "combat", effect = "+10 Mana every 5 sec for 1 hour"},
+    ["Lung Juice Cocktail"] = {level = 50, type = "blasted", category = "utility", effect = "Underwater breathing for 1 hour"},
+    
+    -- Rogue-Specific Consumables
+    ["Thistle Tea"] = {level = 20, type = "rogue", category = "profession", effect = "Restores 100 Energy"},
+    ["Instant Poison"] = {level = 20, type = "rogue", category = "profession", effect = "Weapon poison - instant damage"},
+    ["Instant Poison II"] = {level = 28, type = "rogue", category = "profession", effect = "Weapon poison - stronger instant damage"},
+    ["Instant Poison III"] = {level = 36, type = "rogue", category = "profession", effect = "Weapon poison - stronger instant damage"},
+    ["Instant Poison IV"] = {level = 44, type = "rogue", category = "profession", effect = "Weapon poison - stronger instant damage"},
+    ["Instant Poison V"] = {level = 52, type = "rogue", category = "profession", effect = "Weapon poison - stronger instant damage"},
+    ["Instant Poison VI"] = {level = 60, type = "rogue", category = "profession", effect = "Weapon poison - strongest instant damage"},
+    ["Deadly Poison"] = {level = 30, type = "rogue", category = "profession", effect = "Weapon poison - damage over time"},
+    ["Deadly Poison II"] = {level = 38, type = "rogue", category = "profession", effect = "Weapon poison - stronger DoT"},
+    ["Deadly Poison III"] = {level = 46, type = "rogue", category = "profession", effect = "Weapon poison - stronger DoT"},
+    ["Deadly Poison IV"] = {level = 54, type = "rogue", category = "profession", effect = "Weapon poison - stronger DoT"},
+    ["Deadly Poison V"] = {level = 60, type = "rogue", category = "profession", effect = "Weapon poison - strongest DoT"},
+    ["Crippling Poison"] = {level = 20, type = "rogue", category = "profession", effect = "Weapon poison - reduces movement speed"},
+    ["Crippling Poison II"] = {level = 50, type = "rogue", category = "profession", effect = "Weapon poison - stronger slow"},
+    ["Mind-numbing Poison"] = {level = 24, type = "rogue", category = "profession", effect = "Weapon poison - increases casting time"},
+    ["Mind-numbing Poison II"] = {level = 38, type = "rogue", category = "profession", effect = "Weapon poison - stronger casting slow"},
+    ["Mind-numbing Poison III"] = {level = 52, type = "rogue", category = "profession", effect = "Weapon poison - strongest casting slow"},
+    ["Wound Poison"] = {level = 32, type = "rogue", category = "profession", effect = "Weapon poison - reduces healing"},
+    ["Wound Poison II"] = {level = 40, type = "rogue", category = "profession", effect = "Weapon poison - stronger healing reduction"},
+    ["Wound Poison III"] = {level = 48, type = "rogue", category = "profession", effect = "Weapon poison - stronger healing reduction"},
+    ["Wound Poison IV"] = {level = 56, type = "rogue", category = "profession", effect = "Weapon poison - strongest healing reduction"},
+    
+    -- Other Valuable Consumables
+    ["Crystal Charge"] = {level = 60, type = "crystal", category = "combat", effect = "+6 Spell Power for 30 minutes"},
+    ["Crystal Force"] = {level = 60, type = "crystal", category = "combat", effect = "+30 Spell Power for 30 seconds"},
+    ["Crystal Spire"] = {level = 60, type = "crystal", category = "combat", effect = "+12 Thorns damage for 30 minutes"},
+    ["Crystal Ward"] = {level = 60, type = "crystal", category = "combat", effect = "+200 Armor for 30 minutes"},
+    ["Crystal Yield"] = {level = 60, type = "crystal", category = "utility", effect = "Forces target to flee for 8 seconds"},
+    ["Dark Rune"] = {level = 50, type = "special", category = "combat", effect = "Restores mana but damages health"},
+    ["Demonic Rune"] = {level = 55, type = "special", category = "combat", effect = "Restores mana but damages health"},
+    ["Night Dragon's Breath"] = {level = 54, type = "special", category = "combat", effect = "Restores health and mana over time"},
+    ["Whipper Root Tuber"] = {level = 50, type = "special", category = "combat", effect = "Restores health over 10 seconds"},
 }
 
 -- Comprehensive bag database (100+ bags)

@@ -584,8 +584,23 @@ local function isPotionUseful(itemLink)
     end
     
     local typeFilter = addon.Config.Get("potionTypeFilter")
-    if typeFilter ~= "all" and potionInfo.category ~= typeFilter then
-        return false
+    if typeFilter ~= "all" then
+        -- Check for specific type filters (scrolls, food, juju, rogue, blasted)
+        if typeFilter == "scrolls" and potionInfo.type ~= "scroll" then
+            return false
+        elseif typeFilter == "food" and potionInfo.type ~= "food" then
+            return false
+        elseif typeFilter == "juju" and potionInfo.type ~= "juju" then
+            return false
+        elseif typeFilter == "rogue" and potionInfo.type ~= "rogue" then
+            return false
+        elseif typeFilter == "blasted" and potionInfo.type ~= "blasted" then
+            return false
+        -- Check for category filters (combat, profession, misc)
+        elseif typeFilter ~= "scrolls" and typeFilter ~= "food" and typeFilter ~= "juju" and 
+               typeFilter ~= "rogue" and typeFilter ~= "blasted" and potionInfo.category ~= typeFilter then
+            return false
+        end
     end
     
     return true, potionInfo

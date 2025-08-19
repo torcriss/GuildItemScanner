@@ -268,14 +268,15 @@ function Alerts.ShowBagAlert(itemLink, playerName, bagInfo)
     showAlertWithTimer()
 end
 
--- Potion alert
+-- Consumable alert (previously Potion alert)
 function Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
     if not alertFrame then return end
     
     if addon.History then
-        addon.History.AddEntry(itemLink, playerName, "Potion")
+        addon.History.AddEntry(itemLink, playerName, "Consumable")
     end
     
+    -- Expanded type colors for new consumable categories
     local typeColors = {
         healing = "|cff00ff00", 
         mana = "|cff0080ff", 
@@ -285,11 +286,39 @@ function Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
         buff = "|cffffcc00",
         special = "|cffff69b4",
         cure = "|cff00ffff",
-        misc = "|cffffffff"
+        misc = "|cffffffff",
+        scroll = "|cffe6cc80",    -- Light brown for scrolls
+        food = "|cffff6600",      -- Orange for food
+        juju = "|cff9932cc",      -- Purple for juju items
+        rogue = "|cffffff00",     -- Yellow for rogue items
+        blasted = "|cffff0066",   -- Pink for Blasted Lands buffs
+        drink = "|cff66ccff",     -- Light blue for drinks
+        crystal = "|cffcc66ff"    -- Light purple for crystals
     }
     local color = typeColors[potionInfo.type] or "|cffffffff"
     
-    print("|cff00ff00[GuildItemScanner]|r |cffcc99ffPotion detected: " .. color .. itemLink .. "|r")
+    -- Create descriptive type names for display
+    local typeNames = {
+        scroll = "Scroll",
+        food = "Food buff", 
+        juju = "Juju item",
+        rogue = "Rogue consumable",
+        blasted = "Blasted Lands buff",
+        drink = "Alcohol buff",
+        crystal = "Crystal",
+        healing = "Healing potion",
+        mana = "Mana potion",
+        flask = "Flask",
+        resistance = "Resistance potion",
+        utility = "Utility potion",
+        buff = "Stat elixir",
+        special = "Special potion",
+        cure = "Antidote",
+        misc = "Consumable"
+    }
+    local typeName = typeNames[potionInfo.type] or "Consumable"
+    
+    print("|cff00ff00[GuildItemScanner]|r |cffcc99ff" .. typeName .. " detected: " .. color .. itemLink .. "|r")
     
     currentAlert = { 
         itemLink = itemLink, 

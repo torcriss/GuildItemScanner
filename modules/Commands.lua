@@ -237,18 +237,30 @@ end
 
 commandHandlers.potiontype = function(args)
     if args == "" then
-        print("|cff00ff00[GuildItemScanner]|r Current potion type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
-        print("|cff00ff00[GuildItemScanner]|r Valid types: all, combat, profession, misc")
+        print("|cff00ff00[GuildItemScanner]|r Current consumable type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
+        print("|cff00ff00[GuildItemScanner]|r Valid types:")
+        print("  |cffFFD700all|r - All consumables")
+        print("  |cffFFD700combat|r - Combat potions, elixirs, food buffs, scrolls, juju items")
+        print("  |cffFFD700profession|r - Utility potions, rogue consumables")
+        print("  |cffFFD700misc|r - Fun items, antidotes, misc consumables")
+        print("  |cffFFD700scrolls|r - Stat scrolls only")
+        print("  |cffFFD700food|r - Food buffs only")
+        print("  |cffFFD700juju|r - Juju items only")
+        print("  |cffFFD700rogue|r - Rogue consumables only")
+        print("  |cffFFD700blasted|r - Blasted Lands buffs only")
     else
-        local validTypes = {all = true, combat = true, profession = true, misc = true}
+        local validTypes = {
+            all = true, combat = true, profession = true, misc = true,
+            scrolls = true, food = true, juju = true, rogue = true, blasted = true
+        }
         local ptype = args:lower()
         if validTypes[ptype] then
             if addon.Config then
                 addon.Config.Set("potionTypeFilter", ptype)
-                print("|cff00ff00[GuildItemScanner]|r Potion type filter set to: " .. ptype)
+                print("|cff00ff00[GuildItemScanner]|r Consumable type filter set to: " .. ptype)
             end
         else
-            print("|cff00ff00[GuildItemScanner]|r Invalid type. Valid options: all, combat, profession, misc")
+            print("|cff00ff00[GuildItemScanner]|r Invalid type. Valid options: all, combat, profession, misc, scrolls, food, juju, rogue, blasted")
         end
     end
 end
@@ -918,7 +930,7 @@ commandHandlers.status = function()
     print("  Material rarity filter: " .. (addon.Config and addon.Config.Get("materialRarityFilter") or "common"))
     print("  Material quantity threshold: " .. (addon.Config and addon.Config.Get("materialQuantityThreshold") or "1"))
     print("  Bag size filter: " .. (addon.Config and addon.Config.Get("bagSizeFilter") or "6") .. "+ slots")
-    print("  Potion type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
+    print("  Consumable type filter: " .. (addon.Config and addon.Config.Get("potionTypeFilter") or "all"))
     print(" |cffFFD700Social Settings:|r")
     print("  Auto-GZ mode: " .. (addon.Config and addon.Config.Get("autoGZ") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     print("  Auto-RIP mode: " .. (addon.Config and addon.Config.Get("autoRIP") and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
