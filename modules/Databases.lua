@@ -1258,6 +1258,26 @@ Databases.RECIPE_PROFESSIONS = {
     {"Recipe: Purification", "Alchemy"},
     {"Recipe: Restorative", "Alchemy"},
     
+    -- Additional specific Alchemy recipes that don't match other patterns
+    {"Recipe: Gift of Arthas", "Alchemy"},
+    {"Recipe: Shadow Oil", "Alchemy"},
+    {"Recipe: Frost Oil", "Alchemy"},
+    {"Recipe: Stonescale Oil", "Alchemy"},
+    {"Recipe: Goblin Rocket Fuel", "Alchemy"},
+    {"Recipe: Ghost Dye", "Alchemy"},
+    {"Recipe: Invisibility Potion", "Alchemy"},
+    {"Recipe: Swim Speed Potion", "Alchemy"},
+    {"Recipe: Swiftness Potion", "Alchemy"},
+    {"Recipe: Rage Potion", "Alchemy"},      -- Basic Rage Potion (not Great/Mighty)
+    {"Recipe: Healing Potion", "Alchemy"},   -- Basic Healing Potion
+    {"Recipe: Mana Potion", "Alchemy"},      -- Basic Mana Potion
+    {"Recipe: Water Walking", "Alchemy"},    -- Water Walking elixir
+    {"Recipe: Water Breathing", "Alchemy"},  -- Water Breathing elixir
+    {"Recipe: Detect ", "Alchemy"},          -- Detect Undead/Demon/etc elixirs
+    {"Recipe: Catseye Elixir", "Alchemy"},
+    {"Recipe: Discolored Healing Potion", "Alchemy"},
+    {"Recipe: Troll's Blood Potion", "Alchemy"},
+    
     -- Specific valuable Cooking recipes
     {"Recipe: Savory Deviate Delight", "Cooking"},
     
