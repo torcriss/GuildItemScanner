@@ -833,7 +833,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
         if addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r WTB request filtered (ignoreWTB enabled): %s from %s", itemLink, playerName))
         end
-        return
+        return nil
     end
     
     if addon.Config and addon.Config.Get("debugMode") then
@@ -905,7 +905,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
             print("|cff00ff00[GuildItemScanner Debug]|r Showing recipe alert for: " .. itemName)
         end
         addon.Alerts.ShowRecipeAlert(itemLink, playerName, profession)
-        return
+        return "recipe"
     end
     
     -- Check for materials
@@ -916,7 +916,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s (professions: %s)", itemName, profString))
         end
         addon.Alerts.ShowMaterialAlert(itemLink, playerName, matProfessions, material, quantity, rarity)
-        return
+        return "material"
     elseif addon.Config and addon.Config.Get("debugMode") then
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a needed material: %s", itemName))
     end
@@ -928,7 +928,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBAG MATCH|r - Showing bag alert for: %s", itemName))
         end
         addon.Alerts.ShowBagAlert(itemLink, playerName, bagInfo)
-        return
+        return "bag"
     elseif addon.Config and addon.Config.Get("debugMode") then
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a needed bag: %s", itemName))
     end
@@ -940,7 +940,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eePOTION MATCH|r - Showing potion alert for: %s", itemName))
         end
         addon.Alerts.ShowPotionAlert(itemLink, playerName, potionInfo)
-        return
+        return "potion"
     elseif addon.Config and addon.Config.Get("debugMode") then
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r Not a useful potion: %s", itemName))
     end
@@ -975,7 +975,7 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
                 print("|cff00ff00[GuildItemScanner Debug]|r Showing equipment alert for: " .. itemName)
             end
             addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
-            return
+            return "equipment"
         elseif addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffff0000FINAL RESULT: Equipment not an upgrade|r - %s", itemName))
         end
@@ -991,23 +991,41 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     if addon.Config and addon.Config.Get("debugMode") then
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cff808080FINAL RESULT: No alerts triggered for %s|r", itemName))
     end
+    
+    return nil -- No alert triggered
 end
 
 -- Public functions
 function Detection.ProcessGuildMessage(message, sender, ...)
+    -- Always log the message first (even if addon disabled or no items)
+    local itemLinks = extractItemLinks(message)
+    local isWTB = isWTBMessage(message)
+    local wasFiltered = false
+    local alertType = nil
+    
     if not addon.Config or not addon.Config.Get("enabled") then 
+        -- Log message even if addon disabled
+        if addon.MessageLog then
+            addon.MessageLog.LogMessage(sender, message, #itemLinks, isWTB, false, nil)
+        end
         return 
     end
     
-    local itemLinks = extractItemLinks(message)
     if #itemLinks == 0 then
-        -- No item links found, nothing to process
+        -- Log message with no items
+        if addon.MessageLog then
+            addon.MessageLog.LogMessage(sender, message, 0, isWTB, false, nil)
+        end
         return
     end
     
     -- Check if this is a WTB message (always detect, regardless of filtering setting)
-    local isWTBMessage = isWTBMessage(message)
+    local isWTBMessage = isWTB
     local shouldFilterWTB = addon.Config.Get("ignoreWTB") and isWTBMessage
+    
+    if shouldFilterWTB then
+        wasFiltered = true
+    end
     
     -- Always parse WTB messages for tracking, regardless of filter setting
     if isWTBMessage and addon.WTB then
@@ -1026,10 +1044,19 @@ function Detection.ProcessGuildMessage(message, sender, ...)
                 print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profession .. " recipe from " .. sender)
             else
                 addon.Alerts.ShowRecipeAlert(itemLink, sender, profession)
+                alertType = "recipe"
             end
         else
-            processItemLink(itemLink, sender, false, nil, shouldFilterWTB)
+            local itemAlertType = processItemLink(itemLink, sender, false, nil, shouldFilterWTB)
+            if itemAlertType then
+                alertType = itemAlertType
+            end
         end
+    end
+    
+    -- Log the final message processing result
+    if addon.MessageLog then
+        addon.MessageLog.LogMessage(sender, message, #itemLinks, isWTBMessage, wasFiltered, alertType)
     end
 end
 

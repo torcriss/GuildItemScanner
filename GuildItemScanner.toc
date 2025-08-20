@@ -10,6 +10,7 @@ modules\Databases.lua
 modules\History.lua
 modules\Social.lua
 modules\WTB.lua
+modules\MessageLog.lua
 modules\Alerts.lua
 modules\Detection.lua
 modules\Commands.lua

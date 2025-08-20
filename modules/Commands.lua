@@ -559,6 +559,15 @@ commandHandlers.wtbclear = function()
     end
 end
 
+commandHandlers.logs = function(count)
+    if addon.MessageLog then
+        local displayCount = tonumber(count)
+        addon.MessageLog.ShowMessageLog(displayCount)
+    else
+        print("|cff00ff00[GuildItemScanner]|r MessageLog module not available")
+    end
+end
+
 commandHandlers.compare = function(args)
     if args == "" then
         print("|cff00ff00[GuildItemScanner]|r Usage: /gis compare [item link]")
@@ -1438,6 +1447,7 @@ commandHandlers.help = function()
     print(" /gis clearsocialhistory - Clear social history")
     print(" /gis wtblist - Show Want-To-Buy request history")
     print(" /gis wtbclear - Clear WTB request history")
+    print(" /gis logs [count] - Show guild message log (default: 30 messages, optional count parameter)")
     print(" /gis compare [item] - Compare any item with your equipped gear")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test - Test equipment alert")

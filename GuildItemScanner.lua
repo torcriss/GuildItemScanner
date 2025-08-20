@@ -19,6 +19,7 @@ local function Initialize()
     if addon.History then addon.History.Load() end
     if addon.Social then addon.Social.Initialize() end
     if addon.WTB then addon.WTB.Initialize() end
+    if addon.MessageLog then addon.MessageLog.Initialize() end
     if addon.Alerts then addon.Alerts.Initialize() end
     if addon.Commands then addon.Commands.Initialize() end
     
