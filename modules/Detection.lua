@@ -98,7 +98,6 @@ local function isWTBMessage(message)
         "looking for ",    -- "looking for [item]" (added space to be more specific)
         "^need ",          -- "need [item]" at start only
         " need an? ",      -- "need a/an [item]" (more specific)
-        " need some ",     -- "need some [item]"
         "i need ",         -- "i need [item]" or "i need some [item]"
         "^buying ",        -- "buying [item]" (at start of message)
         " i.*buying ",     -- "... I am buying [item]" or "... I'm buying [item]"
@@ -122,6 +121,31 @@ local function isWTBMessage(message)
     
     for _, pattern in ipairs(wtbPatterns) do
         if string.find(lowerMessage, pattern) then
+            -- Check for offering patterns that should NOT be considered WTB requests
+            local offeringPatterns = {
+                "anyone need",     -- "anyone need [item]" - offering items
+                "anyone want",     -- "anyone want [item]" - offering items
+                "who needs",       -- "who needs [item]" - offering items
+                "who wants",       -- "who wants [item]" - offering items
+                "does anyone need", -- "does anyone need [item]" - offering items
+            }
+            
+            local isOffering = false
+            for _, offerPattern in ipairs(offeringPatterns) do
+                if string.find(lowerMessage, offerPattern) then
+                    isOffering = true
+                    if addon.Config and addon.Config.Get("debugMode") then
+                        print("|cff00ff00[GuildItemScanner Debug]|r Offering pattern detected (not WTB): '" .. offerPattern .. "' in message: " .. lowerMessage)
+                    end
+                    break
+                end
+            end
+            
+            -- Skip WTB detection if this is an offering message
+            if isOffering then
+                return false
+            end
+            
             -- Debug output to identify which pattern matched
             if addon.Config and addon.Config.Get("debugMode") then
                 print("|cff00ff00[GuildItemScanner Debug]|r WTB pattern matched: '" .. pattern .. "' in message: " .. lowerMessage)
