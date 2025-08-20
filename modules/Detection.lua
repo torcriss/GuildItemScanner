@@ -994,24 +994,30 @@ function Detection.ProcessGuildMessage(message, sender, ...)
         return
     end
     
-    -- Check if this is a WTB message for selective filtering
-    local isWTBRequest = addon.Config.Get("ignoreWTB") and isWTBMessage(message)
+    -- Check if this is a WTB message (always detect, regardless of filtering setting)
+    local isWTBMessage = isWTBMessage(message)
+    local shouldFilterWTB = addon.Config.Get("ignoreWTB") and isWTBMessage
+    
+    -- Always parse WTB messages for tracking, regardless of filter setting
+    if isWTBMessage and addon.WTB then
+        addon.WTB.ParseWTBMessage(message, sender)
+    end
     
     if addon.Config.Get("debugMode") then
-        print("|cff00ff00[GuildItemScanner Debug]|r Processing message from " .. sender .. (isWTBRequest and " (WTB request)" or ""))
+        print("|cff00ff00[GuildItemScanner Debug]|r Processing message from " .. sender .. (isWTBMessage and " (WTB request)" or ""))
     end
     
     -- Process each item link - check recipes first, then equipment (like working version)
     for _, itemLink in ipairs(itemLinks) do
         local isRecipe, profession = isRecipeForMyProfession(itemLink)
         if isRecipe and addon.Alerts then
-            if isWTBRequest then
+            if shouldFilterWTB then
                 print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profession .. " recipe from " .. sender)
             else
                 addon.Alerts.ShowRecipeAlert(itemLink, sender, profession)
             end
         else
-            processItemLink(itemLink, sender, false, nil, isWTBRequest)
+            processItemLink(itemLink, sender, false, nil, shouldFilterWTB)
         end
     end
 end

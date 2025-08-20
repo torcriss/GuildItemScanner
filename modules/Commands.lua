@@ -543,6 +543,22 @@ commandHandlers.clearsocialhistory = function()
     end
 end
 
+commandHandlers.wtblist = function()
+    if addon.WTB then
+        addon.WTB.ShowWTBHistory()
+    else
+        print("|cff00ff00[GuildItemScanner]|r WTB module not available")
+    end
+end
+
+commandHandlers.wtbclear = function()
+    if addon.WTB then
+        addon.WTB.ClearWTBHistory()
+    else
+        print("|cff00ff00[GuildItemScanner]|r WTB module not available")
+    end
+end
+
 commandHandlers.compare = function(args)
     if args == "" then
         print("|cff00ff00[GuildItemScanner]|r Usage: /gis compare [item link]")
@@ -1420,6 +1436,8 @@ commandHandlers.help = function()
     print(" /gis clearhistory - Clear alert history")
     print(" /gis socialhistory [filter] - Show social history (gz/rip/all)")
     print(" /gis clearsocialhistory - Clear social history")
+    print(" /gis wtblist - Show Want-To-Buy request history")
+    print(" /gis wtbclear - Clear WTB request history")
     print(" /gis compare [item] - Compare any item with your equipped gear")
     print(" |cffFFD700Testing Commands:|r")
     print(" /gis test - Test equipment alert")
