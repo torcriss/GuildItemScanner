@@ -785,10 +785,7 @@ Databases.MATERIALS = {
         -- Fruits and Vegetables
         ["Shiny Red Apple"] = {level = 50, type = "fruit", rarity = "common"},
         
-        -- Herbs Used in Cooking
-        ["Goldthorn"] = {level = 50, type = "herb", rarity = "common"},
-        ["Stranglekelp"] = {level = 25, type = "herb", rarity = "common"},
-        ["Earthroot"] = {level = 15, type = "herb", rarity = "common"},
+        -- Herbs Used in Cooking (removed Alchemy herbs: Goldthorn, Stranglekelp, Earthroot)
         
         -- Special/Rare Ingredients
         ["Mystery Meat"] = {level = 175, type = "meat", rarity = "rare"},
