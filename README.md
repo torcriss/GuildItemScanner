@@ -342,6 +342,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis clearsocialhistory` | Clear social automation history |
 | `/gis wtblist` | Show WTB (Want-To-Buy) request history (last 20 entries, persistent) |
 | `/gis wtbclear` | Clear WTB request history |
+| `/gis logs [count]` | Show guild message processing log (default: 30 messages, optional count parameter) |
 
 **Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events from ALL Frontier activity, including both sent messages and skipped events (due to failed rolls). Records timestamps, player names, actual achievement names, player levels, and skip reasons with roll percentages for complete social automation visibility.
 
@@ -788,6 +789,18 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.12.6** - Message Logging Enhancement:
+  - **Optional Count Parameter** - `/gis logs [count]` now accepts optional count parameter to view more messages
+  - **Flexible Display** - Default 30 messages, can specify any count up to 200 stored messages (e.g., `/gis logs 100`)
+  - **Minimum Protection** - Prevents zero display with minimum of 1 message enforced
+  - **Updated Help Text** - Command help reflects new optional parameter syntax
+- **v2.12.5** - WTB False Positive Fix:
+  - **Fixed Offering Detection** - Messages like "Anyone need some bags?" no longer incorrectly flagged as WTB requests
+  - **Pattern Exclusion** - Added offering patterns (anyone need, anyone want, who needs, etc.) to prevent false positives
+  - **Improved Accuracy** - WTB detection now correctly distinguishes between requests and offers
+- **v2.12.4** - Documentation Enhancement:
+  - **UI Addon Integration** - Added link to GuildItemScanner-UI companion addon in README
+  - **Enhanced User Experience** - Users now have access to visual interface addon for easier management
 - **v2.12.3** - WTB Filtering Behavior Fix:
   - **Universal WTB Filtering** - When ignoreWTB enabled, now filters ALL WTB requests regardless of item type or professions
   - **Eliminated Confusing Messages** - Removed profession-specific "Filtered WTB request for Engineering/Cooking material" messages
