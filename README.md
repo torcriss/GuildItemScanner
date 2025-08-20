@@ -47,12 +47,13 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 ## ✨ Features
 
-### 🎯 **Five Detection Systems**
+### 🎯 **Six Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with accurate pattern matching (validated against ClassicDB)  
 - **🏭 Crafting Materials** - 800+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 170+ potions with type filtering
+- **💰 WTB Request Tracking** - Comprehensive parsing and history of Want-To-Buy requests
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
@@ -67,6 +68,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🔧 **Smart Filtering**
 - **Intelligent WTB Detection** - Only filters requests for items you're actually tracking (based on professions/settings)
 - **Smart Request Recognition** - Detects "send me", "mail all", "i need some", COD patterns, etc.
+- **WTB Request Parsing** - Extracts quantities (20x, x20, 20 stacks) and prices (40s, 1g50s, 2g)
 - **Class Restrictions** - Only alerts for gear your class can use
 - **Level Requirements** - Respects item level requirements
 - **BoP Detection** - Excludes Bind on Pickup items
@@ -98,6 +100,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
    - `modules/Commands.lua`
    - `modules/History.lua`
    - `modules/Social.lua`
+   - `modules/WTB.lua`
 4. **Launch** WoW Classic Era and enable the addon
 5. **Configure** with `/gis` commands
 
@@ -322,6 +325,8 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis clearhistory` | Clear all alert history |
 | `/gis socialhistory [filter]` | Show social automation history (gz/rip/all) |
 | `/gis clearsocialhistory` | Clear social automation history |
+| `/gis wtblist` | Show WTB (Want-To-Buy) request history (last 20 entries) |
+| `/gis wtbclear` | Clear WTB request history |
 
 **Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events from ALL Frontier activity, including both sent messages and skipped events (due to failed rolls). Records timestamps, player names, actual achievement names, player levels, and skip reasons with roll percentages for complete social automation visibility.
 
@@ -567,6 +572,21 @@ No guild messages sent - all tests safe
 → Button: "Greed!"
 ```
 
+### **WTB Request Tracking**
+```
+[Guild] [Player1]: WTB [Copper Ore] 20x for 40s
+→ [GuildItemScanner Debug] WTB logged: Player1 wants 20 Copper Ore for 40s
+
+[Guild] [Player2]: Looking for [Heavy Leather] x30, paying 1g50s
+→ [GuildItemScanner Debug] WTB logged: Player2 wants 30 Heavy Leather for 1g50s
+
+/gis wtblist
+→ [GuildItemScanner] WTB History (2 entries):
+→ Time     | Player      | Item                    | Qty  | Price | Message
+→ 19:45:23 | Player2     | Heavy Leather          | 30   | 1g50s | Looking for [Heavy Leather] x30...
+→ 19:44:12 | Player1     | Copper Ore             | 20   | 40s   | WTB [Copper Ore] 20x for 40s
+```
+
 ### **Social Automation**
 ```
 [Frontier] PlayerName earned achievement: [Level 60]
@@ -673,6 +693,8 @@ The addon processes items in this priority order:
 4. **Potions** - Consumables with type filtering
 5. **Equipment** (lowest) - BoE upgrades for your class
 
+**WTB Tracking** runs in parallel with all detection systems, always logging requests regardless of alert filtering settings.
+
 ## 🏗️ Architecture
 
 ### **Modular Design**
@@ -684,6 +706,7 @@ The addon uses a clean modular architecture for maintainability:
 - **Commands.lua** - Complete command system
 - **History.lua** - Persistent history tracking
 - **Social.lua** - Auto-GZ/RIP social features
+- **WTB.lua** - Want-To-Buy request tracking and parsing
 
 ### **Extensible Databases**
 Each database is easily expandable with new items:
@@ -740,6 +763,14 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.12.0** - WTB (Want-To-Buy) Tracking Feature:
+  - **New WTB Tracking System** - Comprehensive parsing and tracking of Want-To-Buy requests in guild chat
+  - **Smart Parsing** - Detects quantities (20x, x20, 20 stacks, need 5) and prices (40s, 1g50s, 2g each)
+  - **History Commands** - `/gis wtblist` to view last 20 WTB requests with formatted table, `/gis wtbclear` to clear history
+  - **Filter Integration** - Works with existing `/gis ignorewtb` setting (tracking always works, filtering only affects alerts)
+  - **Modular Architecture** - Added WTB.lua module to the existing modular framework
+  - **Debug Support** - Enhanced debug output for WTB parsing details when debug mode enabled
+  - **Fixed WTB Logic** - WTB tracking now functions regardless of ignoreWTB setting (always tracks, conditionally alerts)
 - **v2.11.6** - Recipe Detection Accuracy Fix:
   - **Fixed Alchemy recipe misclassification** - Recipe: Gift of Arthas and 17 other Alchemy recipes no longer incorrectly detected as Cooking
   - **Added comprehensive Alchemy patterns** - Covers Shadow Oil, Frost Oil, Stonescale Oil, Goblin Rocket Fuel, Ghost Dye, Invisibility/Swim Speed/Swiftness potions
