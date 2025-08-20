@@ -66,7 +66,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 **⚠️ Note**: Social automation features require the **Frontier addon** to function. They are specifically designed for the **<Frontier>** guild and respond to Frontier's achievement/death event messages. Without Frontier addon, these features can be configured but won't trigger.
 
 ### 🔧 **Smart Filtering**
-- **Intelligent WTB Detection** - Only filters requests for items you're actually tracking (based on professions/settings)
+- **Universal WTB Filtering** - When enabled, filters ALL WTB requests regardless of professions or item types
 - **Smart Request Recognition** - Detects "send me", "mail all", "i need some", COD patterns, etc.
 - **WTB Request Parsing** - Extracts quantities (20x, x20, 20 stacks) and prices (40s, 1g50s, 2g)
 - **Class Restrictions** - Only alerts for gear your class can use
@@ -126,7 +126,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 | `/gis debug` | Toggle debug logging |
 | `/gis sound` | Toggle sound alerts |
 | `/gis duration <seconds>` | Set alert duration (1-60 seconds, default: 15) |
-| `/gis ignorewtb` | Toggle WTB (Want To Buy) message filtering (default: enabled) |
+| `/gis ignorewtb` | Toggle WTB (Want To Buy) message filtering - filters ALL WTB requests when enabled (default: enabled) |
 | `/gis reset` | Reset all settings to defaults |
 
 ### **Equipment Settings**
@@ -517,11 +517,18 @@ No guild messages sent - all tests safe
 
 ## 🎯 Usage Examples
 
-### **Smart WTB Filtering**
+### **Universal WTB Filtering**
 ```
+# When ignoreWTB is ENABLED (default):
 [Guild] [Player1]: WTB [Red Mageweave Bag] paying 5g!
-→ [GuildItemScanner] Filtered WTB request for Red Mageweave Bag from Player1
+→ [GuildItemScanner Debug] WTB request filtered (ignoreWTB enabled)
+→ (No alert shown, but logged to WTB history)
 
+# When ignoreWTB is DISABLED:
+[Guild] [Player1]: WTB [Red Mageweave Bag] paying 5g!
+→ GIS Alert: "Bag detected: [Red Mageweave Bag]" (if matches your settings)
+
+# Selling offers always work normally:
 [Guild] [Player2]: WTS [Red Mageweave Bag] cheap!
 → GIS Alert: "Bag detected: [Red Mageweave Bag]"
 → Button: "Request Bag"
@@ -766,6 +773,13 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.12.3** - WTB Filtering Behavior Fix:
+  - **Universal WTB Filtering** - When ignoreWTB enabled, now filters ALL WTB requests regardless of item type or professions
+  - **Eliminated Confusing Messages** - Removed profession-specific "Filtered WTB request for Engineering/Cooking material" messages
+  - **Cleaner Debug Output** - Simple "WTB request filtered (ignoreWTB enabled)" message when debug mode enabled
+  - **Early Filtering Logic** - WTB filtering now happens at start of item processing for consistent behavior
+  - **Preserved WTB Tracking** - WTB history logging continues to work regardless of filter setting
+  - **Predictable Behavior** - ignoreWTB setting now truly ignores ALL WTB messages when enabled
 - **v2.12.2** - WTB Persistence and Material Classification Fixes:
   - **WTB Persistence Fix** - WTB history now persists across addon reloads, updates, and game restarts using SavedVariables
   - **Auto-Save/Load** - WTB history automatically saves after each entry and loads on addon initialization
