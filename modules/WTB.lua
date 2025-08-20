@@ -153,6 +153,9 @@ function WTB.AddWTBEntry(playerName, itemLink, quantity, price, rawMessage)
         table.remove(wtbHistory)
     end
     
+    -- Save to persistent storage
+    WTB.SaveWTBHistory()
+    
     if addon.Config and addon.Config.Get("debugMode") then
         local qtyText = quantity and tostring(quantity) or "?"
         local priceText = price or "?"
@@ -203,14 +206,31 @@ end
 -- Clear WTB history
 function WTB.ClearWTBHistory()
     wtbHistory = {}
+    WTB.SaveWTBHistory()
     print("|cff00ff00[GuildItemScanner]|r WTB history cleared")
+end
+
+-- Save WTB history to persistent storage
+function WTB.SaveWTBHistory()
+    if GuildItemScannerDB then
+        GuildItemScannerDB.wtbHistory = wtbHistory
+    end
+end
+
+-- Load WTB history from persistent storage
+function WTB.LoadWTBHistory()
+    if GuildItemScannerDB and GuildItemScannerDB.wtbHistory then
+        wtbHistory = GuildItemScannerDB.wtbHistory
+    end
 end
 
 -- Initialize WTB module
 function WTB.Initialize()
-    -- Module is ready to use
+    WTB.LoadWTBHistory()
+    
     if addon.Config and addon.Config.Get("debugMode") then
         print("|cff00ff00[GuildItemScanner Debug]|r WTB module initialized")
+        print("  WTB history loaded: " .. #wtbHistory .. " entries")
     end
 end
 
