@@ -53,7 +53,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **🏭 Crafting Materials** - 800+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 170+ potions with type filtering
-- **💰 WTB Request Tracking** - Comprehensive parsing and history of Want-To-Buy requests
+- **💰 WTB Request Tracking** - Comprehensive parsing and persistent history of Want-To-Buy requests
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
@@ -325,7 +325,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis clearhistory` | Clear all alert history |
 | `/gis socialhistory [filter]` | Show social automation history (gz/rip/all) |
 | `/gis clearsocialhistory` | Clear social automation history |
-| `/gis wtblist` | Show WTB (Want-To-Buy) request history (last 20 entries) |
+| `/gis wtblist` | Show WTB (Want-To-Buy) request history (last 20 entries, persistent) |
 | `/gis wtbclear` | Clear WTB request history |
 
 **Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events from ALL Frontier activity, including both sent messages and skipped events (due to failed rolls). Records timestamps, player names, actual achievement names, player levels, and skip reasons with roll percentages for complete social automation visibility.
@@ -585,6 +585,9 @@ No guild messages sent - all tests safe
 → Time     | Player      | Item                    | Qty  | Price | Message
 → 19:45:23 | Player2     | Heavy Leather          | 30   | 1g50s | Looking for [Heavy Leather] x30...
 → 19:44:12 | Player1     | Copper Ore             | 20   | 40s   | WTB [Copper Ore] 20x for 40s
+
+/reload
+→ [GuildItemScanner Debug] WTB history loaded: 2 entries (persistent across reloads)
 ```
 
 ### **Social Automation**
@@ -763,6 +766,16 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.12.2** - WTB Persistence and Material Classification Fixes:
+  - **WTB Persistence Fix** - WTB history now persists across addon reloads, updates, and game restarts using SavedVariables
+  - **Auto-Save/Load** - WTB history automatically saves after each entry and loads on addon initialization
+  - **Material Classification Fix** - Fixed Stranglekelp, Goldthorn, and Earthroot incorrectly detected as Cooking materials (now correctly Alchemy only)
+  - **Persistent WTB History** - `/gis wtblist` maintains history through deployments and `/reload` commands
+  - **Debug Feedback** - Shows number of loaded WTB entries when debug mode enabled
+- **v2.12.1** - Material Classification Fix:
+  - **Fixed Stranglekelp Classification** - Now correctly detected as Alchemy material instead of Cooking
+  - **Fixed Goldthorn Classification** - Removed from Cooking materials (belongs only in Alchemy)
+  - **Fixed Earthroot Classification** - Removed from Cooking materials (belongs only in Alchemy)
 - **v2.12.0** - WTB (Want-To-Buy) Tracking Feature:
   - **New WTB Tracking System** - Comprehensive parsing and tracking of Want-To-Buy requests in guild chat
   - **Smart Parsing** - Detects quantities (20x, x20, 20 stacks, need 5) and prices (40s, 1g50s, 2g each)
