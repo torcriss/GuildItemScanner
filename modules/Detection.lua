@@ -804,6 +804,14 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
         return
     end
     
+    -- Early WTB filtering - if ignoreWTB is enabled, filter ALL WTB requests regardless of item type
+    if isWTBRequest and addon.Config and addon.Config.Get("ignoreWTB") then
+        if addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r WTB request filtered (ignoreWTB enabled): %s from %s", itemLink, playerName))
+        end
+        return
+    end
+    
     if addon.Config and addon.Config.Get("debugMode") then
         print("|cff00ff00[GuildItemScanner Debug]|r Processing item: " .. itemLink)
         
@@ -869,10 +877,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     -- Check for recipe first (highest priority)
     local isRecipe, profession = isRecipeForMyProfession(itemLink)
     if isRecipe and addon.Alerts then
-        if isWTBRequest then
-            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profession .. " recipe from " .. playerName)
-            return
-        end
         if addon.Config and addon.Config.Get("debugMode") then
             print("|cff00ff00[GuildItemScanner Debug]|r Showing recipe alert for: " .. itemName)
         end
@@ -883,11 +887,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     -- Check for materials
     local isMaterial, matProfessions, material, quantity, rarity = isMaterialForMyProfession(itemLink)
     if isMaterial and addon.Alerts then
-        if isWTBRequest then
-            local profString = type(matProfessions) == "table" and table.concat(matProfessions, "/") or tostring(matProfessions)
-            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for " .. profString .. " material from " .. playerName)
-            return
-        end
         if addon.Config and addon.Config.Get("debugMode") then
             local profString = type(matProfessions) == "table" and table.concat(matProfessions, "/") or tostring(matProfessions)
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeMATERIAL MATCH|r - Showing material alert for: %s (professions: %s)", itemName, profString))
@@ -901,10 +900,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     -- Check for bags
     local isBag, bagInfo = isBagNeeded(itemLink)
     if isBag and addon.Alerts then
-        if isWTBRequest then
-            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for bag from " .. playerName)
-            return
-        end
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eeBAG MATCH|r - Showing bag alert for: %s", itemName))
         end
@@ -917,10 +912,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
     -- Check for potions
     local isPotion, potionInfo = isPotionUseful(itemLink)
     if isPotion and addon.Alerts then
-        if isWTBRequest then
-            print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for potion from " .. playerName)
-            return
-        end
         if addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffa335eePOTION MATCH|r - Showing potion alert for: %s", itemName))
         end
@@ -956,10 +947,6 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
         
         local isUpgrade, improvement = isItemUpgrade(itemLink)
         if isUpgrade and addon.Alerts then
-            if isWTBRequest then
-                print("|cff00ff00[GuildItemScanner]|r Filtered WTB request for equipment from " .. playerName)
-                return
-            end
             if addon.Config and addon.Config.Get("debugMode") then
                 print("|cff00ff00[GuildItemScanner Debug]|r Showing equipment alert for: " .. itemName)
             end
