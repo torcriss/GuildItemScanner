@@ -343,7 +343,7 @@ Score: (12 × 100) + (15 × 75) + (8 × 50) = 2725 points
 | `/gis clearsocialhistory` | Clear social automation history |
 | `/gis wtblist` | Show WTB (Want-To-Buy) request history (last 20 entries, persistent) |
 | `/gis wtbclear` | Clear WTB request history |
-| `/gis logs [count]` | Show guild message processing log (default: 30 messages, optional count parameter) |
+| `/gis logs [count]` | Show guild message processing log with readable item names (default: 30 messages, optional count parameter) |
 
 **Social History Tracking**: The addon automatically tracks the last 50 GZ and RIP events from ALL Frontier activity, including both sent messages and skipped events (due to failed rolls). Records timestamps, player names, actual achievement names, player levels, and skip reasons with roll percentages for complete social automation visibility.
 
@@ -790,6 +790,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.12.7** - Message Log Display Improvements:
+  - **Enhanced Readability** - Increased message display length from 60 to 150 characters to prevent item link truncation
+  - **Item Link Conversion** - Raw `|Hitem:...` codes now display as readable `[Item Name]` format in logs
+  - **Ellipsis Indication** - Messages longer than 150 characters show "..." to indicate truncation
+  - **Optimized Layout** - Reduced sender names from 15 to 12 characters for more message space
+  - **Clean Output** - Stripped color codes from displayed messages for cleaner log readability
 - **v2.12.6** - Message Logging Enhancement:
   - **Optional Count Parameter** - `/gis logs [count]` now accepts optional count parameter to view more messages
   - **Flexible Display** - Default 30 messages, can specify any count up to 200 stored messages (e.g., `/gis logs 100`)
