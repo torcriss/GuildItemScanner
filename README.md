@@ -740,6 +740,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.11.6** - Recipe Detection Accuracy Fix:
+  - **Fixed Alchemy recipe misclassification** - Recipe: Gift of Arthas and 17 other Alchemy recipes no longer incorrectly detected as Cooking
+  - **Added comprehensive Alchemy patterns** - Covers Shadow Oil, Frost Oil, Stonescale Oil, Goblin Rocket Fuel, Ghost Dye, Invisibility/Swim Speed/Swiftness potions
+  - **Enhanced pattern matching** - Basic Rage/Healing/Mana potions, Water Walking/Breathing elixirs, Detect spells, and specialty potions now properly classified
+  - **Maintains accuracy** - Pattern order ensures specific Alchemy recipes are detected before generic Recipe: fallback to Cooking
+  - **Better profession targeting** - Eliminates false alerts for recipes outside your actual professions
 - **v2.11.5** - Social History & UI Improvements:
   - **Fixed social history logging** - Now records ALL Frontier events regardless of autoGZ/autoRIP settings
   - **Material alert clarity** - Alerts now show only the first matching profession instead of all professions
