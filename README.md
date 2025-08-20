@@ -51,7 +51,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 ### 🎯 **Six Detection Systems**
 - **⚔️ Equipment Upgrades** - BoE gear comparison with class/level validation + custom stat priorities
 - **📜 Profession Recipes** - All 8 professions with accurate pattern matching (validated against ClassicDB)  
-- **🏭 Crafting Materials** - 800+ materials with quantity/rarity filtering + custom materials
+- **🏭 Crafting Materials** - 569+ materials with quantity/rarity filtering + custom materials
 - **👜 Storage Bags** - 100+ bags with customizable size filtering (complete Classic WoW coverage)
 - **🧪 Potions & Consumables** - 170+ potions with type filtering
 - **💰 WTB Request Tracking** - Comprehensive parsing and persistent history of Want-To-Buy requests
@@ -116,6 +116,7 @@ The UI addon provides the same powerful features as the slash commands but in a 
    - `modules/History.lua`
    - `modules/Social.lua`
    - `modules/WTB.lua`
+   - `modules/MessageLog.lua`
 4. **Launch** WoW Classic Era and enable the addon
 5. **Configure** with `/gis` commands
 
@@ -616,10 +617,10 @@ No guild messages sent - all tests safe
 ### **Social Automation**
 ```
 [Frontier] PlayerName earned achievement: [Level 60]
-→ GIS: (configurable% chance) Sends random GZ message after 2-6 second delay
+→ GIS: (30% chance) Sends random GZ message after 2-6 second delay
 
 [Frontier] PlayerName (Level 23) has died
-→ GIS: (configurable% chance) Sends level-appropriate RIP message after 3-8 second delay
+→ GIS: (30% chance) Sends level-appropriate RIP message after 3-8 second delay
 ```
 
 ### **Custom Social Messages**
@@ -762,7 +763,7 @@ Enable detailed logging to troubleshoot detection issues:
 1. Check if addon is enabled: `/gis status`
 2. Verify professions are set: `/gis prof`
 3. Check filter settings: `/gis rarity common` and `/gis quantity 1` (defaults)
-4. Test with: `/gis testmat`
+4. Test with: `/gis smoketest` (comprehensive test suite)
 
 ### **Button Text Cut Off**
 The request button has been widened to accommodate longer text like "Request Material".
@@ -882,7 +883,7 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
   - Fixed retry mechanism for uncached items
   - Improved user experience with verbose feedback
 - **v2.0** - Complete modular refactor with enhanced features:
-  - Modular architecture (7 separate modules)
+  - Modular architecture (9 separate modules)
   - Expanded databases (80+ potions, 50+ bags, 100+ materials)
   - Complete command system (40+ commands)
   - Persistent history tracking

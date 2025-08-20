@@ -62,8 +62,20 @@ function MessageLog.ShowMessageLog(count)
     
     for i, entry in ipairs(messageLog) do
         if i <= displayCount then
-            local sender = entry.sender and string.sub(entry.sender, 1, 15) or "Unknown"
-            local message = entry.message and string.sub(entry.message, 1, 60) or ""
+            local sender = entry.sender and string.sub(entry.sender, 1, 12) or "Unknown"
+            local rawMessage = entry.message or ""
+            
+            -- Convert item links to readable names
+            local displayMessage = rawMessage
+            displayMessage = string.gsub(displayMessage, "|H([^|]*)|h%[([^%]]*)%]|h", "[%2]")
+            displayMessage = string.gsub(displayMessage, "|c[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]", "")
+            displayMessage = string.gsub(displayMessage, "|r", "")
+            
+            -- Truncate message with ellipsis if needed
+            local message = displayMessage
+            if string.len(displayMessage) > 150 then
+                message = string.sub(displayMessage, 1, 150) .. "..."
+            end
             
             -- Format status information
             local statusParts = {}
