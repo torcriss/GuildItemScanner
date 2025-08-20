@@ -8,6 +8,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 - [⚠️ Important Notice](#️-important-notice)
 - [✨ Features](#-features)
+- [🖥️ Graphical User Interface](#️-graphical-user-interface)
 - [🚀 Installation](#-installation)
 - [⚙️ Quick Setup](#️-quick-setup)
 - [📋 Command Reference](#-command-reference)
@@ -85,6 +86,20 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 - **Smart Buttons** - Context-aware "Greed", "Request Recipe", "Request Material", etc.
 - **Sound Notifications** - Customizable audio alerts with fallbacks
 - **Auto-Hide Timers** - Configurable alert duration
+
+## 🖥️ Graphical User Interface
+
+**Prefer visual configuration over slash commands?** Check out the companion UI addon:
+
+**[GuildItemScanner-UI](https://github.com/torcriss/GuildItemScanner-UI)** - Optional graphical configuration interface
+
+- **🎨 Visual Configuration** - Replace slash commands with an intuitive 8-panel interface
+- **📍 Minimap Button** - Quick access to all settings with a single click
+- **⚡ Real-Time Changes** - Live configuration updates without `/reload`
+- **👥 User-Friendly Setup** - Perfect for users who prefer GUI over command-line
+- **🔄 Fully Compatible** - Works seamlessly with the main GuildItemScanner addon
+
+The UI addon provides the same powerful features as the slash commands but in a more accessible, visual format. Install both addons for the best user experience!
 
 ## 🚀 Installation
 
