@@ -1038,7 +1038,7 @@ local function isItemUpgrade(itemLink)
         end
     end
     
-    return isUpgrade, improvement
+    return isUpgrade, improvement, comparisonMode
 end
 
 -- Recipe Detection
@@ -1349,12 +1349,12 @@ processItemLink = function(itemLink, playerName, skipRetry, retryEntry, isWTBReq
             return
         end
         
-        local isUpgrade, improvement = isItemUpgrade(itemLink)
+        local isUpgrade, improvement, comparisonMode = isItemUpgrade(itemLink)
         if isUpgrade and addon.Alerts then
             if addon.Config and addon.Config.Get("debugMode") then
                 print("|cff00ff00[GuildItemScanner Debug]|r Showing equipment alert for: " .. itemName)
             end
-            addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
+            addon.Alerts.ShowEquipmentAlert(itemLink, playerName, improvement, comparisonMode)
             return "equipment"
         elseif addon.Config and addon.Config.Get("debugMode") then
             print(string.format("|cff00ff00[GuildItemScanner Debug]|r |cffff0000FINAL RESULT: Equipment not an upgrade|r - %s", itemName))

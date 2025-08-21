@@ -118,14 +118,27 @@ local function showAlertWithTimer(duration)
 end
 
 -- Equipment alert
-function Alerts.ShowEquipmentAlert(itemLink, playerName, improvement)
+function Alerts.ShowEquipmentAlert(itemLink, playerName, improvement, comparisonMode)
     if not alertFrame then return end
     
     if addon.History then
         addon.History.AddEntry(itemLink, playerName, "Equipment")
     end
     
-    local upgradeText = improvement and string.format("+%d ilvl upgrade: %s", improvement, itemLink) or "Potential upgrade: " .. itemLink
+    local upgradeText
+    if improvement then
+        if comparisonMode == "stats" then
+            upgradeText = string.format("+%d stat points upgrade: %s", improvement, itemLink)
+        elseif comparisonMode == "dps" then
+            upgradeText = string.format("+%.1f DPS upgrade: %s", improvement, itemLink)
+        elseif comparisonMode == "armor" then
+            upgradeText = string.format("+%d armor upgrade: %s", improvement, itemLink)
+        else -- ilvl, both, smart, or any other mode defaults to ilvl
+            upgradeText = string.format("+%d ilvl upgrade: %s", improvement, itemLink)
+        end
+    else
+        upgradeText = "Potential upgrade: " .. itemLink
+    end
     print("|cff00ff00[GuildItemScanner]|r " .. upgradeText)
     
     currentAlert = { 
@@ -347,7 +360,7 @@ function Alerts.TestAlert(alertType)
     local testPlayer = UnitName("player") .. "-" .. GetRealmName()
     
     if alertType == "equipment" then
-        Alerts.ShowEquipmentAlert("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", testPlayer, 15)
+        Alerts.ShowEquipmentAlert("|cff1eff00|Hitem:15275::::::::60:::::::|h[Thaumaturgist Staff]|h|r", testPlayer, 15, "ilvl")
     elseif alertType == "recipe" then
         Alerts.ShowRecipeAlert("|cffffffff|Hitem:13931::::::::60:::::::|h[Recipe: Gooey Spider Cake]|h|r", testPlayer, "Cooking")
     elseif alertType == "material" then
