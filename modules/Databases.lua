@@ -274,6 +274,7 @@ Databases.BAGS = {
     ["Large Red Sack"] = {slots = 10, level = 20, rarity = "common"},
     ["Large Rucksack"] = {slots = 10, level = 22, rarity = "common"},
     ["Deviate Hide Pack"] = {slots = 10, level = 20, rarity = "common"},
+    ["Heavy Brown Bag"] = {slots = 10, level = 20, rarity = "common"},
     
     -- 12-slot bags
     ["Mageweave Bag"] = {slots = 12, level = 35, rarity = "common"},
