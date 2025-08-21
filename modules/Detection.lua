@@ -514,10 +514,16 @@ local function getItemStatScore(itemLink)
     end
     
     if addon.Config and addon.Config.Get("debugMode") then
-        local statCount = 0
-        for _ in pairs(itemStats) do statCount = statCount + 1 end
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Using %s (%d stats found)", 
-            usedTooltipFallback and "tooltip scanning" or "GetItemStats API", statCount))
+        local totalEntries = 0
+        local nonZeroStats = 0
+        for _, value in pairs(itemStats) do 
+            totalEntries = totalEntries + 1
+            if value and value > 0 then
+                nonZeroStats = nonZeroStats + 1
+            end
+        end
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Using %s (%d entries, %d non-zero stats)", 
+            usedTooltipFallback and "tooltip scanning" or "GetItemStats API", totalEntries, nonZeroStats))
     end
     
     local score = 0
@@ -593,6 +599,158 @@ local function getItemStatScore(itemLink)
         print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Total stat score: %d", score))
     end
     
+    -- If we got 0 score and didn't use tooltip fallback, try it now (aggressive fallback)
+    if score == 0 and not usedTooltipFallback then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Score is 0, forcing tooltip fallback")
+        end
+        
+        local tooltipStats = getItemStatsFromTooltip(itemLink)
+        if tooltipStats and next(tooltipStats) then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Recalculating with tooltip stats")
+            end
+            
+            -- Recalculate score with tooltip stats
+            score = 0
+            for i, statName in ipairs(statPriorities) do
+                local weight = math.max(100 - (i - 1) * 25, 1)
+                local statValue = 0
+                
+                local statKey = nil
+                if statName == "strength" then
+                    statKey = "ITEM_MOD_STRENGTH_SHORT"
+                elseif statName == "agility" then
+                    statKey = "ITEM_MOD_AGILITY_SHORT"
+                elseif statName == "stamina" then
+                    statKey = "ITEM_MOD_STAMINA_SHORT"
+                elseif statName == "intellect" then
+                    statKey = "ITEM_MOD_INTELLECT_SHORT"
+                elseif statName == "spirit" then
+                    statKey = "ITEM_MOD_SPIRIT_SHORT"
+                elseif statName == "attackpower" then
+                    statKey = "ITEM_MOD_ATTACK_POWER_SHORT"
+                elseif statName == "spellpower" then
+                    statKey = "ITEM_MOD_SPELL_POWER_SHORT"
+                elseif statName == "healing" then
+                    statKey = "ITEM_MOD_SPELL_HEALING_DONE_SHORT"
+                end
+                
+                if statKey and tooltipStats[statKey] then
+                    statValue = tooltipStats[statKey]
+                end
+                
+                score = score + (statValue * weight)
+                
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM (tooltip): Stat %s (pos %d): %d value × %d weight = %d points", 
+                        statName, i, statValue, weight, statValue * weight))
+                end
+            end
+            
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM (tooltip): Final score: %d", score))
+            end
+        end
+    end
+    
+    return score
+end
+
+-- Internal function for equipped item stat scoring without "NEW ITEM" labels
+local function getEquippedItemStatScoreInternal(itemLink)
+    if not itemLink then return 0 end
+    
+    local statPriorities = addon.Config and addon.Config.GetStatPriorities() or {}
+    if #statPriorities == 0 then return 0 end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Calculating stats for %s", itemLink or "nil"))
+    end
+    
+    local itemStats = GetItemStats(itemLink)
+    local usedTooltipFallback = false
+    
+    -- Check if GetItemStats returned useful data - count non-zero stats
+    local apiStatCount = 0
+    if itemStats then
+        for _, value in pairs(itemStats) do
+            if value and value > 0 then
+                apiStatCount = apiStatCount + 1
+            end
+        end
+    end
+    
+    -- Fallback to tooltip scanning if GetItemStats fails or returns no useful stats
+    if not itemStats or next(itemStats) == nil or apiStatCount == 0 then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: GetItemStats returned %d stats, trying tooltip fallback", apiStatCount))
+        end
+        itemStats = getItemStatsFromTooltip(itemLink)
+        usedTooltipFallback = true
+        
+        if not itemStats or next(itemStats) == nil then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: No stats found via API or tooltip")
+            end
+            return 0
+        end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local totalEntries = 0
+        local nonZeroStats = 0
+        for _, value in pairs(itemStats) do 
+            totalEntries = totalEntries + 1
+            if value and value > 0 then
+                nonZeroStats = nonZeroStats + 1
+            end
+        end
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Using %s (%d entries, %d non-zero stats)", 
+            usedTooltipFallback and "tooltip scanning" or "GetItemStats API", totalEntries, nonZeroStats))
+    end
+    
+    local score = 0
+    for i, statName in ipairs(statPriorities) do
+        local weight = math.max(100 - (i - 1) * 25, 1) -- 100, 75, 50, 25, 1, 1, ...
+        local statValue = 0
+        
+        -- Map stat names to GetItemStats keys
+        local statKey = nil
+        if statName == "strength" then
+            statKey = "ITEM_MOD_STRENGTH_SHORT"
+        elseif statName == "agility" then
+            statKey = "ITEM_MOD_AGILITY_SHORT"
+        elseif statName == "stamina" then
+            statKey = "ITEM_MOD_STAMINA_SHORT"
+        elseif statName == "intellect" then
+            statKey = "ITEM_MOD_INTELLECT_SHORT"
+        elseif statName == "spirit" then
+            statKey = "ITEM_MOD_SPIRIT_SHORT"
+        elseif statName == "attackpower" then
+            statKey = "ITEM_MOD_ATTACK_POWER_SHORT"
+        elseif statName == "spellpower" then
+            statKey = "ITEM_MOD_SPELL_POWER_SHORT"
+        elseif statName == "healing" then
+            statKey = "ITEM_MOD_SPELL_HEALING_DONE_SHORT"
+        end
+        
+        if statKey and itemStats[statKey] then
+            statValue = itemStats[statKey]
+        end
+        
+        score = score + (statValue * weight)
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Stat %s (pos %d): %d value × %d weight = %d points", 
+                statName, i, statValue, weight, statValue * weight))
+        end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Total stat score: %d", score))
+    end
+    
     return score
 end
 
@@ -600,8 +758,8 @@ local function getEquippedItemStatScore(slot)
     local itemLink = GetInventoryItemLink("player", slot)
     if not itemLink then return 0 end
     
-    -- First try the regular stat scoring (which will try GetItemStats then tooltip scanning)
-    local score = getItemStatScore(itemLink)
+    -- Use the equipped-specific function to avoid "NEW ITEM" debug labels
+    local score = getEquippedItemStatScoreInternal(itemLink)
     
     -- If that fails, try the equipped item specific tooltip scanning
     if score == 0 then
