@@ -392,6 +392,70 @@ local function getItemStatsFromTooltip(itemLink)
     return stats
 end
 
+-- Get equipped item stats from tooltip scanning (specific for equipped items)
+local function getEquippedItemStatsFromTooltip(slot)
+    if not slot then return {} end
+    
+    local scanTip = CreateFrame("GameTooltip", "GISEquippedStatScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetInventoryItem("player", slot)  -- Use SetInventoryItem for equipped items
+    
+    local stats = {}
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Scanning equipped item tooltip in slot %d", slot))
+    end
+    
+    -- Scan tooltip lines for stat patterns
+    for i = 2, scanTip:NumLines() do
+        local line = _G[scanTip:GetName() .. "TextLeft" .. i]:GetText()
+        if line then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Tooltip line %d: '%s'", i, line))
+            end
+            
+            -- Look for stat patterns - try both "+3 Intellect" and "3 Intellect" formats
+            local value, statName = line:match("%+?(%d+)%s+([%w%s]+)")
+            if value and statName then
+                value = tonumber(value)
+                -- Normalize stat names to match our mapping
+                local normalizedStat = string.lower(statName:gsub("%s+", ""))
+                
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r Found stat: %d %s (normalized: %s)", value, statName, normalizedStat))
+                end
+                
+                if normalizedStat == "strength" then
+                    stats["ITEM_MOD_STRENGTH_SHORT"] = value
+                elseif normalizedStat == "agility" then
+                    stats["ITEM_MOD_AGILITY_SHORT"] = value
+                elseif normalizedStat == "stamina" then
+                    stats["ITEM_MOD_STAMINA_SHORT"] = value
+                elseif normalizedStat == "intellect" then
+                    stats["ITEM_MOD_INTELLECT_SHORT"] = value
+                elseif normalizedStat == "spirit" then
+                    stats["ITEM_MOD_SPIRIT_SHORT"] = value
+                elseif normalizedStat == "attackpower" then
+                    stats["ITEM_MOD_ATTACK_POWER_SHORT"] = value
+                elseif normalizedStat == "spellpower" then
+                    stats["ITEM_MOD_SPELL_POWER_SHORT"] = value
+                elseif normalizedStat == "healing" then
+                    stats["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] = value
+                end
+            end
+        end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local statCount = 0
+        for _ in pairs(stats) do statCount = statCount + 1 end
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Found %d stats for equipped item in slot %d", statCount, slot))
+    end
+    
+    scanTip:Hide()
+    return stats
+end
+
 -- Stat extraction and scoring functions
 local function getItemStatScore(itemLink)
     if not itemLink then return 0 end
@@ -493,7 +557,65 @@ end
 local function getEquippedItemStatScore(slot)
     local itemLink = GetInventoryItemLink("player", slot)
     if not itemLink then return 0 end
-    return getItemStatScore(itemLink)
+    
+    -- First try the regular stat scoring (which will try GetItemStats then tooltip scanning)
+    local score = getItemStatScore(itemLink)
+    
+    -- If that fails, try the equipped item specific tooltip scanning
+    if score == 0 then
+        local statPriorities = addon.Config and addon.Config.GetStatPriorities() or {}
+        if #statPriorities > 0 then
+            local equippedStats = getEquippedItemStatsFromTooltip(slot)
+            if equippedStats and next(equippedStats) then
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print("|cff00ff00[GuildItemScanner Debug]|r Using equipped item tooltip stats for slot " .. slot)
+                end
+                
+                -- Calculate score using the same logic as getItemStatScore
+                for i, statName in ipairs(statPriorities) do
+                    local weight = math.max(100 - (i - 1) * 25, 1) -- 100, 75, 50, 25, 1, 1, ...
+                    local statValue = 0
+                    
+                    -- Map stat names to GetItemStats keys
+                    local statKey = nil
+                    if statName == "strength" then
+                        statKey = "ITEM_MOD_STRENGTH_SHORT"
+                    elseif statName == "agility" then
+                        statKey = "ITEM_MOD_AGILITY_SHORT"
+                    elseif statName == "stamina" then
+                        statKey = "ITEM_MOD_STAMINA_SHORT"
+                    elseif statName == "intellect" then
+                        statKey = "ITEM_MOD_INTELLECT_SHORT"
+                    elseif statName == "spirit" then
+                        statKey = "ITEM_MOD_SPIRIT_SHORT"
+                    elseif statName == "attackpower" then
+                        statKey = "ITEM_MOD_ATTACK_POWER_SHORT"
+                    elseif statName == "spellpower" then
+                        statKey = "ITEM_MOD_SPELL_POWER_SHORT"
+                    elseif statName == "healing" then
+                        statKey = "ITEM_MOD_SPELL_HEALING_DONE_SHORT"
+                    end
+                    
+                    if statKey and equippedStats[statKey] then
+                        statValue = equippedStats[statKey]
+                    end
+                    
+                    score = score + (statValue * weight)
+                    
+                    if addon.Config and addon.Config.Get("debugMode") then
+                        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Equipped slot %d stat %s (pos %d): %d value × %d weight = %d points", 
+                            slot, statName, i, statValue, weight, statValue * weight))
+                    end
+                end
+                
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r Equipped slot %d total stat score: %d", slot, score))
+                end
+            end
+        end
+    end
+    
+    return score
 end
 
 -- Equipment Detection
