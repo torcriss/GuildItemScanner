@@ -480,19 +480,44 @@ local function getItemStatScore(itemLink)
     local statPriorities = addon.Config and addon.Config.GetStatPriorities() or {}
     if #statPriorities == 0 then return 0 end
     
-    local itemStats = GetItemStats(itemLink)
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Calculating stats for %s", itemLink or "nil"))
+    end
     
-    -- Fallback to tooltip scanning if GetItemStats fails (common with random suffixes)
-    if not itemStats or next(itemStats) == nil then
+    local itemStats = GetItemStats(itemLink)
+    local usedTooltipFallback = false
+    
+    -- Check if GetItemStats returned useful data - count non-zero stats
+    local apiStatCount = 0
+    if itemStats then
+        for _, value in pairs(itemStats) do
+            if value and value > 0 then
+                apiStatCount = apiStatCount + 1
+            end
+        end
+    end
+    
+    -- Fallback to tooltip scanning if GetItemStats fails or returns no useful stats
+    if not itemStats or next(itemStats) == nil or apiStatCount == 0 then
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: GetItemStats returned %d stats, trying tooltip fallback", apiStatCount))
+        end
         itemStats = getItemStatsFromTooltip(itemLink)
+        usedTooltipFallback = true
+        
         if not itemStats or next(itemStats) == nil then
             if addon.Config and addon.Config.Get("debugMode") then
-                print("|cff00ff00[GuildItemScanner Debug]|r No stats found via API or tooltip for: " .. (itemLink or "nil"))
+                print("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: No stats found via API or tooltip")
             end
             return 0
-        elseif addon.Config and addon.Config.Get("debugMode") then
-            print("|cff00ff00[GuildItemScanner Debug]|r Using tooltip stats for: " .. (itemLink or "nil"))
         end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local statCount = 0
+        for _ in pairs(itemStats) do statCount = statCount + 1 end
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Using %s (%d stats found)", 
+            usedTooltipFallback and "tooltip scanning" or "GetItemStats API", statCount))
     end
     
     local score = 0
@@ -559,13 +584,13 @@ local function getItemStatScore(itemLink)
         score = score + (statValue * weight)
         
         if addon.Config and addon.Config.Get("debugMode") then
-            print(string.format("|cff00ff00[GuildItemScanner Debug]|r Stat %s (pos %d): %d value × %d weight = %d points", 
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Stat %s (pos %d): %d value × %d weight = %d points", 
                 statName, i, statValue, weight, statValue * weight))
         end
     end
     
     if addon.Config and addon.Config.Get("debugMode") then
-        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Total stat score: %d", score))
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r NEW ITEM: Total stat score: %d", score))
     end
     
     return score
@@ -585,7 +610,7 @@ local function getEquippedItemStatScore(slot)
             local equippedStats = getEquippedItemStatsFromTooltip(slot)
             if equippedStats and next(equippedStats) then
                 if addon.Config and addon.Config.Get("debugMode") then
-                    print("|cff00ff00[GuildItemScanner Debug]|r Using equipped item tooltip stats for slot " .. slot)
+                    print("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Using tooltip stats for slot " .. slot)
                 end
                 
                 -- Calculate score using the same logic as getItemStatScore
@@ -620,13 +645,13 @@ local function getEquippedItemStatScore(slot)
                     score = score + (statValue * weight)
                     
                     if addon.Config and addon.Config.Get("debugMode") then
-                        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Equipped slot %d stat %s (pos %d): %d value × %d weight = %d points", 
-                            slot, statName, i, statValue, weight, statValue * weight))
+                        print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Stat %s (pos %d): %d value × %d weight = %d points", 
+                            statName, i, statValue, weight, statValue * weight))
                     end
                 end
                 
                 if addon.Config and addon.Config.Get("debugMode") then
-                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r Equipped slot %d total stat score: %d", slot, score))
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM: Total stat score for slot %d: %d", slot, score))
                 end
             end
         end
@@ -1385,12 +1410,22 @@ function Detection.CompareItemWithEquipped(itemLink)
     elseif comparisonMode == "stats" then
         -- Stats comparison
         print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by stats):")
+        
+        if addon.Config and addon.Config.Get("debugMode") then
+            print(string.format("|cff00ff00[GuildItemScanner Debug]|r COMPARE: NEW ITEM %s vs EQUIPPED items", itemLink or "nil"))
+        end
+        
         local itemStatScore = getItemStatScore(itemLink)
         local lowestEquippedStatScore = 999999
         local lowestEquippedLink = nil
         
         for i, slotId in ipairs(slotsToCheck) do
             local equippedLink = GetInventoryItemLink("player", slotId)
+            
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r EQUIPPED ITEM in slot %d: %s", slotId, equippedLink or "empty"))
+            end
+            
             local equippedStatScore = getEquippedItemStatScore(slotId)
             
             local slotName = ""
