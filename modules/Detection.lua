@@ -356,16 +356,27 @@ local function getItemStatsFromTooltip(itemLink)
     
     local stats = {}
     
+    if addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Scanning regular item tooltip: %s", itemLink or "nil"))
+    end
+    
     -- Scan tooltip lines for stat patterns
     for i = 2, scanTip:NumLines() do
         local line = _G[scanTip:GetName() .. "TextLeft" .. i]:GetText()
         if line then
-            -- Look for stat patterns like "+3 Intellect", "+4 Spirit", etc.
-            local value, statName = line:match("%+(%d+)%s+([%w%s]+)")
+            if addon.Config and addon.Config.Get("debugMode") then
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Tooltip line %d: '%s'", i, line))
+            end
+            -- Look for stat patterns like "+3 Intellect", "4 Spirit", etc. (+ is optional)
+            local value, statName = line:match("%+?(%d+)%s+([%w%s]+)")
             if value and statName then
                 value = tonumber(value)
                 -- Normalize stat names to match our mapping
                 local normalizedStat = string.lower(statName:gsub("%s+", ""))
+                
+                if addon.Config and addon.Config.Get("debugMode") then
+                    print(string.format("|cff00ff00[GuildItemScanner Debug]|r Found stat: %d %s (normalized: %s)", value, statName, normalizedStat))
+                end
                 
                 if normalizedStat == "strength" then
                     stats["ITEM_MOD_STRENGTH_SHORT"] = value
@@ -386,6 +397,12 @@ local function getItemStatsFromTooltip(itemLink)
                 end
             end
         end
+    end
+    
+    if addon.Config and addon.Config.Get("debugMode") then
+        local statCount = 0
+        for _ in pairs(stats) do statCount = statCount + 1 end
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Found %d stats for regular item", statCount))
     end
     
     scanTip:Hide()
