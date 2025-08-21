@@ -346,6 +346,52 @@ local function getArmorValue(itemLink)
     return armor
 end
 
+-- Get item stats from tooltip scanning (fallback for GetItemStats API limitations)
+local function getItemStatsFromTooltip(itemLink)
+    if not itemLink then return {} end
+    
+    local scanTip = CreateFrame("GameTooltip", "GISStatScanTooltip", nil, "GameTooltipTemplate")
+    scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTip:SetHyperlink(itemLink)
+    
+    local stats = {}
+    
+    -- Scan tooltip lines for stat patterns
+    for i = 2, scanTip:NumLines() do
+        local line = _G[scanTip:GetName() .. "TextLeft" .. i]:GetText()
+        if line then
+            -- Look for stat patterns like "+3 Intellect", "+4 Spirit", etc.
+            local value, statName = line:match("%+(%d+)%s+([%w%s]+)")
+            if value and statName then
+                value = tonumber(value)
+                -- Normalize stat names to match our mapping
+                local normalizedStat = string.lower(statName:gsub("%s+", ""))
+                
+                if normalizedStat == "strength" then
+                    stats["ITEM_MOD_STRENGTH_SHORT"] = value
+                elseif normalizedStat == "agility" then
+                    stats["ITEM_MOD_AGILITY_SHORT"] = value
+                elseif normalizedStat == "stamina" then
+                    stats["ITEM_MOD_STAMINA_SHORT"] = value
+                elseif normalizedStat == "intellect" then
+                    stats["ITEM_MOD_INTELLECT_SHORT"] = value
+                elseif normalizedStat == "spirit" then
+                    stats["ITEM_MOD_SPIRIT_SHORT"] = value
+                elseif normalizedStat == "attackpower" then
+                    stats["ITEM_MOD_ATTACK_POWER_SHORT"] = value
+                elseif normalizedStat == "spellpower" then
+                    stats["ITEM_MOD_SPELL_POWER_SHORT"] = value
+                elseif normalizedStat == "healing" then
+                    stats["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] = value
+                end
+            end
+        end
+    end
+    
+    scanTip:Hide()
+    return stats
+end
+
 -- Stat extraction and scoring functions
 local function getItemStatScore(itemLink)
     if not itemLink then return 0 end
@@ -354,7 +400,19 @@ local function getItemStatScore(itemLink)
     if #statPriorities == 0 then return 0 end
     
     local itemStats = GetItemStats(itemLink)
-    if not itemStats then return 0 end
+    
+    -- Fallback to tooltip scanning if GetItemStats fails (common with random suffixes)
+    if not itemStats or next(itemStats) == nil then
+        itemStats = getItemStatsFromTooltip(itemLink)
+        if not itemStats or next(itemStats) == nil then
+            if addon.Config and addon.Config.Get("debugMode") then
+                print("|cff00ff00[GuildItemScanner Debug]|r No stats found via API or tooltip for: " .. (itemLink or "nil"))
+            end
+            return 0
+        elseif addon.Config and addon.Config.Get("debugMode") then
+            print("|cff00ff00[GuildItemScanner Debug]|r Using tooltip stats for: " .. (itemLink or "nil"))
+        end
+    end
     
     local score = 0
     for i, statName in ipairs(statPriorities) do
@@ -1138,46 +1196,138 @@ function Detection.CompareItemWithEquipped(itemLink)
     
     print(string.format("|cff00ff00[GuildItemScanner]|r Equipment slot: %s", slot))
     
-    -- Item level comparison
-    print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by item level):")
-    local lowestEquippedLevel = 999
-    local lowestEquippedLink = nil
+    -- Get comparison mode
+    local comparisonMode = addon.Config and addon.Config.GetStatComparisonMode() or "ilvl"
     
-    for i, slotId in ipairs(slotsToCheck) do
-        local equippedLink = GetInventoryItemLink("player", slotId)
-        local equippedLevel = getEquippedItemLevel(slotId)
+    -- Perform comparison based on mode
+    if comparisonMode == "ilvl" then
+        -- Item level comparison
+        print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by item level):")
+        local lowestEquippedLevel = 999
+        local lowestEquippedLink = nil
         
-        local slotName = ""
-        if #slotsToCheck > 1 then
-            slotName = string.format(" (slot %d)", i)
+        for i, slotId in ipairs(slotsToCheck) do
+            local equippedLink = GetInventoryItemLink("player", slotId)
+            local equippedLevel = getEquippedItemLevel(slotId)
+            
+            local slotName = ""
+            if #slotsToCheck > 1 then
+                slotName = string.format(" (slot %d)", i)
+            end
+            
+            if equippedLink then
+                if itemLevel > equippedLevel then
+                    print(string.format("  %s%s: |cffa335ee+%d ilvl upgrade|r (ilvl %d)", 
+                        equippedLink, slotName, itemLevel - equippedLevel, equippedLevel))
+                else
+                    print(string.format("  %s%s: |cffff0000-%d ilvl downgrade|r (ilvl %d)", 
+                        equippedLink, slotName, equippedLevel - itemLevel, equippedLevel))
+                end
+            else
+                print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
+                equippedLevel = 0
+            end
+            
+            if equippedLevel < lowestEquippedLevel then
+                lowestEquippedLevel = equippedLevel
+                lowestEquippedLink = equippedLink or "empty slot"
+            end
         end
         
-        if equippedLink then
-            if itemLevel > equippedLevel then
-                print(string.format("  %s%s: |cffa335ee+%d ilvl upgrade|r (ilvl %d)", 
-                    equippedLink, slotName, itemLevel - equippedLevel, equippedLevel))
+        -- Summary
+        if itemLevel > lowestEquippedLevel then
+            print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d item levels|r", 
+                itemLevel - lowestEquippedLevel))
+        else
+            print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%d item levels)|r", 
+                itemLevel - lowestEquippedLevel))
+        end
+        
+    elseif comparisonMode == "stats" then
+        -- Stats comparison
+        print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by stats):")
+        local itemStatScore = getItemStatScore(itemLink)
+        local lowestEquippedStatScore = 999999
+        local lowestEquippedLink = nil
+        
+        for i, slotId in ipairs(slotsToCheck) do
+            local equippedLink = GetInventoryItemLink("player", slotId)
+            local equippedStatScore = getEquippedItemStatScore(slotId)
+            
+            local slotName = ""
+            if #slotsToCheck > 1 then
+                slotName = string.format(" (slot %d)", i)
+            end
+            
+            if equippedLink then
+                if itemStatScore > equippedStatScore then
+                    print(string.format("  %s%s: |cffa335ee+%d stat points upgrade|r (%d points)", 
+                        equippedLink, slotName, itemStatScore - equippedStatScore, equippedStatScore))
+                else
+                    print(string.format("  %s%s: |cffff0000-%d stat points downgrade|r (%d points)", 
+                        equippedLink, slotName, equippedStatScore - itemStatScore, equippedStatScore))
+                end
             else
-                print(string.format("  %s%s: |cffff0000-%d ilvl downgrade|r (ilvl %d)", 
-                    equippedLink, slotName, equippedLevel - itemLevel, equippedLevel))
+                print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r (%d stat points)", i, itemStatScore))
+                equippedStatScore = 0
+            end
+            
+            if equippedStatScore < lowestEquippedStatScore then
+                lowestEquippedStatScore = equippedStatScore
+                lowestEquippedLink = equippedLink or "empty slot"
+            end
+        end
+        
+        -- Summary
+        if itemStatScore > lowestEquippedStatScore then
+            print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d stat points|r", 
+                itemStatScore - lowestEquippedStatScore))
+        else
+            print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%d stat points)|r", 
+                itemStatScore - lowestEquippedStatScore))
+        end
+        
+    else
+        -- Use the existing upgrade detection logic for other modes (both, dps, armor, smart)
+        local isUpgrade, improvement = isItemUpgrade(itemLink)
+        
+        if comparisonMode == "both" then
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by item level AND stats):")
+        elseif comparisonMode == "dps" then
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by DPS):")
+        elseif comparisonMode == "armor" then
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison (by armor):")
+        elseif comparisonMode == "smart" then
+            print("|cff00ff00[GuildItemScanner]|r Equipped comparison (smart mode):")
+        end
+        
+        for i, slotId in ipairs(slotsToCheck) do
+            local equippedLink = GetInventoryItemLink("player", slotId)
+            
+            local slotName = ""
+            if #slotsToCheck > 1 then
+                slotName = string.format(" (slot %d)", i)
+            end
+            
+            if equippedLink then
+                print(string.format("  %s%s: See detailed analysis above", equippedLink, slotName))
+            else
+                print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
+            end
+        end
+        
+        -- Summary
+        if isUpgrade then
+            if comparisonMode == "dps" then
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%.1f DPS|r", improvement))
+            elseif comparisonMode == "armor" then
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d armor|r", improvement))
+            else
+                print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d improvement|r", improvement))
             end
         else
-            print(string.format("  Slot %d: |cff808080Empty|r - |cffa335eeDefinite upgrade!|r", i))
-            equippedLevel = 0
+            print("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade|r")
         end
-        
-        if equippedLevel < lowestEquippedLevel then
-            lowestEquippedLevel = equippedLevel
-            lowestEquippedLink = equippedLink or "empty slot"
-        end
-    end
-    
-    -- Summary
-    if itemLevel > lowestEquippedLevel then
-        print(string.format("|cff00ff00[GuildItemScanner]|r |cffa335eeSummary: UPGRADE! +%d item levels|r", 
-            itemLevel - lowestEquippedLevel))
-    else
-        print(string.format("|cff00ff00[GuildItemScanner]|r |cffff0000Summary: Not an upgrade (%d item levels)|r", 
-            itemLevel - lowestEquippedLevel))
     end
 end
 
