@@ -224,23 +224,31 @@ local function canPlayerUseItem(itemLink)
             qualityName, itemSubType or "Unknown", slotName, class))
     end
     
-    local isArmor = itemEquipLoc and (
+    -- Check for armor pieces that have class restrictions (excludes universal items)
+    local isRestrictedArmor = itemEquipLoc and (
         itemEquipLoc == "INVTYPE_HEAD" or itemEquipLoc == "INVTYPE_SHOULDER" or
         itemEquipLoc == "INVTYPE_CHEST" or itemEquipLoc == "INVTYPE_ROBE" or
         itemEquipLoc == "INVTYPE_WAIST" or itemEquipLoc == "INVTYPE_LEGS" or 
         itemEquipLoc == "INVTYPE_FEET" or itemEquipLoc == "INVTYPE_WRIST" or 
         itemEquipLoc == "INVTYPE_HAND" or itemEquipLoc == "INVTYPE_CLOAK" or 
-        itemEquipLoc == "INVTYPE_NECK" or itemEquipLoc == "INVTYPE_FINGER" or
-        itemEquipLoc == "INVTYPE_TRINKET" or itemEquipLoc == "INVTYPE_HOLDABLE"
+        itemEquipLoc == "INVTYPE_HOLDABLE"
     )
     
-    if isArmor and itemSubType then
+    -- Universal items (rings, necks, trinkets) don't have class restrictions
+    local isUniversalItem = itemEquipLoc and (
+        itemEquipLoc == "INVTYPE_NECK" or itemEquipLoc == "INVTYPE_FINGER" or
+        itemEquipLoc == "INVTYPE_TRINKET"
+    )
+    
+    if isRestrictedArmor and itemSubType then
         if addon.Databases and not addon.Databases.CanClassUseArmor(class, itemSubType) then
             if addon.Config and addon.Config.Get("debugMode") then
                 print(string.format("|cff00ff00[GuildItemScanner Debug]|r Cannot use: %s armor", itemSubType))
             end
             return false
         end
+    elseif isUniversalItem and addon.Config and addon.Config.Get("debugMode") then
+        print(string.format("|cff00ff00[GuildItemScanner Debug]|r Universal item usable by all classes: %s", itemEquipLoc))
     end
     
     local isWeapon = itemEquipLoc and (
