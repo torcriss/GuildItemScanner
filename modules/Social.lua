@@ -182,8 +182,11 @@ end
 
 -- Send automatic congratulations
 function Social.SendAutoGZ(playerName, achievementName)
-    -- Use configurable chance
-    local gzChance = (addon.Config and addon.Config.GetGzChance() or 50) / 100
+    -- Check if this is a level achievement - always congratulate for those
+    local isLevelAchievement = achievementName and string.find(achievementName, "Reach Level")
+    
+    -- Use 100% chance for level achievements, configurable chance for others
+    local gzChance = isLevelAchievement and 1.0 or (addon.Config and addon.Config.GetGzChance() or 50) / 100
     local shouldCongratulate = math.random() <= gzChance
     
     if shouldCongratulate then
@@ -200,8 +203,9 @@ function Social.SendAutoGZ(playerName, achievementName)
             Social.AddSocialHistory("GZ", playerName, gzMessage, {achievement = achievementName or "Unknown Achievement"})
             
             if addon.Config and addon.Config.Get("debugMode") then
-                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay, message: %s)", 
-                    playerName or "unknown", delay, gzMessage))
+                local chanceInfo = isLevelAchievement and "100% (level achievement)" or string.format("%d%% chance", addon.Config and addon.Config.GetGzChance() or 50)
+                print(string.format("|cff00ff00[GuildItemScanner Debug]|r Auto-congratulated %s for their achievement! (%.1fs delay, %s, message: %s)", 
+                    playerName or "unknown", delay, chanceInfo, gzMessage))
             else
                 print(string.format("|cff00ff00[GuildItemScanner]|r Auto-congratulated %s for their achievement! (%.1fs delay)", 
                     playerName or "unknown", delay))
