@@ -58,6 +58,7 @@ GuildItemScanner automatically scans guild chat for equipment upgrades, professi
 
 ### 🤖 **Social Automation**
 - **Auto-Congratulations** - Random GZ messages for achievements (30% chance, 2-6s delay)
+- **Level Achievement Priority** - Level milestones ("Reach Level X") always trigger congratulations (100% chance)
 - **Auto-Condolences** - Level-based RIP messages for deaths (30% chance, 3-8s delay)  
 - **Complete History Tracking** - Records ALL Frontier events (sent + skipped) with actual achievement names
 - **Roll Transparency** - Shows skip reasons with chance percentages for complete visibility
@@ -790,6 +791,12 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.13.0** - Level Achievement Auto-GZ Priority:
+  - **Always Auto-GZ for Level Achievements** - Level milestones ("Reach Level X") now always trigger congratulations at 100% chance
+  - **Smart Achievement Detection** - Automatically detects level achievements and overrides configured chance percentage
+  - **Enhanced Debug Output** - Shows when level achievements receive special 100% handling vs normal chance percentage
+  - **Backward Compatible** - Other achievements continue using configured chance percentage (default 30%)
+  - **Celebration Priority** - Ensures important leveling milestones are never missed due to chance rolls
 - **v2.12.7** - Message Log Display Improvements:
   - **Enhanced Readability** - Increased message display length from 60 to 150 characters to prevent item link truncation
   - **Item Link Conversion** - Raw `|Hitem:...` codes now display as readable `[Item Name]` format in logs
