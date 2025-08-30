@@ -9,7 +9,7 @@ addon = addon or {}
 -- No need to import here since modules will set addon.ModuleName directly
 
 -- Version info
-addon.version = "2.13.0"
+addon.version = "2.13.1"
 addon.build = "Enhanced"
 
 -- Core initialization

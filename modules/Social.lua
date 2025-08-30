@@ -213,9 +213,12 @@ function Social.SendAutoGZ(playerName, achievementName)
         end)
     else
         local chance = addon.Config and addon.Config.GetGzChance() or 50
-        print(string.format("|cff00ff00[GuildItemScanner]|r Skipped GZ for %s (%d%% chance roll failed)", playerName or "unknown", chance))
+        -- Only print skip message if chance is greater than 0
+        if chance > 0 then
+            print(string.format("|cff00ff00[GuildItemScanner]|r Skipped GZ for %s (%d%% chance roll failed)", playerName or "unknown", chance))
+        end
         
-        -- Track skipped event in social history
+        -- Track skipped event in social history (always, even when silent)
         Social.AddSocialHistory("GZ", playerName, "[Skipped - Roll Failed]", {achievement = achievementName or "Unknown Achievement", skipped = true, chance = chance})
     end
 end
