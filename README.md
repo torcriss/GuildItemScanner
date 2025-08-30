@@ -791,6 +791,11 @@ Found a bug or want to suggest a feature? The addon is actively maintained and w
 
 ## 📜 Version History
 
+- **v2.13.1** - Silent Auto-GZ Enhancement:
+  - **Silent Mode** - Auto-GZ messages are now completely silent when chance is set to 0%
+  - No more spam when disabling auto-GZ, skip messages only appear when there was an actual chance that failed
+  - Social history tracking still occurs internally, maintains all functionality while keeping chat clean
+
 - **v2.13.0** - Level Achievement Auto-GZ Priority:
   - **Always Auto-GZ for Level Achievements** - Level milestones ("Reach Level X") now always trigger congratulations at 100% chance
   - **Smart Achievement Detection** - Automatically detects level achievements and overrides configured chance percentage
